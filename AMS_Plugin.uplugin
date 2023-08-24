@@ -1,0 +1,30 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "AMS_Plugin",
+	"Description": "Advanced Missions System, this system is made for AIS in house projects , plan to distrebute after doshka publishing",
+	"Category": "ADU",
+	"CreatedBy": "Nightfall16",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "AMS_Plugin",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+
+       {
+            "Name": "AMS_PluginEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+       }
+	]
+}
