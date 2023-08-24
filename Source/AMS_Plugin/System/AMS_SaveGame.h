@@ -22,10 +22,13 @@ class AMS_PLUGIN_API UAMS_SaveGame : public USaveGame
 public:
 
 	//record list for finished missions
+	UPROPERTY(EditAnywhere, Category = "AMS")
 	TArray<FRecordEntry> SG_FinishedMissions;
 
+	
 	//used to save the not finished missions so it resembles a checkpoints 
 	//next time when loading we activate those missions from this record list
+	UPROPERTY(EditAnywhere, Category = "AMS")
 	TArray<FRecordEntry> SG_ActiveMissionsWhenSaved;
 
 };

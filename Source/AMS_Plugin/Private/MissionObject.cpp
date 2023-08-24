@@ -50,6 +50,16 @@ UWorld* UMissionObject::GetWorld() const
 	return nullptr;
 }
 
+void UMissionObject::CompleteSaving(UPARAM(ref)UAMS_SaveGame* saveGameObject)
+{
+	if (MissionSubSystemInstance)
+	{
+		//direct saving no hijacking , the user can override the implenetation for the save started and finish
+		//the saving by calling this function manually so it saves the custom data too
+		MissionSubSystemInstance->Internal_CompleteSave(saveGameObject);
+	}
+}
+
 void UMissionObject::InitializeMission()
 {
 	TMap<TSubclassOf<UActionObject>, int32> InstancesMap;
@@ -63,6 +73,7 @@ void UMissionObject::InitializeMission()
 		{
 			InstancesMap[itr]+= ActionCDO->LocalActionCount;
 		}
+
 		else
 		{
 			InstancesMap.Add(itr, ActionCDO->LocalActionCount);
@@ -82,10 +93,12 @@ void UMissionObject::InitializeMission()
 
 	CurrentState = EFinishState::inProgress;
 	OnMissionBegin();
+	LOG_AMS("Mission is initilized", 10.0f, FColor::Green);
 }
 
 void UMissionObject::EndMission(EFinishState finishState, FFailInfo FailInfo)
 {
+	CurrentState = finishState;
 	UAMS_SubSystem::GetMissionSubSystem()->RecordMissionFinished(this);
 	OmMissionEnd(finishState, FailInfo);
 }
@@ -140,3 +153,23 @@ void UMissionObject::PostEditChangeProperty(struct FPropertyChangedEvent& change
 	}	
 }
 
+void UMissionObject::SaveGame()
+{
+	if (MissionSubSystemInstance)
+	{
+		MissionSubSystemInstance->Internal_MissionSave();
+	}
+}
+
+void UMissionObject::OnGameSaveStarted_Implementation(UAMS_SaveGame* SaveGameObject)
+{
+	if (SaveGameObject)
+	{
+		LOG_AMS("Save Object Is Valid", 10.0f, FColor::Magenta);
+		CompleteSaving(SaveGameObject);
+	}
+	else
+	{
+		LOG_AMS("Save Object Is Not Valid", 10.0f, FColor::Red);
+	}
+}

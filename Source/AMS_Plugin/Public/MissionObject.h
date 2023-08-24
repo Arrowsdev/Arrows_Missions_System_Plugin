@@ -70,6 +70,19 @@ public:
 		void OnTaskFinished();
 	virtual void OnTaskFinished_Implementation() {/*No Implement*/ }
 
+	/*called when the subsystem tries to save the game data so if you want to save custom data you can do it here
+	* be careful when using if you have many active missions , if that is the case then use the subsystem delegate and subscirbe
+	* to it in the player character and hook your custom data from there or even inside some of the missions to avoid '
+	* overheads
+	*/
+	UFUNCTION(BlueprintNativeEvent, Category = MissionEvents)
+		void OnGameSaveStarted(UAMS_SaveGame* SaveGameObject);
+	virtual void OnGameSaveStarted_Implementation(UAMS_SaveGame* SaveGameObject);/*Implemented*/
+
+	UFUNCTION(BlueprintNativeEvent, Category = MissionEvents)
+		void OnGameLoaded(UAMS_SaveGame* SaveGameObject);
+	virtual void OnGameLoaded_Implementation(UAMS_SaveGame* SaveGameObject) {/*No Implement*/ }
+
 	//Mission Configuration
 	UPROPERTY(EditAnywhere, Category = Settings)
 		FMissionDetails MissionDetails;
@@ -149,6 +162,10 @@ public:
 		MissionDetails.bIsCountDown = countDown;
 	}
 
+	//used to hook your custom save data to the default save process by hijaking the save event returned save object
+	//and after setting the values you call this function to complete the saving
+	UFUNCTION(BlueprintCallable, Category = "Mission System")
+		void CompleteSaving(UPARAM(ref)UAMS_SaveGame* saveGameObject);
 
 // NO EXPOSE:
 // 
@@ -156,6 +173,7 @@ public:
 	float TimeCounter;
 	int32 RequiredObjectivesCount;
 	int32 BlackListedObjectivesCount;
+	bool bCanMissionTick;
 
 	EFinishState CurrentState;
 
@@ -174,5 +192,5 @@ public:
 	//use it to restart the mission from the juernal records
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
 
-	
+	void SaveGame();
 };

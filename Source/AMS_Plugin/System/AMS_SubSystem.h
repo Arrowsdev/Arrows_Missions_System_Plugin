@@ -5,8 +5,10 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "AMS_Types.h"
+#include "Delegates/Delegate.h"
 #include "AMS_SubSystem.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMissionSystemSave, UAMS_SaveGame*, SaveGameObject);
 /**
  * 
  */
@@ -16,7 +18,8 @@ class UAMS_SaveGame;
 
 static UAMS_SubSystem* MissionSubSystemInstance;
 
-
+#define SAVE_PROCESS true
+#define LOAD_PROCESS false
 
 UCLASS(config = AMSSettings)
 class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
@@ -60,9 +63,11 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 	UAMS_SaveGame* CreateMissionSaveObject();
 
-	/*this function loads specific player profile data*/
+	/*this function loads specific player profile data, returns a reference to the loaded object
+	* so you can load the custom data you have saved
+	*/
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
-		void LoadGame(bool& found, FName playerProfile);
+		UAMS_SaveGame* LoadGame(FName playerProfile, bool& found);
 
 	//get the records for the finished missions , should move this logics for the juernal later when i finish implementing its logics
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
@@ -78,13 +83,32 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		return JuernalSingelton;
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
+		FORCEINLINE	int32 GetActiveMissionsCount(FName& UsedProfile)
+	{
+		UsedProfile = ActiveSaveProfileName;
+		return ActiveMissions.Num();
+	}
+
+	
+
 public:
 	
+	/*use this delegate to hook custom data save, subscribe to it where your save logic is*/
+	UPROPERTY(BlueprintAssignable, Category = "AMS Delegates")
+		FOnMissionSystemSave OnMissoinSystemSave;
 
 	//used to record the finished missions details for the juernal and any other use 
 	void RecordMissionFinished(UMissionObject* Mission);
 
 	void Internal_MissionSave();
+	
+	//used to tell all active mission about the current save process, the save bool is to tell the function if it should 
+	//broadcast the save or the load process
+	void BroadcastSubsystemSave(UAMS_SaveGame* saveGameObject, bool bIsSave);
+
+	//called from outside , every mission when needs to complete any saving they call this function
+	void Internal_CompleteSave(UAMS_SaveGame* saveGameObject);
 
 	//unexposed overload for the start mission used for auto go to next mission by the system while the other one is used for in bp open mission
 	void StartMission(TSubclassOf<UMissionObject> newMission);
