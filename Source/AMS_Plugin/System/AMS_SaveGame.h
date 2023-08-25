@@ -13,7 +13,7 @@
  * and not the kismet version of those functions , because the subsystem saves missions progression under the hood and we dont want 
  * to override it's behaviours 
  */
-UCLASS(Blueprintable, BlueprintType)
+UCLASS(Blueprintable, BlueprintType, HideDropDown)
 class AMS_PLUGIN_API UAMS_SaveGame : public USaveGame
 {
 	GENERATED_BODY()

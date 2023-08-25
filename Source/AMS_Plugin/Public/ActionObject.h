@@ -21,7 +21,7 @@ enum class EActionType : uint8
 /*
 * This class is responsable for holding the logics per action and also being the atom for the missions objectives progress counting
 */
-UCLASS(Blueprintable, BlueprintType)
+UCLASS(Blueprintable, BlueprintType, HideDropDown)
 class AMS_PLUGIN_API UActionObject : public UObject
 {
 	GENERATED_BODY()

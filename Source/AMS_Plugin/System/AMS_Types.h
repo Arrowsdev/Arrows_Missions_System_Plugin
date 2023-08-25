@@ -14,6 +14,8 @@
           *FString(__func__),__LINE__, *FString(string)),__VA_ARGS__);
 
  
+#define INIT_START true
+#define INIT_LOAD false
 
 class UActionObject;
 class UMissionObject;
@@ -90,6 +92,9 @@ struct FObjective
 
 	UPROPERTY(BlueprintReadWrite, Category = "Objective")
 	UActionObject* ActivatedAction;
+
+	//to prevent temp values form being optimized away by the garbage collector while saving game
+	UPROPERTY()
 	TSubclassOf<UActionObject> ActionClass;
 
 	UPROPERTY(BlueprintReadWrite, Category="Objective")
@@ -110,6 +115,7 @@ struct FObjective
 		bIsFinished = false;
 		ActionCount = 0;
 	}
+
 
 	bool Preform()// true means finished false means not finished or not required to finish
 	{
@@ -273,7 +279,13 @@ USTRUCT(BlueprintType)
 struct FRecordEntry
 {
 	GENERATED_BODY()
-		FRecordEntry() {};
+
+	FRecordEntry() {};
+
+	FRecordEntry(const FRecordEntry& otherRecord):
+		MissionClass(otherRecord.MissionClass), MissionDetails(otherRecord.MissionDetails)
+	{
+	}
 
 	UPROPERTY(BlueprintReadWrite, Category = "Mission Records", meta = (DisplayName = "Finished Mission"))
 		TSubclassOf<UMissionObject> MissionClass;

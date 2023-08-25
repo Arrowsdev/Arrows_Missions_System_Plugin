@@ -11,7 +11,7 @@
  * this class holds the history of missions and the progression
  * should hook any new logics about that in this class, like full game progression percentage and other stuff
  */
-UCLASS(Blueprintable, BlueprintType)
+UCLASS(Blueprintable, BlueprintType, HideDropDown)
 class AMS_PLUGIN_API UAMS_JuernalObject : public UObject
 {
 	GENERATED_BODY()

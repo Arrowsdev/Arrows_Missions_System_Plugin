@@ -17,7 +17,7 @@
  */
 class AMS_SubSystem;
 
-UCLASS(Blueprintable, BlueprintType)
+UCLASS(Blueprintable, BlueprintType, HideDropDown)
 class AMS_PLUGIN_API UMissionObject : public UObject , public FTickableGameObject
 {
 	GENERATED_BODY()
@@ -69,19 +69,6 @@ public:
 	UFUNCTION(BlueprintNativeEvent, Category = MissionEvents)
 		void OnTaskFinished();
 	virtual void OnTaskFinished_Implementation() {/*No Implement*/ }
-
-	/*called when the subsystem tries to save the game data so if you want to save custom data you can do it here
-	* be careful when using if you have many active missions , if that is the case then use the subsystem delegate and subscirbe
-	* to it in the player character and hook your custom data from there or even inside some of the missions to avoid '
-	* overheads
-	*/
-	UFUNCTION(BlueprintNativeEvent, Category = MissionEvents)
-		void OnGameSaveStarted(UAMS_SaveGame* SaveGameObject);
-	virtual void OnGameSaveStarted_Implementation(UAMS_SaveGame* SaveGameObject);/*Implemented*/
-
-	UFUNCTION(BlueprintNativeEvent, Category = MissionEvents)
-		void OnGameLoaded(UAMS_SaveGame* SaveGameObject);
-	virtual void OnGameLoaded_Implementation(UAMS_SaveGame* SaveGameObject) {/*No Implement*/ }
 
 	//Mission Configuration
 	UPROPERTY(EditAnywhere, Category = Settings)
@@ -162,10 +149,6 @@ public:
 		MissionDetails.bIsCountDown = countDown;
 	}
 
-	//used to hook your custom save data to the default save process by hijaking the save event returned save object
-	//and after setting the values you call this function to complete the saving
-	UFUNCTION(BlueprintCallable, Category = "Mission System")
-		void CompleteSaving(UPARAM(ref)UAMS_SaveGame* saveGameObject);
 
 // NO EXPOSE:
 // 
@@ -180,7 +163,7 @@ public:
 	//Core Functions
 	// 
 	//initilize objectives and calls mission begin
-	void InitializeMission();
+	void InitializeMission(bool bStart);
 	void EndMission(EFinishState finishState, FFailInfo FailInfo);
 	void CountTime(float deltaTime);
 

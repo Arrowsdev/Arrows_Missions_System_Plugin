@@ -5,29 +5,26 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "AMS_Types.h"
-#include "Delegates/Delegate.h"
+#include "AMS_LOG.h"
 #include "AMS_SubSystem.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMissionSystemSave, UAMS_SaveGame*, SaveGameObject);
 /**
  * 
  */
 class UAMS_JuernalObject;
 class UAMS_SaveGame;
-
+class UAMS_DataCenter;
 
 static UAMS_SubSystem* MissionSubSystemInstance;
 
-#define SAVE_PROCESS true
-#define LOAD_PROCESS false
-
-UCLASS(config = AMSSettings)
+UCLASS(config=Engine , defaultconfig)
 class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 
 	UAMS_SubSystem();
 
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 //PROJECT SETTINGS
 
@@ -47,6 +44,10 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	//depending on your game needs
 	UPROPERTY(config,EditAnywhere, Category = "Save Settings", meta=(EditCondition="SaveType != ESaveMissionType::none"))
 		TSubclassOf<UAMS_SaveGame> SaveGameClass;
+
+	//data center class that you used to make your save game logics , there you hook the custom data with the saved mission data
+	UPROPERTY(config, EditAnywhere, Category = "Save Settings", meta = (EditCondition = "SaveType != ESaveMissionType::none"))
+		TSubclassOf<UAMS_DataCenter> DataCenterClass;
 
 // END OF PROJECT SETTINGS
 
@@ -83,29 +84,30 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		return JuernalSingelton;
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
+	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System | Debugging")
 		FORCEINLINE	int32 GetActiveMissionsCount(FName& UsedProfile)
 	{
 		UsedProfile = ActiveSaveProfileName;
 		return ActiveMissions.Num();
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System | Debugging")
+		FORCEINLINE void LOGME()
+	{
+		//GetLogger()->LogSubsystem(this, 0.0f);
+		FString Mes = JuernalClass ? "Valid " : "Not Valid";
+		LOG_AMS(Mes);
+	}
 	
 
 public:
 	
-	/*use this delegate to hook custom data save, subscribe to it where your save logic is*/
-	UPROPERTY(BlueprintAssignable, Category = "AMS Delegates")
-		FOnMissionSystemSave OnMissoinSystemSave;
+	friend class AMS_LOG;
 
 	//used to record the finished missions details for the juernal and any other use 
 	void RecordMissionFinished(UMissionObject* Mission);
 
 	void Internal_MissionSave();
-	
-	//used to tell all active mission about the current save process, the save bool is to tell the function if it should 
-	//broadcast the save or the load process
-	void BroadcastSubsystemSave(UAMS_SaveGame* saveGameObject, bool bIsSave);
 
 	//called from outside , every mission when needs to complete any saving they call this function
 	void Internal_CompleteSave(UAMS_SaveGame* saveGameObject);
@@ -116,12 +118,28 @@ public:
 	//get the singleton for the subsystem
 	static UAMS_SubSystem* GetMissionSubSystem();
 
+	//used to tell the data center singleton about the save process to let the user hook thier logics with this one
+	void InvokeDataCenterSaveEvent(UAMS_SaveGame* saveGameObject);
 
 	//used to generate records for not finished missions so they can be activated next time when loading
 	void GenerateActiveMissionsFromRecord(TArray<FRecordEntry> ActiveRecords);
 
+	//overload to fix wrong records number, delete the other one when everything is ok
+	void GenerateActiveMissionsFromRecord(UAMS_SaveGame* saveGameObject);
+
 	//returns a records for the active missions so we can save it
 	TArray<FRecordEntry> GenerateRecordsFromActiveMissions();
+
+	inline AMS_LOG* GetLogger()
+	{
+		static AMS_LOG* Logger;
+		if (!Logger)
+		{
+			Logger = new AMS_LOG();
+		}
+
+		return Logger;
+	}
 
 private:
 	//used to save the missions instaces so they wont be collected by garbage collection
@@ -131,6 +149,7 @@ private:
 	TArray<FRecordEntry> FinishedMissions;
 
 	UAMS_JuernalObject* JuernalSingelton;//change the save logics to save this one instead of the finishedMissions array
+	UAMS_DataCenter* DataCenterSinglton;
 
 	FName ActiveSaveProfileName;
 	

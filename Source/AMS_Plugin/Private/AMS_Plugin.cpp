@@ -7,6 +7,10 @@
 void FAMS_PluginModule::StartupModule()
 {
 	//should register the tick here
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 100.0f, FColor::Magenta, "Plugin Started");
+	}
 }
 
 void FAMS_PluginModule::ShutdownModule()
