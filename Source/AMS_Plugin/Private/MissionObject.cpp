@@ -127,7 +127,7 @@ void UMissionObject::MissionCheckEnd(TSubclassOf<UActionObject> FinishedAction)
 
 	if (FinishedCount == *CountPtr)
 	{
-		if (FinishedObjectiveType == EActionType::required)
+		if (FinishedAction.GetDefaultObject()->ActionType == EActionType::required)
 			EndMission(EFinishState::succeeded, FFailInfo());
 	    
 		else

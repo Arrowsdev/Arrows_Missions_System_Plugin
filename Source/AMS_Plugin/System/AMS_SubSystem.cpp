@@ -45,6 +45,10 @@ void UAMS_SubSystem::RecordMissionFinished(UMissionObject* Mission)
 {
 	//record mission details and add the details to the finished array 
 	FRecordEntry newRecord(Mission->GetClass(), Mission->MissionDetails);
+
+	newRecord.RequiredCount = Mission->RequiredObjectivesCount;
+	newRecord.BlackListedCount = Mission->BlackListedObjectivesCount;
+
 	FinishedMissions.Add(newRecord);//deprecated , left for near futur only
 
 	if(JuernalSingelton)
@@ -161,6 +165,9 @@ void UAMS_SubSystem::GenerateActiveMissionsFromRecord(UAMS_SaveGame* saveGameObj
 		{
 			LOG_AMS("Mission Activated", 10.0f, FColor::Magenta);
 			ActivatedMission->MissionDetails = record.MissionDetails;
+			ActivatedMission->RequiredObjectivesCount = record.RequiredCount;
+			ActivatedMission->BlackListedObjectivesCount = record.BlackListedCount;
+
 			ActivatedMission->InitializeMission(INIT_LOAD);
 			ActiveMissions.Add(record.MissionClass, ActivatedMission);
 		}
@@ -181,7 +188,10 @@ TArray<FRecordEntry> UAMS_SubSystem::GenerateRecordsFromActiveMissions()
 	TArray<FRecordEntry> Records;
 	for (auto& kvPair : ActiveMissions)
 	{
-		Records.Emplace(kvPair.Key, kvPair.Value->MissionDetails);
+		int32 required = kvPair.Value->RequiredObjectivesCount;
+		int32 blacklisted = kvPair.Value->BlackListedObjectivesCount;
+
+		Records.Emplace(kvPair.Key, kvPair.Value->MissionDetails, required, blacklisted);
 	}
 	return Records;
 }
@@ -207,7 +217,7 @@ void UAMS_SubSystem::PreformMissionAction(TSubclassOf<UMissionObject> Mission, T
 	{
 		FObjective& objective = ActiveMissions[Mission]->MissionDetails.GetActionRelatedObjective(PreformedAction);
 	
-		if (objective.ActionClass)
+		if (objective.ActionClass && !objective.bIsFinished)
 		{
 			LOG_AMS("Subsystem preform called", 10.0f, FColor::Yellow);
 			if (objective.Preform())//this means this preform was the finisher for it so we check if all tasks are finished too
@@ -229,6 +239,11 @@ void UAMS_SubSystem::PreformMissionAction(TSubclassOf<UMissionObject> Mission, T
 					ActiveMissions[Mission]->EndMission(EFinishState::failed, FFailInfo(PreformedAction));
 				}
 			}
+		}
+		else if(objective.ActionClass)
+		{
+			ActiveMissions[Mission]->MissionCheckEnd(objective.ActionClass);
+			LOG_AMS("Objective was found, loaded as finished", 10.0f, FColor::Magenta);
 		}
 		else
 		{

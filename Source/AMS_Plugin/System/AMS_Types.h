@@ -105,6 +105,7 @@ struct FObjective
 	UPROPERTY(BlueprintReadWrite, Category = "Objective")
 	int32 TotalCount;
 
+	UPROPERTY()
 	bool bIsFinished;//will be true if preformed X times, while X is the Action count
 
 	FObjective(TSubclassOf<UActionObject> Action, int32 count)
@@ -145,7 +146,7 @@ struct FObjective
 		else
 		PrintLog("Objective is finished , preform is ignored !", 10.0f, FColor::Red);
 
-		return false;
+		return bIsFinished;
 	}
 
 	//gets the status in : ActionName [ 1 / 5 ]
@@ -221,6 +222,7 @@ struct FMissionDetails
 	UPROPERTY(BlueprintReadWrite, Category = "MissionDetails")
 	    TArray<FObjective> MissionRelatedActions;
 
+
 		//find the objective for specific action to preform
 		FObjective& GetActionRelatedObjective(TSubclassOf<UActionObject> action)
 		{
@@ -283,7 +285,8 @@ struct FRecordEntry
 	FRecordEntry() {};
 
 	FRecordEntry(const FRecordEntry& otherRecord):
-		MissionClass(otherRecord.MissionClass), MissionDetails(otherRecord.MissionDetails)
+		MissionClass(otherRecord.MissionClass), MissionDetails(otherRecord.MissionDetails),
+		RequiredCount(otherRecord.RequiredCount),BlackListedCount(otherRecord.BlackListedCount)
 	{
 	}
 
@@ -293,8 +296,22 @@ struct FRecordEntry
 	UPROPERTY(BlueprintReadWrite, Category = "Mission Records", meta = (DisplayName = "Mission Details"))
 		FMissionDetails MissionDetails;
 
-	FRecordEntry(TSubclassOf<UMissionObject> Mission, FMissionDetails details)
+	//used to save the count of the required taskes from the mission
+	UPROPERTY()
+		int32 RequiredCount;
+
+	UPROPERTY()
+		int32 BlackListedCount;
+
+	FRecordEntry(TSubclassOf<UMissionObject> Mission, FMissionDetails details) 
 		: MissionClass(Mission), MissionDetails(details)
 	{
+	} 
+
+	FRecordEntry(TSubclassOf<UMissionObject> Mission, FMissionDetails details, int32 required, int32 blacklisted)
+		: MissionClass(Mission), MissionDetails(details)
+	{
+		RequiredCount = required;
+		BlackListedCount = blacklisted;
 	}
 };
