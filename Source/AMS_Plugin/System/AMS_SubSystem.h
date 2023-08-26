@@ -70,6 +70,12 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 		UAMS_SaveGame* LoadGame(FName playerProfile, bool& found);
 
+	/*used to cancel the mission , it will be added to the finished missions 
+	* and marked as failed 
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
+		void CancelMission(TSubclassOf<UMissionObject> mission);
+
 	//get the records for the finished missions , should move this logics for the juernal later when i finish implementing its logics
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 		FORCEINLINE	TArray<FRecordEntry> GetFinishedMissionsRecords()
@@ -94,9 +100,7 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System | Debugging")
 		FORCEINLINE void LOGME()
 	{
-		//GetLogger()->LogSubsystem(this, 0.0f);
-		FString Mes = JuernalClass ? "Valid " : "Not Valid";
-		LOG_AMS(Mes);
+		GetLogger()->LogSubsystem(this, 0.0f);
 	}
 	
 
@@ -109,7 +113,7 @@ public:
 
 	void Internal_MissionSave();
 
-	//called from outside , every mission when needs to complete any saving they call this function
+	//called from the data center if the user overrided the on save process started event
 	void Internal_CompleteSave(UAMS_SaveGame* saveGameObject);
 
 	//unexposed overload for the start mission used for auto go to next mission by the system while the other one is used for in bp open mission

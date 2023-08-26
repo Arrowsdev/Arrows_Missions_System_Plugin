@@ -240,15 +240,10 @@ void UAMS_SubSystem::PreformMissionAction(TSubclassOf<UMissionObject> Mission, T
 				}
 			}
 		}
-		else if(objective.ActionClass)
-		{
-			ActiveMissions[Mission]->MissionCheckEnd(objective.ActionClass);
-			LOG_AMS("Objective was found, loaded as finished", 10.0f, FColor::Magenta);
-		}
+
 		else
-		{
-			LOG_AMS("Objective was not found, the loading comes with missig data", 10.0f, FColor::Red);
-		}
+		  LOG_AMS("Objective was not found, the loading comes with missig data", 10.0f, FColor::Red);
+		
 	}
 }
 
@@ -283,4 +278,12 @@ UAMS_SaveGame* UAMS_SubSystem::LoadGame(FName playerProfile, bool& found)
 		return nullptr;
 	}
 
+}
+
+void UAMS_SubSystem::CancelMission(TSubclassOf<UMissionObject> mission)
+{
+	if (ActiveMissions.Contains(mission))
+	{
+		ActiveMissions[mission]->EndMission(EFinishState::canceled, FFailInfo(EMissionFailReason::canceled));
+	}
 }

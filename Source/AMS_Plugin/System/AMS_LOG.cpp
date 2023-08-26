@@ -21,15 +21,20 @@ void AMS_LOG::LogSubsystem(const UAMS_SubSystem* subsystem, const float duration
 {
 	if (!subsystem) return;
 
-	TArray<FString> Line;
-	Line[0] = "Active Missions : " + FString::FromInt(subsystem->ActiveMissions.Num());
-	Line[1] = "Finished Missions : " + FString::FromInt(subsystem->FinishedMissions.Num());
-	Line[2] = "Jeurnal Class : "  SPIT_CLASS(subsystem->JuernalClass, subsystem->JuernalSingelton);
-	Line[3] = "Save Game Class : " SPIT_CLASS(subsystem->SaveGameClass, nullptr);
-	Line[4] = "Data Venter Class : " SPIT_CLASS(subsystem->DataCenterClass, subsystem->DataCenterSinglton);
-
-	for (FString lin : Line)
+	TArray<FString> Lines;
+	Lines.EmplaceAt(0, "Active Missions : " + FString::FromInt(subsystem->ActiveMissions.Num()));
+	Lines.EmplaceAt(1, "Finished Missions : " + FString::FromInt(subsystem->FinishedMissions.Num()));
+	Lines.EmplaceAt(2, "Jeurnal Class : "     SPIT_CLASS(subsystem->JuernalClass, subsystem->JuernalSingelton));
+	Lines.EmplaceAt(3, "Save Game Class : "   SPIT_CLASS(subsystem->SaveGameClass, nullptr));
+	Lines.EmplaceAt(4, "Data Venter Class : " SPIT_CLASS(subsystem->DataCenterClass, subsystem->DataCenterSinglton));
+	
+	//for screen print we flip the log since the top on screen is the latest
+	PrintLog("############## END SUBSYSTEM LOG #####################", 0.0f, FColor::Blue);
+	for (FString& Line : Lines)
 	{
-		LOG_AMS(lin, duration, FColor::Magenta);
+		PrintLog(Line,0.0f,FColor::Yellow);
 	}
+	LOG_AMS("Subsystem Logging :", duration, FColor::Blue);
+
+	//to do here : log to the console 
 }

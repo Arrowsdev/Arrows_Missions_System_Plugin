@@ -118,7 +118,7 @@ void UMissionObject::MissionCheckEnd(TSubclassOf<UActionObject> FinishedAction)
 	int32 FinishedCount = 0;
 	for (auto objective : MissionDetails.MissionRelatedActions)
 	{
-		if (objective.ActivatedAction->ActionType == FinishedObjectiveType)
+		if (FinishedObjectiveType == FinishedObjectiveType)
 		{
 			if (objective.bIsFinished)
 				FinishedCount++;

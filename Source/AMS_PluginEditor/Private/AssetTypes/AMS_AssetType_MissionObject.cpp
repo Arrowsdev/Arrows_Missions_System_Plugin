@@ -2,6 +2,10 @@
 
 #include "AssetTypes/AMS_AssetType_MissionObject.h"
 #include "AMS_Plugin/Public/MissionObject.h"
+#include  "BlueprintEditorModule.h"
+
+
+#define LOCTEXT_NAMESPACE "AssetTypeActions"
 
 UAMS_AssetType_MissionObject::UAMS_AssetType_MissionObject(EAssetTypeCategories::Type InAssetCategory):
     MyAssetCategory(InAssetCategory)
@@ -23,11 +27,9 @@ UClass* UAMS_AssetType_MissionObject::GetSupportedClass() const
     return UMissionObject::StaticClass();
 }
 
-void UAMS_AssetType_MissionObject::OpenAssetEditor(const TArray<UObject*>& InObjects, TSharedPtr<class IToolkitHost> EditWithinLevelEditor)
+FText UAMS_AssetType_MissionObject::GetAssetDescription(const FAssetData& AssetData) const
 {
-   
-    FSimpleAssetEditor::CreateEditor(EToolkitMode::Standalone, EditWithinLevelEditor, InObjects);
-   
+    return FText::FromString("Create New Or Drived Mission Object");
 }
 
 uint32 UAMS_AssetType_MissionObject::GetCategories()
@@ -35,27 +37,31 @@ uint32 UAMS_AssetType_MissionObject::GetCategories()
     return MyAssetCategory;
 }
 
-bool AMS_EditorUtilities::PickChildrenOfClass(const FText& TitleText, UClass*& OutChosenClass, UClass* Class)
-{
-   
-    // TSharedPtr<FClassFilterObject> Filter = MakeShareable(new FClassFilterObject(UMissionObject::StaticClass));
+//void UAMS_AssetType_MissionObject::OpenAssetEditor(const TArray<UObject*>& InObjects, TSharedPtr<class IToolkitHost> EditWithinLevelEditor)
+//{
+//	EToolkitMode::Type Mode = EditWithinLevelEditor.IsValid() ? EToolkitMode::WorldCentric : EToolkitMode::Standalone;
+//
+//	for (UObject* Object : InObjects)
+//	{
+//		if (UBlueprint* Blueprint = Cast<UBlueprint>(Object))
+//		{
+//			bool bLetOpen = true;
+//			if (!Blueprint->SkeletonGeneratedClass || !Blueprint->GeneratedClass)
+//			{
+//				bLetOpen = EAppReturnType::Yes == FMessageDialog::Open(EAppMsgType::YesNo, LOCTEXT("FailedToLoadBlueprintWithContinue", "Blueprint could not be loaded because it derives from an invalid class.  Check to make sure the parent class for this blueprint hasn't been removed! Do you want to continue (it can crash the editor)?"));
+//			}
+//			if (bLetOpen)
+//			{
+//				FBlueprintEditorModule& BlueprintEditorModule = FModuleManager::LoadModuleChecked<FBlueprintEditorModule>("Kismet");
+//				TSharedRef< IBlueprintEditor > NewKismetEditor = BlueprintEditorModule.CreateBlueprintEditor(Mode, EditWithinLevelEditor, Blueprint, false);
+//			}
+//		}
+//		else
+//		{
+//			FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("FailedToLoadBlueprint", "Blueprint could not be loaded because it derives from an invalid class.  Check to make sure the parent class for this blueprint hasn't been removed!"));
+//		}
+//	}
+//}
 
-    //Filter->AllowedChildrenOfClasses.Add(Class);
 
-    //// Fill in options
-
-    //FClassViewerInitializationOptions Options;
-
-    //Options.Mode = EClassViewerMode::ClassPicker;
-
-    //Options.ClassFilter = Filter;
-
-    //Options.bShowUnloadedBlueprints = true;
-
-    //Options.bExpandRootNodes = true;
-
-    //Options.NameTypeToDisplay = EClassViewerNameTypeToDisplay::Dynamic;
-
-    //return SClassPickerDialog::PickClass(TitleText, Options, OutChosenClass, Class);
-    return false;
-}
+#undef LOCTEXT_NAMESPACE 

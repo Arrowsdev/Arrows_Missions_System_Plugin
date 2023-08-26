@@ -263,6 +263,7 @@ struct FFailInfo
 		FailReason = EMissionFailReason::timeOut;
 	}
 
+	//player action as if the player killed important NPC for mission progression, so it fails
 	FFailInfo(TSubclassOf<UActionObject> Action) : CausedAction(Action)
 	{
 		FailReason = EMissionFailReason::PlayerAction;
