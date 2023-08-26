@@ -21,6 +21,7 @@ UAMS_Factory_MissionObject::UAMS_Factory_MissionObject(const FObjectInitializer&
 
 UObject* UAMS_Factory_MissionObject::FactoryCreateNew(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn, FName CallingContext)
 {
+
 	if ((ParentClass == nullptr) || !FKismetEditorUtilities::CanCreateBlueprintOfClass(ParentClass))
 	{
 		//open dialog when cant create new mission object since we are now have the ability to inhert from bp classes so the 
