@@ -138,7 +138,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mission System", meta = (ReturnDisplayName = "Mission State"))
 		FORCEINLINE float GetMissionProgress()
 	{
-		return MissionDetails.GetMissionCompeletion();
+		return  MissionDetails.GetMissionCompeletion() / RequiredObjectivesCount;
 	}
 
 	UFUNCTION(BlueprintPure, Category = "Mission System | Debugging", meta = (ReturnDisplayName = "Mission Details"))

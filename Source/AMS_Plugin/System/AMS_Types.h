@@ -191,7 +191,7 @@ struct FObjective
 	//gets the percentage of compeletion for the objective
 	float GetObjectiveProgress()
 	{
-		return ActionCount / TotalCount;
+		return FMath::CeilToFloat(ActionCount) / FMath::CeilToFloat(TotalCount);
 	}
 };
 
@@ -221,8 +221,12 @@ struct FMissionDetails
 
 	//hidden member used just to store the default time the user set for the Mission Time
 	//so we can use it to restart the mission from a record with proper default values
-	UPROPERTY(BlueprintReadWrite, Category = "MissionDetails")
+	UPROPERTY()
 	float DefaultMissionTime;
+
+	//used for when recording the mission we need a place to put the calculated progress
+	UPROPERTY(BlueprintReadWrite, Category = "MissionDetails")
+	float MissionProgress;
 
 	//how we count , is it count down or otherwise
 	UPROPERTY(EditAnywhere, Category = "MissionDetails", meta = (DisplayName = "Is Count Down?", EditCondition = "bHasTimer"))
@@ -265,7 +269,7 @@ struct FMissionDetails
 					percent += objective.GetObjectiveProgress();
 				}
 			}
-
+			MissionProgress = percent;
 			return percent;
 		}
 };
@@ -313,6 +317,7 @@ struct FRecordEntry
 		MissionClass(otherRecord.MissionClass), MissionDetails(otherRecord.MissionDetails),
 		RequiredCount(otherRecord.RequiredCount),BlackListedCount(otherRecord.BlackListedCount)
 	{
+		
 	}
 
 	UPROPERTY(BlueprintReadWrite, Category = "Mission Records", meta = (DisplayName = "Finished Mission"))
@@ -320,6 +325,7 @@ struct FRecordEntry
 
 	UPROPERTY(BlueprintReadWrite, Category = "Mission Records", meta = (DisplayName = "Mission Details"))
 		FMissionDetails MissionDetails;
+
 
 	//used to save the count of the required taskes from the mission
 	UPROPERTY()

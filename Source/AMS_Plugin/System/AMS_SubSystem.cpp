@@ -48,6 +48,7 @@ void UAMS_SubSystem::RecordMissionFinished(UMissionObject* Mission)
 
 	newRecord.RequiredCount = Mission->RequiredObjectivesCount;
 	newRecord.BlackListedCount = Mission->BlackListedObjectivesCount;
+	newRecord.MissionDetails.MissionProgress = Mission->GetMissionProgress();
 
 	FinishedMissions.Add(newRecord);//deprecated , left for near futur only
 
@@ -243,7 +244,6 @@ void UAMS_SubSystem::PreformMissionAction(TSubclassOf<UMissionObject> Mission, T
 	if (ActiveMissions.Contains(Mission))
 	{
 		FObjective& objective = ActiveMissions[Mission]->MissionDetails.GetActionRelatedObjective(PreformedAction);
-	
 		if (objective.ActionClass && !objective.bIsFinished)
 		{
 			LOG_AMS("Subsystem preform called", 10.0f, FColor::Yellow);
@@ -261,6 +261,7 @@ void UAMS_SubSystem::PreformMissionAction(TSubclassOf<UMissionObject> Mission, T
 
 			else//the action is preformed but the objective is not finished we check if it was a blacklisted action with instant fail flag
 			{
+
 				if (preformedActionCDO->ActionType == EActionType::blacklisted && preformedActionCDO->bInstantFail)
 				{
 					ActiveMissions[Mission]->EndMission(EFinishState::failed, FFailInfo(PreformedAction));

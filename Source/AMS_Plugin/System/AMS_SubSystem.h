@@ -70,6 +70,15 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 		UAMS_SaveGame* LoadGame(FName playerProfile, bool& found);
 
+	/*used to save game at desired time and not on the subsystem times
+	* dont forget to use the data center to put the data you want to save 
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
+		FORCEINLINE	void SaveGame() 
+	{
+		Internal_MissionSave();
+	}
+
 	/*used to cancel the mission , it will be added to the finished missions 
 	* and marked as failed 
 	*/
