@@ -134,6 +134,13 @@ public:
 		return CurrentState;
 	}
 
+	//get the progress of the missions
+	UFUNCTION(BlueprintPure, Category = "Mission System", meta = (ReturnDisplayName = "Mission State"))
+		FORCEINLINE float GetMissionProgress()
+	{
+		return MissionDetails.GetMissionCompeletion();
+	}
+
 	UFUNCTION(BlueprintPure, Category = "Mission System | Debugging", meta = (ReturnDisplayName = "Mission Details"))
 		FORCEINLINE	FMissionDetails GetMissionDetails(float& DefaultValue)
 	{

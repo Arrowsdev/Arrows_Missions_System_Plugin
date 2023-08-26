@@ -7,3 +7,4 @@ void UAMS_JuernalObject::AddJuernalRecord(FRecordEntry newReecord)
 {
 	Juernal_FinishedMissions.Add(newReecord);
 }
+

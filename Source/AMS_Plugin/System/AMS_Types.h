@@ -183,6 +183,16 @@ struct FObjective
 		return ActionClass == action;
 	}
 
+	bool operator==(EActionType actionType)
+	{
+		return ActionClass.GetDefaultObject()->ActionType == actionType;
+	}
+
+	//gets the percentage of compeletion for the objective
+	float GetObjectiveProgress()
+	{
+		return ActionCount / TotalCount;
+	}
 };
 
 USTRUCT(BlueprintType)
@@ -243,7 +253,21 @@ struct FMissionDetails
 		{
 			DefaultMissionTime = MissionTime;
 		}
-	
+
+		float GetMissionCompeletion()
+		{
+			float percent = 0.0f;
+
+			for (FObjective& objective : MissionRelatedActions)
+			{
+				if (objective == EActionType::required)
+				{
+					percent += objective.GetObjectiveProgress();
+				}
+			}
+
+			return percent;
+		}
 };
 
 USTRUCT(BlueprintType)

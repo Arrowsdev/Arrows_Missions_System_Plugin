@@ -26,3 +26,16 @@ void UAMS_DataCenter::CompleteSaving(UPARAM(ref)UAMS_SaveGame* saveGameObject)
 	else
 	LOG_AMS("Subsystem Singletone is not valid", 10.0f, FColor::Red);
 }
+
+UWorld* UAMS_DataCenter::GetWorld() const
+{
+	if (GIsEditor && !GIsPlayInEditorWorld)
+	{
+		return nullptr;
+	}
+	else if (GetOuter())
+	{
+		return GetOuter()->GetWorld();
+	}
+	return nullptr;
+}

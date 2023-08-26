@@ -71,7 +71,7 @@ void UAMS_SubSystem::Internal_MissionSave()
 	{
 		UAMS_SaveGame* SaveGameObject = Cast<UAMS_SaveGame>(UGameplayStatics::LoadGameFromSlot(ActiveSaveProfileName.ToString(), 0));
 
-		SaveGameObject->SG_FinishedMissions = FinishedMissions;
+		SaveGameObject->SG_FinishedMissions = GetFinishedMissions();
 		SaveGameObject->SG_ActiveMissionsWhenSaved = GenerateRecordsFromActiveMissions();
 
 		if (SaveGameObject->SG_ActiveMissionsWhenSaved.IsEmpty())
@@ -196,6 +196,25 @@ TArray<FRecordEntry> UAMS_SubSystem::GenerateRecordsFromActiveMissions()
 	return Records;
 }
 
+TArray<FRecordEntry>& UAMS_SubSystem::GetFinishedMissions()
+{
+	if (JuernalSingelton)
+	{
+		return JuernalSingelton->GetMissionsRecord();
+	}
+
+	return FinishedMissions;//used the one saved in the sybsystem , i guess ama keep it around for this porpose if the user have noe juernal
+
+}
+
+void UAMS_SubSystem::LoadFinishedMissionsToJuernal()
+{
+	if (JuernalSingelton)
+	{
+		return JuernalSingelton->AssignRecordList(FinishedMissions);
+	}
+}
+
 UAMS_SubSystem* UAMS_SubSystem::GetMissionSubSystem()
 {
 	return MissionSubSystemInstance;
@@ -206,6 +225,14 @@ void UAMS_SubSystem::InvokeDataCenterSaveEvent(UAMS_SaveGame* saveGameObject)
 	if (DataCenterSinglton)
 	{
 		DataCenterSinglton->OnGameSaveStarted(saveGameObject);
+	}
+}
+
+void UAMS_SubSystem::InvokeDataCenterLoadEvent(UAMS_SaveGame* saveGameObject)
+{
+	if (DataCenterSinglton)
+	{
+		DataCenterSinglton->OnGameLoaded(saveGameObject);
 	}
 }
 
@@ -268,7 +295,13 @@ UAMS_SaveGame* UAMS_SubSystem::LoadGame(FName playerProfile, bool& found)
 			LOG_AMS("Saved Active Mission is Empty", 10.0f, FColor::Red);
 		}
 		GenerateActiveMissionsFromRecord(SaveGameObject);
+
 		FinishedMissions = SaveGameObject->SG_FinishedMissions;
+
+		LoadFinishedMissionsToJuernal();
+
+		InvokeDataCenterLoadEvent(SaveGameObject);
+
 		return SaveGameObject;
 	}
 	else

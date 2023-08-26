@@ -20,7 +20,14 @@ class AMS_PLUGIN_API UAMS_JuernalObject : public UObject
 
 public:
 
+	//to add finished
 	void AddJuernalRecord(FRecordEntry newReecord);
+
+	//to load the saved list 
+	inline void AssignRecordList(TArray<FRecordEntry>& list)
+	{
+		Juernal_FinishedMissions = list;
+	}
 
 	/*get a reference to the juernal recorded progress and finished missions*/
 	UFUNCTION(BlueprintPure, Category="Juernal")

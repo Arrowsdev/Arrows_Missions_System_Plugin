@@ -125,6 +125,9 @@ public:
 	//used to tell the data center singleton about the save process to let the user hook thier logics with this one
 	void InvokeDataCenterSaveEvent(UAMS_SaveGame* saveGameObject);
 
+	//used to tell the data center about the loading 
+	void InvokeDataCenterLoadEvent(UAMS_SaveGame* saveGameObject);
+
 	//used to generate records for not finished missions so they can be activated next time when loading
 	void GenerateActiveMissionsFromRecord(TArray<FRecordEntry> ActiveRecords);
 
@@ -144,6 +147,11 @@ public:
 
 		return Logger;
 	}
+
+	//used to return either the saved finished missions from the juernal or use the one in the subsystem
+	TArray<FRecordEntry>& GetFinishedMissions();
+	
+	void LoadFinishedMissionsToJuernal();
 
 private:
 	//used to save the missions instaces so they wont be collected by garbage collection
