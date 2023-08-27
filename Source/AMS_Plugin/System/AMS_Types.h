@@ -25,6 +25,7 @@ class UMissionObject;
  */
 class AMS_PLUGIN_API AMS_Types
 {
+
 public:
 	AMS_Types();
 	~AMS_Types();
@@ -177,6 +178,7 @@ struct FObjective
 		}
 		
 	}
+
 
 	bool operator==(TSubclassOf<UActionObject> action)
 	{

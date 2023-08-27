@@ -51,14 +51,30 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 
 // END OF PROJECT SETTINGS
 
+	/*starts new mission */
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
     void StartMission(TSubclassOf<UMissionObject> newMission, FName SaveProfileName);
+
+	/*Starts New Mission*/
+	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
+	static FORCEINLINE void StartNewMission(TSubclassOf<UMissionObject> newMission, FName SaveProfileName)
+	{
+		if (!MissionSubSystemInstance) return;
+		MissionSubSystemInstance->StartMission(newMission, SaveProfileName);
+	}
 
 	//preform an action for specific mission from the active missions , if the provided mission is not active
 	//the call will be ignored
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 	void PreformMissionAction(TSubclassOf<UMissionObject> Mission, TSubclassOf<UActionObject> PreformedAction);
 	
+	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
+	static FORCEINLINE void PreformAction(TSubclassOf<UMissionObject> Mission, TSubclassOf<UActionObject> PreformedAction)
+	{
+		if (!MissionSubSystemInstance) return;
+		MissionSubSystemInstance->PreformMissionAction(Mission, PreformedAction);
+	}
+
 	//this function creates a savegame object , if there was an old profile it loads the last progress and let you 
 	//hook your new data too before saving the file again
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
@@ -70,6 +86,16 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 		UAMS_SaveGame* LoadGame(FName playerProfile, bool& found);
 
+	/*this function loads specific player profile data, returns a reference to the loaded object
+	* so you can load the custom data you have saved
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System", meta=(DisplayName="Load Game"))
+		static FORCEINLINE UAMS_SaveGame* ST_LoadGame(FName playerProfile, bool& found)//ST = static
+	{
+		if (!MissionSubSystemInstance) return nullptr;
+		return MissionSubSystemInstance->LoadGame(playerProfile, found);
+	}
+
 	/*used to save game at desired time and not on the subsystem times
 	* dont forget to use the data center to put the data you want to save 
 	*/
@@ -79,11 +105,30 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		Internal_MissionSave();
 	}
 
+	/*used to save game at desired time and not on the subsystem times
+	* dont forget to use the data center to put the data you want to save
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System", meta = (DisplayName = "Save Game"))
+	static FORCEINLINE void ST_SaveGame()
+	{
+		if (!MissionSubSystemInstance) return;
+		MissionSubSystemInstance->SaveGame();
+	}
+
 	/*used to cancel the mission , it will be added to the finished missions 
 	* and marked as failed 
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 		void CancelMission(TSubclassOf<UMissionObject> mission);
+
+	/*used to cancel the mission , it will be added to the finished missions
+	* and marked as failed
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System", meta = (DisplayName = "Cancel Mission"))
+	static FORCEINLINE void ST_CancleMission(TSubclassOf<UMissionObject> mission)
+	{
+
+	}
 
 	//get the records for the finished missions , should move this logics for the juernal later when i finish implementing its logics
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
@@ -92,11 +137,27 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		return FinishedMissions;
 	}
 
+	//get currently active missions with their informations 
+	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
+	static	FORCEINLINE	TArray<FRecordEntry> GetActiveMissions()
+	{
+		if (!MissionSubSystemInstance)return TArray<FRecordEntry>();
+		return MissionSubSystemInstance->GenerateRecordsFromActiveMissions();
+	}
+
 	//get the juernal for the current active user 
 	UFUNCTION(BlueprintPure, Category = "Arrows Mission System")
-		FORCEINLINE	UAMS_JuernalObject* GetJuernal()
+	static	FORCEINLINE	UAMS_JuernalObject* GetJuernal()
 	{
-		return JuernalSingelton;
+		if (!MissionSubSystemInstance)return nullptr;
+		return MissionSubSystemInstance->JuernalSingelton;
+	}
+
+	/*parse the passed objective to string*/
+	UFUNCTION(BlueprintPure, Category = "Arrows Mission System")
+	static	FORCEINLINE FString ParseObjective(FObjective objective, EStatusGetterType getterType)
+	{
+		return objective.GetObjectibeStatus(getterType);
 	}
 
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System | Debugging")
