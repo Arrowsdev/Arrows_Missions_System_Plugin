@@ -8,6 +8,7 @@
 #include "AMS_LOG.h"
 #include "AMS_SubSystem.generated.h"
 
+
 /**
  * 
  */
@@ -127,7 +128,8 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System", meta = (DisplayName = "Cancel Mission"))
 	static FORCEINLINE void ST_CancleMission(TSubclassOf<UMissionObject> mission)
 	{
-
+		if (!MissionSubSystemInstance)return;
+		return MissionSubSystemInstance->CancelMission(mission);
 	}
 
 	//get the records for the finished missions , should move this logics for the juernal later when i finish implementing its logics
@@ -158,6 +160,14 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	static	FORCEINLINE FString ParseObjective(FObjective objective, EStatusGetterType getterType)
 	{
 		return objective.GetObjectibeStatus(getterType);
+	}
+
+	/*get mission refernce if it was active so you can get   global access to it's properties and functions*/
+	UFUNCTION(BlueprintPure, Category = "Arrows Mission System")
+	static	FORCEINLINE UMissionObject* GetMissionByClass(TSubclassOf<UMissionObject> missionClass)
+	{
+		if (!MissionSubSystemInstance) return nullptr;
+		return MissionSubSystemInstance->ActiveMissions[missionClass];
 	}
 
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System | Debugging")
