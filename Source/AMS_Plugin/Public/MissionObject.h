@@ -34,6 +34,7 @@ class AMS_PLUGIN_API UMissionObject : public UObject , public FTickableGameObjec
 	//World Context for static functions in blueprints to be called normally 
 	UWorld* GetWorld() const;
 
+	virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
 
 	//## Mission Object Interface ## //
 public:  

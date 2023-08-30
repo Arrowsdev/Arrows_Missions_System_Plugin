@@ -3,6 +3,8 @@
 #include "AssetTypes/AMS_AssetType_MissionObject.h"
 #include "AMS_Plugin/Public/MissionObject.h"
 #include  "BlueprintEditorModule.h"
+#include "Helpers/AMS_Utilites.h"
+#include <KismetCompilerModule.h>
 
 
 #define LOCTEXT_NAMESPACE "AssetTypeActions"
@@ -39,6 +41,7 @@ uint32 UAMS_AssetType_MissionObject::GetCategories()
 
 void UAMS_AssetType_MissionObject::OpenAssetEditor(const TArray<UObject*>& InObjects, TSharedPtr<class IToolkitHost> EditWithinLevelEditor)
 {
+
 	EToolkitMode::Type Mode = EditWithinLevelEditor.IsValid() ? EToolkitMode::WorldCentric : EToolkitMode::Standalone;
 
 	for (UObject* Object : InObjects)
@@ -58,7 +61,8 @@ void UAMS_AssetType_MissionObject::OpenAssetEditor(const TArray<UObject*>& InObj
 		}
 		else
 		{
-			FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("FailedToLoadBlueprint", "Blueprint could not be loaded because it derives from an invalid class.  Check to make sure the parent class for this blueprint hasn't been removed!"));
+			FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("FailedToLoadBlueprint",
+		   "Blueprint could not be loaded because it derives from an invalid class.  Check to make sure the parent class for this blueprint hasn't been removed!"));
 		}
 	}
 }

@@ -37,6 +37,11 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	UPROPERTY(config,EditAnywhere, Category = Settings)
 		TSubclassOf<UAMS_JuernalObject> JuernalClass;
 
+	//this is the list of all playable missins in the game , we use this to get the game compeletion only it dosnt affect
+	//the order in which the mission are played since we manually play missins by start mission call
+	UPROPERTY(config, EditAnywhere, Category = "Settings")
+		TArray<TSubclassOf<UMissionObject>> GameMissionsList;
+
 	//how the system handles saving progress
 	UPROPERTY(config,EditAnywhere, Category = "Save Settings")
 		ESaveMissionType SaveType;
@@ -115,6 +120,14 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		if (!MissionSubSystemInstance) return;
 		MissionSubSystemInstance->SaveGame();
 	}
+
+	/*used to create a check point for missions to restart from for the active player profile*/
+	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
+		void CreateCheckPoint();
+
+	/*used to load last created checkpoint for the active player profile*/
+	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
+		void LoadCheckPoint();
 
 	/*used to cancel the mission , it will be added to the finished missions 
 	* and marked as failed 
@@ -214,6 +227,11 @@ public:
 	//overload to fix wrong records number, delete the other one when everything is ok
 	void GenerateActiveMissionsFromRecord(UAMS_SaveGame* saveGameObject);
 
+	//used to calculate the progress for the whole game 
+	void Internal_GetGameProgress();
+
+	void InitiateFullGameProgressData();
+
 	//returns a records for the active missions so we can save it
 	TArray<FRecordEntry> GenerateRecordsFromActiveMissions();
 
@@ -232,7 +250,7 @@ public:
 	TArray<FRecordEntry>& GetFinishedMissions();
 	
 	void LoadFinishedMissionsToJuernal();
-
+	
 private:
 	//used to save the missions instaces so they wont be collected by garbage collection
 	TMap<TSubclassOf<UMissionObject>, UMissionObject*> ActiveMissions;
@@ -240,9 +258,18 @@ private:
 	/*Temp holder for the finished missions , use the juernal version of this one */
 	TArray<FRecordEntry> FinishedMissions;
 
+	//a records list for missions states and progress before any mission fail , used for restart game from check point option.
+	TArray<FRecordEntry> CheckPointMissionsRecords;
+
+	//records for missions information it will be modified manually to get 100% compeletion from them and this way we get 
+	//pretty good data to represent for the player instead of just the amount of missions left
+	TArray<FRecordEntry> FullGameMissionsRecords;
+
 	UAMS_JuernalObject* JuernalSingelton;//change the save logics to save this one instead of the finishedMissions array
 	UAMS_DataCenter* DataCenterSinglton;
 
 	FName ActiveSaveProfileName;
 	
+	//the mission count that is used to find how much of the game is finished
+	int32 FullGameMissionsCount = INDEX_NONE;
 };

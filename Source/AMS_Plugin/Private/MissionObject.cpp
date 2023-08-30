@@ -50,6 +50,12 @@ UWorld* UMissionObject::GetWorld() const
 	return nullptr;
 }
 
+void UMissionObject::GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const
+{
+	FAssetRegistryTag MissionTag = FAssetRegistryTag(FName("MissionObject"), UMissionObject::StaticClass()->GetName(), FAssetRegistryTag::TT_Alphabetical);
+	OutTags.Add(MissionTag);
+}
+
 void UMissionObject::InitializeMission(bool bStart)
 {
 	TMap<TSubclassOf<UActionObject>, int32> InstancesMap;

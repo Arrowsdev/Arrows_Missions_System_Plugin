@@ -41,15 +41,15 @@ UObject* UAMS_Factory_MissionObject::FactoryCreateNew(UClass* Class, UObject* In
 		KismetCompilerModule.GetBlueprintTypesForClass(ParentClass, BlueprintClass, BlueprintGeneratedClass);
 		
 		UBlueprint* NewAsset = FKismetEditorUtilities::CreateBlueprint(
-			    ParentClass,
-			    InParent,
-			    Name,
-			   BlueprintType,
-			   BlueprintClass,
-			   BlueprintGeneratedClass,
-			   CallingContext);
-	
-		return NewAsset;
+				ParentClass,
+				InParent,
+				Name,
+				BlueprintType,
+				BlueprintClass,
+				BlueprintGeneratedClass,
+				CallingContext);
+		
+			return NewAsset;
 	}
 }
 

@@ -1,7 +1,7 @@
 //Advanced Mission System Developed by AIS Studios @2023
 
 #include "AMS_Plugin.h"
-
+#include "AMS_Plugin/System/AMS_SubSystem.h"
 #define LOCTEXT_NAMESPACE "FAMS_PluginModule"
 
 void FAMS_PluginModule::StartupModule()

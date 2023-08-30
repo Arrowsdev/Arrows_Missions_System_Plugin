@@ -78,6 +78,14 @@ enum class EStatusGetterType : uint8
 	total_current UMETA(DisplayName = "Total / Current")
 };
 
+//defines how we restart mission, if from checkpoint or from mission start
+UENUM(BlueprintType)
+enum class ERestartType : uint8
+{
+	fromCheckPoint,
+	fromStart
+};
+
 //STRUCTURES:
 
 //this is the representation of the action after activation

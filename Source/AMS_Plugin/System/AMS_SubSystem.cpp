@@ -3,6 +3,9 @@
 
 #include "AMS_SubSystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "AssetRegistry/AssetRegistryModule.h"
+#include "KismetCompilerModule.h"
+#include <Kismet2/KismetEditorUtilities.h>
 
 #include "AMS_Plugin/Public/MissionObject.h"
 #include "AMS_Plugin/System/AMS_SaveGame.h"
@@ -10,14 +13,24 @@
 #include "AMS_Plugin/System/AMS_DataCenter.h"
 
 
+
+
+
+
+
+
 UAMS_SubSystem::UAMS_SubSystem()
 {
 	LOG_AMS("Loaded", 10.0f, FColor::Green);
+
 }
 
 void UAMS_SubSystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	MissionSubSystemInstance = this;
+
+	InitiateFullGameProgressData();
+	UE_LOG(LogTemp, Warning, TEXT("Missions Count Is Calculated to be : %d"), FullGameMissionsCount);
 
 	if (JuernalClass)
 		JuernalSingelton = NewObject<UAMS_JuernalObject>(this, JuernalClass);
@@ -74,7 +87,7 @@ void UAMS_SubSystem::Internal_MissionSave()
 
 		SaveGameObject->SG_FinishedMissions = GetFinishedMissions();
 		SaveGameObject->SG_ActiveMissionsWhenSaved = GenerateRecordsFromActiveMissions();
-
+		
 		if (SaveGameObject->SG_ActiveMissionsWhenSaved.IsEmpty())
 		{
 			FString Mes = FString::Printf(TEXT("No Active Mission in profile [ %s ] saved but finished are : %d"),*ActiveSaveProfileName.ToString(), SaveGameObject->SG_FinishedMissions.Num());
@@ -183,6 +196,7 @@ void UAMS_SubSystem::GenerateActiveMissionsFromRecord(UAMS_SaveGame* saveGameObj
 	else
 		LOG_AMS("Failed To Generate Acive List", 10.0f, FColor::Red);
 }
+
 
 TArray<FRecordEntry> UAMS_SubSystem::GenerateRecordsFromActiveMissions()
 {
@@ -314,10 +328,58 @@ UAMS_SaveGame* UAMS_SubSystem::LoadGame(FName playerProfile, bool& found)
 
 }
 
+void UAMS_SubSystem::CreateCheckPoint()
+{
+	FullGameMissionsRecords = GenerateRecordsFromActiveMissions();
+}
+
+void UAMS_SubSystem::LoadCheckPoint()
+{
+	//shoul put retrevie logics here
+}
+
 void UAMS_SubSystem::CancelMission(TSubclassOf<UMissionObject> mission)
 {
 	if (ActiveMissions.Contains(mission))
 	{
 		ActiveMissions[mission]->EndMission(EFinishState::canceled, FFailInfo(EMissionFailReason::canceled));
 	}
+}
+
+void UAMS_SubSystem::Internal_GetGameProgress()
+{
+	
+}
+
+//called once on begin play so that the game knows the count of games missions 
+void UAMS_SubSystem::InitiateFullGameProgressData()
+{
+	TArray<FAssetData> FoundMissions;
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	FTopLevelAssetPath BaseClassName = UMissionObject::StaticClass()->GetDefaultObject()->GetClass()->GetClassPathName();
+
+	//the tag that is added on mission construct
+	TArray<FName>Tags;
+	Tags.Add("MissionObject");
+	AssetRegistryModule.Get().GetAssetsByTags(Tags, FoundMissions);
+
+	FullGameMissionsCount = FoundMissions.Num();
+
+	if (FullGameMissionsCount)
+	{
+		FullGameMissionsRecords.Empty();
+		for (FAssetData& mission : FoundMissions)
+		{
+			UMissionObject* missionCDO = Cast<UMissionObject>(mission.GetAsset());
+			if (missionCDO)
+			{
+				FRecordEntry newRecord = FRecordEntry(missionCDO->GetClass(), missionCDO->MissionDetails);
+				FullGameMissionsRecords.Add(newRecord);
+			}
+			
+		}
+	}
+    
+	
+	PrintLog(FString::Printf(TEXT("found %d of Mission Object Blueprints and first one is :  "), FoundMissions.Num()), 10.0f);
 }
