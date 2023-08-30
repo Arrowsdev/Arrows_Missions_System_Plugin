@@ -374,12 +374,19 @@ void UAMS_SubSystem::InitiateFullGameProgressData()
 		FullGameMissionsRecords.Empty();
 		for (FAssetData& mission : FoundMissions)
 		{
-			UMissionObject* missionCDO = Cast<UMissionObject>(mission.GetAsset());
-			if (missionCDO)
+
+			UBlueprint* MissionBlueprint = Cast<UBlueprint>(mission.GetAsset());
+			if (MissionBlueprint)
 			{
-				FRecordEntry newRecord = FRecordEntry(missionCDO->GetClass(), missionCDO->MissionDetails);
-				FullGameMissionsRecords.Add(newRecord);
+				UMissionObject* missionObject = Cast<UMissionObject>(MissionBlueprint->GeneratedClass.GetDefaultObject());
+				if (missionObject)
+				{
+					FMissionDetails recordDetails = AMS_Types::GenerateDetails(missionObject->MissionRelatedActions);
+					FRecordEntry newRecord = FRecordEntry(missionObject->GetClass(), recordDetails);
+					FullGameMissionsRecords.Add(newRecord);
+				}
 			}
+
 			
 		}
 	}

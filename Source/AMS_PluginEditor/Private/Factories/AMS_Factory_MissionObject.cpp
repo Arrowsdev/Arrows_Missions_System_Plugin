@@ -59,11 +59,15 @@ bool UAMS_Factory_MissionObject::ConfigureProperties()
 	
 	UClass* ChosenClass = nullptr;
 	const bool bPressedOk = FAMsEditorUtilities::PickChildrenOfClass(TitleText, ChosenClass, SupportedClass);
-	if (bPressedOk)
+	if (bPressedOk && ChosenClass)
 	{
 		ParentClass = ChosenClass;
+		
 	}
-
+	else
+	{
+		return false;
+	}
 	return bPressedOk;
 }
 

@@ -20,16 +20,6 @@
 class UActionObject;
 class UMissionObject;
 
-/**
- * 
- */
-class AMS_PLUGIN_API AMS_Types
-{
-
-public:
-	AMS_Types();
-	~AMS_Types();
-};
 
 inline void PrintLog(FString log, float duration=0, FColor color = FColor::Blue)
 {
@@ -354,5 +344,45 @@ struct FRecordEntry
 	{
 		RequiredCount = required;
 		BlackListedCount = blacklisted;
+	}
+};
+
+/**
+ *
+ */
+class AMS_PLUGIN_API AMS_Types
+{
+
+public:
+	AMS_Types();
+	~AMS_Types();
+
+	//generate temp details without the need for a hosting mission, so we can make calculations depending on properties of classes
+	//and we dont need to init any mission to get the details that it will have if it was started
+	static FMissionDetails GenerateDetails(TArray<TSubclassOf<UActionObject>>& Actions)
+	{
+		TMap<TSubclassOf<UActionObject>, int32> InstancesMap;
+		FMissionDetails outDetails;
+
+		for (auto& itr : Actions)
+		{
+			UActionObject* ActionCDO = itr.GetDefaultObject();
+
+			if (InstancesMap.Contains(itr))
+			{
+				InstancesMap[itr] += ActionCDO->LocalActionCount;
+			}
+			else
+			{
+				InstancesMap.Add(itr, ActionCDO->LocalActionCount);
+			}
+		}
+
+		for (auto& kv : InstancesMap)
+		{
+			outDetails.MissionRelatedActions.Emplace(kv.Key, kv.Value);
+		}
+
+		return outDetails;
 	}
 };
