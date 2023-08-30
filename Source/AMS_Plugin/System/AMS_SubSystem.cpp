@@ -330,7 +330,7 @@ UAMS_SaveGame* UAMS_SubSystem::LoadGame(FName playerProfile, bool& found)
 
 void UAMS_SubSystem::CreateCheckPoint()
 {
-	FullGameMissionsRecords = GenerateRecordsFromActiveMissions();
+	CheckPointMissionsRecords = GenerateRecordsFromActiveMissions();
 }
 
 void UAMS_SubSystem::LoadCheckPoint()
