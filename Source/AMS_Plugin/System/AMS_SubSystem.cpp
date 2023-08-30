@@ -336,6 +336,10 @@ void UAMS_SubSystem::CreateCheckPoint()
 void UAMS_SubSystem::LoadCheckPoint()
 {
 	//shoul put retrevie logics here
+	//we have an issue , if the system was used for rpg game and the player has multiple opened quests and one is failed 
+	//when restarting the game from checkpoint we need a way to figure out the place that should be uesed for respawn , is it for the first mission ?
+	//or the second or what mission, or maybe i dont know much about rpg missions and how they are played and if even they have the ability to start multiple quests
+	//i need some directions in this matter 
 }
 
 void UAMS_SubSystem::CancelMission(TSubclassOf<UMissionObject> mission)
