@@ -183,6 +183,14 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		return MissionSubSystemInstance->ActiveMissions[missionClass];
 	}
 
+	//get all game missins records so you can use them to create a menu that the player can select a mission to play, or any other use
+	UFUNCTION(BlueprintPure, Category = "Arrows Mission System")
+	static FORCEINLINE TArray<FRecordEntry> GetGameMissions()
+	{
+		if (!MissionSubSystemInstance)return TArray<FRecordEntry>();
+		return MissionSubSystemInstance->FullGameMissionsRecords;
+	}
+
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System | Debugging")
 		FORCEINLINE	int32 GetActiveMissionsCount(FName& UsedProfile)
 	{

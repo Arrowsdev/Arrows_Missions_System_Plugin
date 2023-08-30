@@ -76,6 +76,13 @@ enum class ERestartType : uint8
 	fromStart
 };
 
+UENUM(BlueprintType)
+enum class EMissionType : uint8
+{
+	main   UMETA(DisplayName = "Main Mission", ToolTip = "needed for the game to finish"),
+	side   UMETA(DisplayName = "Side Mission", ToolTip = "not needed for the game to finish \n but considered in the full game progress")
+};
+
 //STRUCTURES:
 
 //this is the representation of the action after activation
@@ -191,7 +198,7 @@ struct FObjective
 	//gets the percentage of compeletion for the objective
 	float GetObjectiveProgress()
 	{
-		return FMath::CeilToFloat(ActionCount) / FMath::CeilToFloat(TotalCount);
+		return static_cast<float>(ActionCount) / static_cast<float>(TotalCount);
 	}
 };
 
@@ -210,6 +217,10 @@ struct FMissionDetails
 	//the describtion of the mission
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MissionDetails", meta = (DisplayName = "Mission Describtion"))
 		FString MissionDescribtion = "Default Mission Describtion";
+
+	//if the mission is main or side mission
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MissionDetails", meta = (DisplayName = "Mission Type"))
+		EMissionType MissionType;
 
 	//if the mission have a count down for it's end or not
 	UPROPERTY(EditAnywhere, Category = "MissionDetails", meta = (DisplayName = "Has Timer?"))
