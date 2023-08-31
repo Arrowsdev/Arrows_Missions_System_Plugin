@@ -155,6 +155,12 @@ struct FObjective
 		return bIsFinished;
 	}
 
+	//called from the details to activate the action assossiated with this objective
+	void Activate()
+	{
+		ActivatedAction->OnActivated(ActionCount, TotalCount);
+	}
+
 	//gets the status in : ActionName [ 1 / 5 ]
 	FString GetObjectibeStatus(EStatusGetterType getterType)
 	{
@@ -282,6 +288,14 @@ struct FMissionDetails
 			}
 			MissionProgress = percent;
 			return percent;
+		}
+
+		void ActivateActions()
+		{
+			for (auto& action : MissionRelatedActions)
+			{
+				action.Activate();
+			}
 		}
 };
 

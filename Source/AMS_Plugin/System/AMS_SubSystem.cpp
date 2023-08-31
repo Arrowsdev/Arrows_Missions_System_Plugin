@@ -144,6 +144,9 @@ void UAMS_SubSystem::GenerateActiveMissionsFromRecord(TArray<FRecordEntry> Activ
 		{
 			LOG_AMS("Mission Activated", 10.0f, FColor::Magenta);
 			ActivatedMission->MissionDetails = record.MissionDetails;
+			ActivatedMission->RequiredObjectivesCount = record.RequiredCount;
+			ActivatedMission->BlackListedObjectivesCount = record.BlackListedCount;
+
 			ActivatedMission->InitializeMission(INIT_LOAD);
 			ActiveMissions.Add(record.MissionClass, ActivatedMission);
 		}
@@ -241,6 +244,11 @@ void UAMS_SubSystem::InvokeDataCenterSaveEvent(UAMS_SaveGame* saveGameObject)
 	{
 		DataCenterSinglton->OnGameSaveStarted(saveGameObject);
 	}
+
+	else
+	{
+		Internal_CompleteSave(saveGameObject);
+	}
 }
 
 void UAMS_SubSystem::InvokeDataCenterLoadEvent(UAMS_SaveGame* saveGameObject)
@@ -249,6 +257,7 @@ void UAMS_SubSystem::InvokeDataCenterLoadEvent(UAMS_SaveGame* saveGameObject)
 	{
 		DataCenterSinglton->OnGameLoaded(saveGameObject);
 	}
+	
 }
 
 void UAMS_SubSystem::PreformMissionAction(TSubclassOf<UMissionObject> Mission, TSubclassOf<UActionObject> PreformedAction)
@@ -339,7 +348,8 @@ void UAMS_SubSystem::LoadCheckPoint()
 	//we have an issue , if the system was used for rpg game and the player has multiple opened quests and one is failed 
 	//when restarting the game from checkpoint we need a way to figure out the place that should be uesed for respawn , is it for the first mission ?
 	//or the second or what mission, or maybe i dont know much about rpg missions and how they are played and if even they have the ability to start multiple quests
-	//i need some directions in this matter 
+	//i need some directions in this matter
+	GenerateActiveMissionsFromRecord(CheckPointMissionsRecords);
 }
 
 void UAMS_SubSystem::CancelMission(TSubclassOf<UMissionObject> mission)

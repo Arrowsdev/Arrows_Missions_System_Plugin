@@ -47,6 +47,17 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Action Details", meta=(EditCondition="ActionType == EActionType::blacklisted"))
 		bool bInstantFail;
 
+	/*called when ever the action is activated for a mission , this is where you init the needed logics for this action like
+	* if this was a kill enemies action then when activated you need to spawn the enemies, and use the provided cout to spawn the number 
+	* taking in mind when the mission is loaded after some progress you can use the count to spawn less enemies if the game was checkpoint
+	* or use the total to spawn the full number if you want, if the game has saved after doing half of the action count 
+	* you need to use just the half to init the action so the player do only the remaining
+	*/
+	UFUNCTION(BlueprintNativeEvent, Category = ActionEvents)
+		void OnActivated(int32 count, int32 Total);
+	virtual void OnActivated_Implementation(int32 count, int32 Total) {/*No Implement*/ }
+
+
 	/*called when the action is finished*/
 	UFUNCTION(BlueprintNativeEvent, Category = ActionEvents)
 		void OnFinished(int32 count, int32 Total);
