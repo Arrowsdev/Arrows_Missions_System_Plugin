@@ -134,7 +134,11 @@ void UMissionObject::MissionCheckEnd(TSubclassOf<UActionObject> FinishedAction)
 	if (FinishedCount == *CountPtr)
 	{
 		if (FinishedAction.GetDefaultObject()->ActionType == EActionType::required)
+		{
 			EndMission(EFinishState::succeeded, FFailInfo());
+			MissionDetails.bIsMissionFinished = true;
+		}
+			
 	    
 		else
 			EndMission(EFinishState::failed, FFailInfo(FinishedAction));

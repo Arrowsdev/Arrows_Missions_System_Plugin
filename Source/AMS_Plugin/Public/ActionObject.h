@@ -25,7 +25,11 @@ UCLASS(Blueprintable, BlueprintType, HideDropDown)
 class AMS_PLUGIN_API UActionObject : public UObject
 {
 	GENERATED_BODY()
-	
+	/*
+	* @ToDo:
+	* action should also pass the mission that it was related to so we can use the action with multiple missions and have different behaviours 
+	* this means we need to change how we construct the mission details and the objectives or find a workaround for that 
+	*/
 public:
 
 	/*the name of this acion that is used for UI preview*/
@@ -69,6 +73,15 @@ public:
 	UFUNCTION(BlueprintNativeEvent, Category = ActionEvents)
 		void OnPreformed(int32 count, int32 Total);
 	virtual void OnPreformed_Implementation(int32 count, int32 Total) {/*No Implement*/ }
+
+	//callled when the player reaches a highscore
+	//to do : dont know how the rest of the behaviour should be like when we call this , should the objective reset the action count to zero 
+	//so it starts to count again or maybe add another member to update the score to meet in the action it self so when ever a highscore is reached
+	//we update the score to meet so the player keep counting for new highscore, also should probably save at this point
+	UFUNCTION(BlueprintNativeEvent, Category = ActionEvents)
+		void OnHighScore(int32 count, int32 Total);
+	virtual void OnHighScore_Implementation(int32 count, int32 Total) {/*No Implement*/ }
+
 
 	UWorld* GetWorld() const;
 

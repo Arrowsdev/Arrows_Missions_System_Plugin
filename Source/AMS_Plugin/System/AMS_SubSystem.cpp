@@ -63,7 +63,7 @@ void UAMS_SubSystem::RecordMissionFinished(UMissionObject* Mission)
 	newRecord.BlackListedCount = Mission->BlackListedObjectivesCount;
 	newRecord.MissionDetails.MissionProgress = Mission->GetMissionProgress();
 
-	FinishedMissions.Add(newRecord);//deprecated , left for near futur only
+	FinishedMissions.Add(newRecord);//deprecated , left for near futur only, not deprecated anymore
 
 	if(JuernalSingelton)
 	JuernalSingelton->AddJuernalRecord(newRecord);
@@ -360,9 +360,13 @@ void UAMS_SubSystem::CancelMission(TSubclassOf<UMissionObject> mission)
 	}
 }
 
-void UAMS_SubSystem::Internal_GetGameProgress()
+float UAMS_SubSystem::Internal_GetGameProgress()
 {
-	
+	float progress = 0.0f;
+	for (auto& itr : FinishedMissions)
+	{
+		progress += itr.IsFinished(progress);
+	}
 }
 
 //called once on begin play so that the game knows the count of games missions 

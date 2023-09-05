@@ -95,7 +95,7 @@ public:
 	// Mission API
 
 	/*Gets The Current Time Of the Mission
-	* @param formatedTime gives the time in minutes : seconds fasion
+	* @param formatedTime gives the time in [ minutes : seconds ] fasion
 	*/
 	UFUNCTION(BlueprintPure, Category="Mission System", meta=(ReturnDisplayName="Current Time"))
 		FORCEINLINE float GetMissionTime(FText& formatedTime, float& defaultTime)

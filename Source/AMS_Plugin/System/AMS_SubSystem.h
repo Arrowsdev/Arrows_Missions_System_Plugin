@@ -191,6 +191,14 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		return MissionSubSystemInstance->FullGameMissionsRecords;
 	}
 
+	/*get the full game progress*/
+	UFUNCTION(BlueprintPure, Category = "Arrows Mission System")
+	static FORCEINLINE float GetGameProgress()
+	{
+		if (!MissionSubSystemInstance)return 0.0f;
+		return MissionSubSystemInstance->Internal_GetGameProgress();
+	}
+
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System | Debugging")
 		FORCEINLINE	int32 GetActiveMissionsCount(FName& UsedProfile)
 	{
@@ -236,7 +244,7 @@ public:
 	void GenerateActiveMissionsFromRecord(UAMS_SaveGame* saveGameObject);
 
 	//used to calculate the progress for the whole game 
-	void Internal_GetGameProgress();
+	float Internal_GetGameProgress();
 
 	void InitiateFullGameProgressData();
 
@@ -263,7 +271,7 @@ private:
 	//used to save the missions instaces so they wont be collected by garbage collection
 	TMap<TSubclassOf<UMissionObject>, UMissionObject*> ActiveMissions;
 
-	/*Temp holder for the finished missions , use the juernal version of this one */
+	/*Temp holder for the finished missions , use the juernal version of this one , not temp anymore used to have internal records if we dont  have a juernal*/
 	TArray<FRecordEntry> FinishedMissions;
 
 	//a records list for missions states and progress before any mission fail , used for restart game from check point option.

@@ -136,6 +136,8 @@ struct FObjective
 				if (ActivatedAction->ActionType == EActionType::highscore)
 				{
 					TotalCount = ActionCount;
+
+					ActivatedAction->OnHighScore(ActionCount, TotalCount);
 					//should save here
 
 					return false;
@@ -240,6 +242,9 @@ struct FMissionDetails
 	//so we can use it to restart the mission from a record with proper default values
 	UPROPERTY()
 	float DefaultMissionTime;
+
+	UPROPERTY()
+	bool bIsMissionFinished;
 
 	//used for when recording the mission we need a place to put the calculated progress
 	UPROPERTY(BlueprintReadWrite, Category = "MissionDetails")
@@ -369,6 +374,13 @@ struct FRecordEntry
 	{
 		RequiredCount = required;
 		BlackListedCount = blacklisted;
+	}
+
+	//get if a mission is finsihed or not and the progress of it 
+	bool IsFinished(float& completion)
+	{
+		completion = MissionDetails.GetMissionCompeletion();
+		return MissionDetails.bIsMissionFinished;
 	}
 };
 
