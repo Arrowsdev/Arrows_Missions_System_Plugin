@@ -135,6 +135,11 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 		void CancelMission(TSubclassOf<UMissionObject> mission);
 
+	/*used to restart any mission if it was active or recently failed, and if not it will start the mission*/
+	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
+		void RestartMission(TSubclassOf<UMissionObject> mission, ERestartType restartType);
+
+
 	/*used to cancel the mission , it will be added to the finished missions
 	* and marked as failed
 	*/

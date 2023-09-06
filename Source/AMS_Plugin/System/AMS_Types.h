@@ -292,7 +292,8 @@ struct FMissionDetails
 				}
 			}
 			MissionProgress = percent;
-			return percent;
+
+			return MissionProgress;
 		}
 
 		void ActivateActions()

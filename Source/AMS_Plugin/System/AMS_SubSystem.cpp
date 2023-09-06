@@ -272,19 +272,18 @@ void UAMS_SubSystem::PreformMissionAction(TSubclassOf<UMissionObject> Mission, T
 			LOG_AMS("Subsystem preform called", 10.0f, FColor::Yellow);
 			if (objective.Preform())//this means this preform was the finisher for it so we check if all tasks are finished too
 			{
-				ActiveMissions[Mission]->MissionCheckEnd(PreformedAction);//either passed or failed
+				ActiveMissions[Mission]->MissionCheckEnd(PreformedAction);//either passed or failed	
 
 				if (SaveType == ESaveMissionType::Always)
 				{
 					Internal_MissionSave();
 					LOG_AMS("Saved After Objective Finished", 10.0f, FColor::Magenta);
 				}
-					
 			}
 
 			else//the action is preformed but the objective is not finished we check if it was a blacklisted action with instant fail flag
 			{
-
+				
 				if (preformedActionCDO->ActionType == EActionType::blacklisted && preformedActionCDO->bInstantFail)
 				{
 					ActiveMissions[Mission]->EndMission(EFinishState::failed, FFailInfo(PreformedAction));
@@ -349,6 +348,7 @@ void UAMS_SubSystem::LoadCheckPoint()
 	//when restarting the game from checkpoint we need a way to figure out the place that should be uesed for respawn , is it for the first mission ?
 	//or the second or what mission, or maybe i dont know much about rpg missions and how they are played and if even they have the ability to start multiple quests
 	//i need some directions in this matter
+	if(!CheckPointMissionsRecords.IsEmpty())
 	GenerateActiveMissionsFromRecord(CheckPointMissionsRecords);
 }
 
@@ -360,15 +360,45 @@ void UAMS_SubSystem::CancelMission(TSubclassOf<UMissionObject> mission)
 	}
 }
 
+void UAMS_SubSystem::RestartMission(TSubclassOf<UMissionObject> mission, ERestartType restartType)
+{
+	if (!ActiveMissions.Contains(mission))
+	{
+		StartNewMission(mission, ActiveSaveProfileName);
+		return;
+	}
+
+	ActiveMissions.Remove(mission);//remove it and leave any other active quests
+	switch (restartType)
+	{
+	case ERestartType::fromCheckPoint:
+
+		LoadCheckPoint();
+		break;
+
+	case ERestartType::fromStart:
+
+		StartNewMission(mission, ActiveSaveProfileName);
+		break;
+
+	default:
+
+		StartNewMission(mission, ActiveSaveProfileName);
+		break;
+	}
+}
+
 float UAMS_SubSystem::Internal_GetGameProgress()
 {
 	float progress = 0.0f;
 	for (auto& itr : FinishedMissions)
 	{
-		progress += itr.IsFinished(progress);
+		float next;
+	   itr.IsFinished(next);//it incremeant now inside the type it self
+	   progress += next / static_cast<float>(itr.RequiredCount);
 	}
 
-	return progress;
+	return progress / static_cast<float>(FullGameMissionsCount);
 }
 
 //called once on begin play so that the game knows the count of games missions 
