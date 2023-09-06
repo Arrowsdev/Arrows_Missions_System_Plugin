@@ -34,7 +34,7 @@ TStatId UMissionObject::GetStatId() const
 bool UMissionObject::IsTickable() const
 {
 	//only tick if we are not the default object CDO
-	return this != GetClass()->GetDefaultObject();
+	return (this != GetClass()->GetDefaultObject() && CurrentState == EFinishState::inProgress);
 }
 
 UWorld* UMissionObject::GetWorld() const
@@ -100,6 +100,7 @@ void UMissionObject::EndMission(EFinishState finishState, FFailInfo FailInfo)
 	CurrentState = finishState;
 	UAMS_SubSystem::GetMissionSubSystem()->RecordMissionFinished(this);
 	OmMissionEnd(finishState, FailInfo);
+
 }
 
 

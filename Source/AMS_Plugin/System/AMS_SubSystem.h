@@ -253,6 +253,7 @@ public:
 
 	void InitiateFullGameProgressData();
 
+
 	//returns a records for the active missions so we can save it
 	TArray<FRecordEntry> GenerateRecordsFromActiveMissions();
 
@@ -274,21 +275,30 @@ public:
 	
 private:
 	//used to save the missions instaces so they wont be collected by garbage collection
+	//(funny thing that the list it self wasn't safe from it untill we decorate it with the property macro XDD)
+	UPROPERTY()
 	TMap<TSubclassOf<UMissionObject>, UMissionObject*> ActiveMissions;
 
 	/*Temp holder for the finished missions , use the juernal version of this one , not temp anymore used to have internal records if we dont  have a juernal*/
+	UPROPERTY()
 	TArray<FRecordEntry> FinishedMissions;
 
 	//a records list for missions states and progress before any mission fail , used for restart game from check point option.
+	UPROPERTY()
 	TArray<FRecordEntry> CheckPointMissionsRecords;
 
 	//records for missions information it will be modified manually to get 100% compeletion from them and this way we get 
 	//pretty good data to represent for the player instead of just the amount of missions left
+	UPROPERTY()
 	TArray<FRecordEntry> FullGameMissionsRecords;
 
+	UPROPERTY()
 	UAMS_JuernalObject* JuernalSingelton;//change the save logics to save this one instead of the finishedMissions array
+
+	UPROPERTY()
 	UAMS_DataCenter* DataCenterSinglton;
 
+	UPROPERTY()
 	FName ActiveSaveProfileName;
 	
 	//the mission count that is used to find how much of the game is finished

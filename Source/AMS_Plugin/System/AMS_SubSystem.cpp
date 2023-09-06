@@ -368,6 +368,7 @@ void UAMS_SubSystem::RestartMission(TSubclassOf<UMissionObject> mission, ERestar
 		return;
 	}
 
+	ActiveMissions[mission]->CurrentState = EFinishState::canceled;//just to prevent it from ticking but it is not recorded since this was direct set for the state
 	ActiveMissions.Remove(mission);//remove it and leave any other active quests
 	switch (restartType)
 	{
@@ -440,3 +441,4 @@ void UAMS_SubSystem::InitiateFullGameProgressData()
 	
 	PrintLog(FString::Printf(TEXT("found %d of Mission Object Blueprints and first one is :  "), FoundMissions.Num()), 10.0f);
 }
+
