@@ -133,7 +133,7 @@ void UAMS_SubSystem::GenerateActiveMissionsFromRecord(TArray<FRecordEntry> Activ
 	{
 		LOG_AMS("No Active Records", 10.0f, FColor::Red);
 	}
-	for (auto record : ActiveRecords)
+	for (auto& record : ActiveRecords)
 	{
 		if (!record.MissionClass)
 		{
@@ -229,7 +229,7 @@ void UAMS_SubSystem::LoadFinishedMissionsToJuernal()
 {
 	if (JuernalSingelton)
 	{
-		return JuernalSingelton->AssignRecordList(FinishedMissions);
+		 JuernalSingelton->AssignRecordList(FinishedMissions);
 	}
 }
 
