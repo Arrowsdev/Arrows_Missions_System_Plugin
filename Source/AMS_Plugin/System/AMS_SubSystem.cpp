@@ -367,6 +367,8 @@ float UAMS_SubSystem::Internal_GetGameProgress()
 	{
 		progress += itr.IsFinished(progress);
 	}
+
+	return progress;
 }
 
 //called once on begin play so that the game knows the count of games missions 
