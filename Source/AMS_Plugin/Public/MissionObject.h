@@ -100,12 +100,21 @@ public:
 	UFUNCTION(BlueprintPure, Category="Mission System", meta=(ReturnDisplayName="Current Time"))
 		FORCEINLINE float GetMissionTime(FText& formatedTime, float& defaultTime)
     {
+
 		//seconds counter
 		int32 TotalSeconds = MissionDetails.bIsCountDown? MissionDetails.MissionTime - TimeCounter : TimeCounter;
+
+#if ENGINE_MAJOR_VERSION == 4
+
+		float  seconds;
+		int32 Minutes = UKismetMathLibrary::FMod((totalRemaining), 60.0f, seconds);
+
+#elif ENGINE_MAJOR_VERSION == 5
 
 		//logics for formated time
 		double seconds;
 		int32 Minutes = UKismetMathLibrary::FMod((FMath::CeilToDouble(TotalSeconds)), FMath::CeilToDouble(60.0f), seconds);
+#endif
 
 		FString AdditionalText = CurrentState != EFinishState::paused ? "" : " [ Paused ]";
 		formatedTime = FText::FromString(FString::Printf(TEXT("[ %d : %d ]%s"), Minutes, FMath::RoundToInt(seconds), *AdditionalText));
