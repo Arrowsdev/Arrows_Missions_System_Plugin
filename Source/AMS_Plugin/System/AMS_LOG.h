@@ -3,6 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "logging/LogCategory.h"
+
+DECLARE_LOG_CATEGORY_EXTERN(MissionSystem, Log, All);
+
 
 /**
  * class dedicated for logging data 

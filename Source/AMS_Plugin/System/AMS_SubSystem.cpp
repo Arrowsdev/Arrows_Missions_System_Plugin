@@ -405,40 +405,59 @@ float UAMS_SubSystem::Internal_GetGameProgress()
 //called once on begin play so that the game knows the count of games missions 
 void UAMS_SubSystem::InitiateFullGameProgressData()
 {
-	TArray<FAssetData> FoundMissions;
-	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
-	FTopLevelAssetPath BaseClassName = UMissionObject::StaticClass()->GetDefaultObject()->GetClass()->GetClassPathName();
+	FullGameMissionsRecords.Empty();
+	FullGameMissionsCount = 0;
 
-	//the tag that is added on mission construct
-	TArray<FName>Tags;
-	Tags.Add("MissionObject");
-	AssetRegistryModule.Get().GetAssetsByTags(Tags, FoundMissions);
-
-	FullGameMissionsCount = FoundMissions.Num();
-
-	if (FullGameMissionsCount)
+	if (GameMissionsList.IsEmpty())
 	{
-		FullGameMissionsRecords.Empty();
-		for (FAssetData& mission : FoundMissions)
+		TArray<FAssetData> FoundMissions;
+		FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+		FTopLevelAssetPath BaseClassName = UMissionObject::StaticClass()->GetDefaultObject()->GetClass()->GetClassPathName();
+
+		//the tag that is added on mission construct
+		TArray<FName>Tags;
+		Tags.Add("MissionObject");
+		AssetRegistryModule.Get().GetAssetsByTags(Tags, FoundMissions);
+
+		FullGameMissionsCount = FoundMissions.Num();
+
+		if (FullGameMissionsCount)
 		{
-
-			UBlueprint* MissionBlueprint = Cast<UBlueprint>(mission.GetAsset());
-			if (MissionBlueprint)
+			FullGameMissionsRecords.Empty();
+			for (FAssetData& mission : FoundMissions)
 			{
-				UMissionObject* missionObject = Cast<UMissionObject>(MissionBlueprint->GeneratedClass.GetDefaultObject());
-				if (missionObject)
-				{
-					FMissionDetails recordDetails = AMS_Types::GenerateDetails(missionObject->MissionRelatedActions);
-					FRecordEntry newRecord = FRecordEntry(missionObject->GetClass(), recordDetails);
-					FullGameMissionsRecords.Add(newRecord);
-				}
-			}
 
-			
+				UBlueprint* MissionBlueprint = Cast<UBlueprint>(mission.GetAsset());
+				if (MissionBlueprint)
+				{
+					UMissionObject* missionObject = Cast<UMissionObject>(MissionBlueprint->GeneratedClass.GetDefaultObject());
+					if (missionObject)
+					{
+						FMissionDetails recordDetails = AMS_Types::GenerateDetails(missionObject->MissionRelatedActions);
+						FRecordEntry newRecord = FRecordEntry(missionObject->GetClass(), recordDetails);
+						FullGameMissionsRecords.Add(newRecord);
+					}
+				}
+
+
+			}
+		}
+
+		PrintLog(FString::Printf(TEXT("found %d of Mission Object Blueprints and first one is :  "), FoundMissions.Num()), 10.0f);
+	}
+
+	else
+	{
+		FullGameMissionsCount = GameMissionsList.Num();
+
+		for (auto& mission : GameMissionsList)
+		{
+			UMissionObject* missionObject = Cast<UMissionObject>(mission.GetDefaultObject());
+
+			FMissionDetails recordDetails = AMS_Types::GenerateDetails(missionObject->MissionRelatedActions);
+			FRecordEntry newRecord = FRecordEntry(missionObject->GetClass(), recordDetails);
+			FullGameMissionsRecords.Add(newRecord);
 		}
 	}
-    
-	
-	PrintLog(FString::Printf(TEXT("found %d of Mission Object Blueprints and first one is :  "), FoundMissions.Num()), 10.0f);
 }
 

@@ -4,6 +4,8 @@
 #include "AMS_LOG.h"
 #include "AMS_Plugin/System/AMS_SubSystem.h"
 
+DEFINE_LOG_CATEGORY(MissionSystem);
+
 #define SPIT_CLASS(TheClass,Instance) +##TheClass##->GetName() + " Instance : " + (##Instance? "Valid" : "Not Valid")
 AMS_LOG::AMS_LOG()
 {

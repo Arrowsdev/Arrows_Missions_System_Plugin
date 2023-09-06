@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "AMS_Types.h"
-#include "AMS_LOG.h"
 #include "AMS_SubSystem.generated.h"
 
 
@@ -38,7 +37,8 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		TSubclassOf<UAMS_JuernalObject> JuernalClass;
 
 	//this is the list of all playable missins in the game , we use this to get the game compeletion only it dosnt affect
-	//the order in which the mission are played since we manually play missins by start mission call
+	//the order in which the mission are played since we manually play missins by start mission call, if filled it will override the default behaviour
+	//were we consider all mission classes in the project, but if this filled with one element it will be our full game list
 	UPROPERTY(config, EditAnywhere, Category = "Settings")
 		TArray<TSubclassOf<UMissionObject>> GameMissionsList;
 
