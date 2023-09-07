@@ -55,6 +55,10 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	UPROPERTY(config, EditAnywhere, Category = "Save Settings", meta = (EditCondition = "SaveType != ESaveMissionType::none"))
 		TSubclassOf<UAMS_DataCenter> DataCenterClass;
 
+	//enable or disable screen logs, yet the consol log will always be present
+	UPROPERTY(config, EditAnywhere, Category = "Settings")
+		bool AllowScreenDebug;
+
 // END OF PROJECT SETTINGS
 
 	/*starts new mission */
@@ -70,15 +74,18 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	}
 
 	//preform an action for specific mission from the active missions , if the provided mission is not active
-	//the call will be ignored
+	//the call will be ignored, the source should also have a mission associated tag for it action to be considered
+	//so if killing enemies was an action we want only those who has the tag to be counted so not all enemies are counted 
+	// you need to add this tag on spawn for your enemies to distinguish the default enemy class from the enemy that was spawned 
+	//for this passed mission
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
-	void PreformMissionAction(TSubclassOf<UMissionObject> Mission, TSubclassOf<UActionObject> PreformedAction);
+	void PreformMissionAction(TSubclassOf<UMissionObject> Mission, TSubclassOf<UActionObject> PreformedAction, AActor* ActionSource);
 	
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
-	static FORCEINLINE void PreformAction(TSubclassOf<UMissionObject> Mission, TSubclassOf<UActionObject> PreformedAction)
+	static FORCEINLINE void PreformAction(TSubclassOf<UMissionObject> Mission, TSubclassOf<UActionObject> PreformedAction, AActor* ActionSource)
 	{
 		if (!MissionSubSystemInstance) return;
-		MissionSubSystemInstance->PreformMissionAction(Mission, PreformedAction);
+		MissionSubSystemInstance->PreformMissionAction(Mission, PreformedAction, ActionSource);
 	}
 
 	//this function creates a savegame object , if there was an old profile it loads the last progress and let you 
@@ -139,6 +146,9 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 		void RestartMission(TSubclassOf<UMissionObject> mission, ERestartType restartType);
 
+	//called to pause a mission by it class if it was running 
+	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
+		void PauseMission(TSubclassOf<UMissionObject> mission, UPARAM(DisplayName = "Pause?") bool IsPaused);
 
 	/*used to cancel the mission , it will be added to the finished missions
 	* and marked as failed

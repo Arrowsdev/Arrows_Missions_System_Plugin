@@ -11,5 +11,3 @@ AMS_Types::AMS_Types()
 AMS_Types::~AMS_Types()
 {
 }
-
-

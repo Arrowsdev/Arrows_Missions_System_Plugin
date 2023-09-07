@@ -92,6 +92,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = Settings, meta = (DisplayName = "Mission Level"))
 		FName MissionLevel;
 
+	//the tag that should be in an actor for the mission to consider it's actions 
+	UPROPERTY(EditAnywhere, Category = Settings, meta = (DisplayName = "Assossiated Tag"))
+		FName AssossiatedTag;
 	// Mission API
 
 	/*Gets The Current Time Of the Mission
@@ -107,10 +110,10 @@ public:
 #if ENGINE_MAJOR_VERSION == 4
 
 		float  seconds;
-		int32 Minutes = UKismetMathLibrary::FMod((totalRemaining), 60.0f, seconds);
+		int32 Minutes = UKismetMathLibrary::FMod((TotalSeconds), 60.0f, seconds);
 
 #elif ENGINE_MAJOR_VERSION == 5
-
+		
 		//logics for formated time
 		double seconds;
 		int32 Minutes = UKismetMathLibrary::FMod((FMath::CeilToDouble(TotalSeconds)), FMath::CeilToDouble(60.0f), seconds);
@@ -166,6 +169,15 @@ public:
 		MissionDetails.bIsCountDown = countDown;
 	}
 
+	//pause the mission , it will freez the mission tick and also stop the timer if it was timed mission
+	//should be used before calling the unreal pause function just to make sure the mission logics are paused
+	UFUNCTION(BlueprintCallable, Category = "Mission System")
+		FORCEINLINE void PauseMission(UPARAM(DisplayName = "Pause?")bool IsPaused)
+	{
+		//we only care for pausing if the missin in progress , the tick will surely stop if it wasn't so we dont care about those states
+		if(CurrentState != EFinishState::failed && CurrentState != EFinishState::canceled && CurrentState != EFinishState::succeeded)
+		CurrentState = IsPaused? EFinishState::paused : EFinishState::inProgress;
+	}
 
 // NO EXPOSE:
 // 

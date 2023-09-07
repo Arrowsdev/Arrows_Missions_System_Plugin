@@ -40,3 +40,11 @@ void AMS_LOG::LogSubsystem(const UAMS_SubSystem* subsystem, const float duration
 
 	//to do here : log to the console 
 }
+
+bool AMS_LOG::IsOnScreenDebugIsEnabled()
+{
+	if (MissionSubSystemInstance)
+		return MissionSubSystemInstance->AllowScreenDebug;
+
+	return false;
+}

@@ -260,12 +260,14 @@ void UAMS_SubSystem::InvokeDataCenterLoadEvent(UAMS_SaveGame* saveGameObject)
 	
 }
 
-void UAMS_SubSystem::PreformMissionAction(TSubclassOf<UMissionObject> Mission, TSubclassOf<UActionObject> PreformedAction)
+void UAMS_SubSystem::PreformMissionAction(TSubclassOf<UMissionObject> Mission, TSubclassOf<UActionObject> PreformedAction, AActor* ActionSource)
 {
 	UActionObject* preformedActionCDO = PreformedAction.GetDefaultObject();
 
-	if (ActiveMissions.Contains(Mission))
+	if (ActiveMissions.Contains(Mission) && IsValid(ActionSource))
 	{
+		if (!ActionSource->ActorHasTag(ActiveMissions[Mission]->AssossiatedTag)) return;
+
 		FObjective& objective = ActiveMissions[Mission]->MissionDetails.GetActionRelatedObjective(PreformedAction);
 		if (objective.ActionClass && !objective.bIsFinished)
 		{
@@ -386,6 +388,14 @@ void UAMS_SubSystem::RestartMission(TSubclassOf<UMissionObject> mission, ERestar
 
 		StartNewMission(mission, ActiveSaveProfileName);
 		break;
+	}
+}
+
+void UAMS_SubSystem::PauseMission(TSubclassOf<UMissionObject> mission, bool IsPaused)
+{
+	if (ActiveMissions.Contains(mission))
+	{
+		ActiveMissions[mission]->PauseMission(IsPaused);
 	}
 }
 

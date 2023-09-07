@@ -22,6 +22,8 @@ public:
 	~AMS_LOG();
 
    void LogSubsystem(const UAMS_SubSystem* subsystem, const float duration);
+
+   static bool IsOnScreenDebugIsEnabled();
 };
 
 static void LogObjective();
