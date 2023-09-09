@@ -41,9 +41,11 @@ enum class EFinishState : uint8
 {
 	inProgress UMETA(DisplayName = "In Progress"),
 	paused     UMETA(DisplayName = "Paused"),
-	succeeded  UMETA(DisplayName="Succeeded"),
+	succeeded  UMETA(DisplayName = "Succeeded"),
 	failed     UMETA(DisplayName = "Failed"),
-	canceled   UMETA(DisplayName = "Canceled")
+	canceled   UMETA(DisplayName = "Canceled"),
+	notPlayed UMETA(DisplayName = "not played", Hidden)//this for missions that were collected by the subsystem for ui display we dont want to have this option visible
+	//anywhere in the blueprint code , this just to print an accurate text if the mission is not even started or canceled this is the state that it is in
 };
 
 //reasons for mission to fail
@@ -168,8 +170,16 @@ struct FObjective
 	}
 
 	//gets the status in : ActionName [ 1 / 5 ]
-	FString GetObjectibeStatus(EStatusGetterType getterType)
+	FString GetObjectibeStatus(EStatusGetterType getterType, FString& ObjectiveType)
 	{
+		//remove the enum class namespace and leave the value
+		ObjectiveType = UEnum::GetValueAsString(ActivatedAction->ActionType);
+		FString SFrom = TEXT("EActionType::");
+		FString STo = TEXT("");
+		const TCHAR* From = *SFrom;
+		const TCHAR* To = *STo;
+		ObjectiveType = ObjectiveType.Replace(From, To);
+
 		switch (getterType)
 		{
 		    case EStatusGetterType::current:
@@ -250,6 +260,9 @@ struct FMissionDetails
 	UPROPERTY()
 	bool bIsMissionFinished;
 
+	UPROPERTY()
+	int32 RequiredCount;
+
 	//used for when recording the mission we need a place to put the calculated progress
 	UPROPERTY(BlueprintReadWrite, Category = "MissionDetails")
 	float MissionProgress;
@@ -295,7 +308,7 @@ struct FMissionDetails
 					percent += objective.GetObjectiveProgress();
 				}
 			}
-			MissionProgress = percent;
+			MissionProgress = percent / RequiredCount;
 
 			return MissionProgress;
 		}
@@ -350,7 +363,8 @@ struct FRecordEntry
 
 	FRecordEntry(const FRecordEntry& otherRecord):
 		MissionClass(otherRecord.MissionClass), MissionDetails(otherRecord.MissionDetails),
-		RequiredCount(otherRecord.RequiredCount),BlackListedCount(otherRecord.BlackListedCount)
+		RequiredCount(otherRecord.RequiredCount),BlackListedCount(otherRecord.BlackListedCount),
+		MissionState(otherRecord.MissionState)
 	{
 		
 	}
@@ -361,6 +375,8 @@ struct FRecordEntry
 	UPROPERTY(BlueprintReadWrite, Category = "Mission Records", meta = (DisplayName = "Mission Details"))
 		FMissionDetails MissionDetails;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Mission Records", meta = (DisplayName = "Mission State"))
+		EFinishState MissionState;
 
 	//used to save the count of the required taskes from the mission
 	UPROPERTY()
@@ -374,7 +390,7 @@ struct FRecordEntry
 	{
 	} 
 
-	FRecordEntry(TSubclassOf<UMissionObject> Mission, FMissionDetails details, int32 required, int32 blacklisted)
+	FRecordEntry(TSubclassOf<UMissionObject> Mission, FMissionDetails details, EFinishState missionState, int32 required, int32 blacklisted)
 		: MissionClass(Mission), MissionDetails(details)
 	{
 		RequiredCount = required;

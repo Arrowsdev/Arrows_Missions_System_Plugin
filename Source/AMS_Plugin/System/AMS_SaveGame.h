@@ -31,5 +31,7 @@ public:
 	UPROPERTY()
 	TArray<FRecordEntry> SG_ActiveMissionsWhenSaved;
 
-
+	//save also checkpoints so if the game was closed and then opened we can restore the saved checkpoint
+	UPROPERTY()
+		TArray<FRecordEntry> SG_CheckPointMissionsRecords;
 };

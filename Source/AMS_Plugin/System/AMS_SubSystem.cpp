@@ -62,6 +62,7 @@ void UAMS_SubSystem::RecordMissionFinished(UMissionObject* Mission)
 	newRecord.RequiredCount = Mission->RequiredObjectivesCount;
 	newRecord.BlackListedCount = Mission->BlackListedObjectivesCount;
 	newRecord.MissionDetails.MissionProgress = Mission->GetMissionProgress();
+	newRecord.MissionState = Mission->CurrentState;
 
 	FinishedMissions.Add(newRecord);//deprecated , left for near futur only, not deprecated anymore
 
@@ -87,7 +88,8 @@ void UAMS_SubSystem::Internal_MissionSave()
 
 		SaveGameObject->SG_FinishedMissions = GetFinishedMissions();
 		SaveGameObject->SG_ActiveMissionsWhenSaved = GenerateRecordsFromActiveMissions();
-		
+		SaveGameObject->SG_CheckPointMissionsRecords = CheckPointMissionsRecords;
+
 		if (SaveGameObject->SG_ActiveMissionsWhenSaved.IsEmpty())
 		{
 			FString Mes = FString::Printf(TEXT("No Active Mission in profile [ %s ] saved but finished are : %d"),*ActiveSaveProfileName.ToString(), SaveGameObject->SG_FinishedMissions.Num());
@@ -104,6 +106,7 @@ void UAMS_SubSystem::Internal_MissionSave()
 		UAMS_SaveGame* SaveGameObject = Cast<UAMS_SaveGame>(UGameplayStatics::CreateSaveGameObject(SaveGameClass));
 		SaveGameObject->SG_FinishedMissions = FinishedMissions;
 		SaveGameObject->SG_ActiveMissionsWhenSaved = GenerateRecordsFromActiveMissions();
+		SaveGameObject->SG_CheckPointMissionsRecords = CheckPointMissionsRecords;
 		InvokeDataCenterSaveEvent(SaveGameObject);
 		LOG_AMS("Save Game Initiated", 10.0f, FColor::Green);
 		//UGameplayStatics::SaveGameToSlot(SaveGameObject, ActiveSaveProfileName.ToString(), 0);
@@ -209,7 +212,7 @@ TArray<FRecordEntry> UAMS_SubSystem::GenerateRecordsFromActiveMissions()
 		int32 required = kvPair.Value->RequiredObjectivesCount;
 		int32 blacklisted = kvPair.Value->BlackListedObjectivesCount;
 
-		Records.Emplace(kvPair.Key, kvPair.Value->MissionDetails, required, blacklisted);
+		Records.Emplace(kvPair.Key, kvPair.Value->MissionDetails, kvPair.Value->CurrentState, required, blacklisted);
 	}
 	return Records;
 }
@@ -405,8 +408,8 @@ float UAMS_SubSystem::Internal_GetGameProgress()
 	for (auto& itr : FinishedMissions)
 	{
 		float next;
-	   itr.IsFinished(next);//it incremeant now inside the type it self
-	   progress += next / static_cast<float>(itr.RequiredCount);
+	   itr.IsFinished(next);
+	   progress += next;//increment now here for more straight logic
 	}
 
 	return progress / static_cast<float>(FullGameMissionsCount);
@@ -443,8 +446,10 @@ void UAMS_SubSystem::InitiateFullGameProgressData()
 					UMissionObject* missionObject = Cast<UMissionObject>(MissionBlueprint->GeneratedClass.GetDefaultObject());
 					if (missionObject)
 					{
-						FMissionDetails recordDetails = AMS_Types::GenerateDetails(missionObject->MissionRelatedActions);
+						FMissionDetails recordDetails = missionObject->MissionDetails;
+						recordDetails.MissionRelatedActions = AMS_Types::GenerateDetails(missionObject->MissionRelatedActions).MissionRelatedActions;
 						FRecordEntry newRecord = FRecordEntry(missionObject->GetClass(), recordDetails);
+						newRecord.MissionState = EFinishState::notPlayed;
 						FullGameMissionsRecords.Add(newRecord);
 					}
 				}
@@ -463,10 +468,14 @@ void UAMS_SubSystem::InitiateFullGameProgressData()
 		for (auto& mission : GameMissionsList)
 		{
 			UMissionObject* missionObject = Cast<UMissionObject>(mission.GetDefaultObject());
-
-			FMissionDetails recordDetails = AMS_Types::GenerateDetails(missionObject->MissionRelatedActions);
-			FRecordEntry newRecord = FRecordEntry(missionObject->GetClass(), recordDetails);
-			FullGameMissionsRecords.Add(newRecord);
+			if(missionObject)
+			{
+				FMissionDetails recordDetails = missionObject->MissionDetails;
+				recordDetails.MissionRelatedActions = AMS_Types::GenerateDetails(missionObject->MissionRelatedActions).MissionRelatedActions;
+				FRecordEntry newRecord = FRecordEntry(missionObject->GetClass(), recordDetails);
+				newRecord.MissionState = EFinishState::notPlayed;
+				FullGameMissionsRecords.Add(newRecord);
+			}
 		}
 	}
 }

@@ -89,7 +89,8 @@ void UMissionObject::InitializeMission(bool bStart)
 		MissionDetails.MissionRelatedActions.Emplace(kv.Key, kv.Value);
 	}
 
-	FinishInit:
+FinishInit:
+	MissionDetails.RequiredCount = RequiredObjectivesCount;
 	CurrentState = EFinishState::inProgress;
 	OnMissionBegin();
 	LOG_AMS("Mission is initilized", 10.0f, FColor::Green);

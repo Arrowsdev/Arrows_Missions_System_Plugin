@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "AMS_Types.h"
+#include "SScreenFade.h"
 #include "AMS_SubSystem.generated.h"
 
 
@@ -25,6 +26,9 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	UAMS_SubSystem();
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+
+	TSharedPtr<SScreenFade> ScreenFade;
+	TSharedPtr<class SWidget> Container;
 
 //PROJECT SETTINGS
 
@@ -183,11 +187,13 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		return MissionSubSystemInstance->JuernalSingelton;
 	}
 
-	/*parse the passed objective to string*/
+	/*parse the passed objective to string, the struct is objective but it counts for blacklisted actions and also required or optional actions
+	* i hope it is not confusing using one struct for all of them , this way is cleaner , the type can be used in ui for the displayed info
+	*/
 	UFUNCTION(BlueprintPure, Category = "Arrows Mission System")
-	static	FORCEINLINE FString ParseObjective(FObjective objective, EStatusGetterType getterType)
+	static	FORCEINLINE FString ParseObjective(FObjective objective, EStatusGetterType getterType, FString& ObjectiveType)
 	{
-		return objective.GetObjectibeStatus(getterType);
+		return objective.GetObjectibeStatus(getterType, ObjectiveType);
 	}
 
 	/*get mission refernce if it was active so you can get   global access to it's properties and functions*/
@@ -227,6 +233,16 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		GetLogger()->LogSubsystem(this, 0.0f);
 	}
 	
+	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System | Debugging")
+		FORCEINLINE void Fade()
+	{
+		if (GEngine->GameViewport)
+		{
+			ScreenFade = SNew(SScreenFade);
+			GEngine->GameViewport->AddViewportWidgetContent(ScreenFade.ToSharedRef());
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, "Widget Created!");
+		}
+	}
 
 public:
 	

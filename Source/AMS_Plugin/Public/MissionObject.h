@@ -128,9 +128,9 @@ public:
 
 	/*return the objective as : objective[completion], while the completion depends on the format */
 	UFUNCTION(BlueprintPure, Category = "Mission System", meta = (ReturnDisplayName = "Objetive Status"))
-		FORCEINLINE FString GetObjectiveAsString(FObjective objective, EStatusGetterType format)
+		FORCEINLINE FString GetObjectiveAsString(FObjective objective, EStatusGetterType format, FString& ObjectiveType)
 	{
-		return objective.GetObjectibeStatus(format);
+		return objective.GetObjectibeStatus(format, ObjectiveType);
 	}
 
 	/*returns the generated objectives from the actions provided in the class details */
@@ -140,7 +140,7 @@ public:
 		return MissionDetails.MissionRelatedActions;
 	}
 
-	/*used to debug the number of generated objectives for provided actions*/
+	/*Get Current mission state, in porgress or paused or finished or canceled*/
 	UFUNCTION(BlueprintPure, Category = "Mission System", meta = (ReturnDisplayName = "Mission State"))
 		FORCEINLINE	EFinishState GetObjectiveCount()
 	{
@@ -151,7 +151,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mission System", meta = (ReturnDisplayName = "Mission State"))
 		FORCEINLINE float GetMissionProgress()
 	{
-		return  MissionDetails.GetMissionCompeletion() / RequiredObjectivesCount;
+		return  MissionDetails.GetMissionCompeletion();
 	}
 
 	UFUNCTION(BlueprintPure, Category = "Mission System | Debugging", meta = (ReturnDisplayName = "Mission Details"))
