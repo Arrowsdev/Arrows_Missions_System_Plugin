@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "AMS_Plugin/Public/ActionObject.h"
 #include "AMS_LOG.h"
+#include "AMS_TypesOperations.h"
+
 #include "AMS_Types.generated.h"
 
 
@@ -19,7 +21,8 @@
 #define INIT_LOAD false
 
 class UActionObject;
-class UMissionObject;
+class UMissionObject;//using AMS_TypesOperation to workaround this forwarded class type cuz i cant use it cuz it is incomplete and adding the header will cause
+//dependacy loop
 
 
 inline void PrintLog(FString log, float duration = 0, FColor color = FColor::Blue)
@@ -120,10 +123,15 @@ struct FObjective
 	UPROPERTY()
 	bool bIsFinished;//will be true if preformed X times, while X is the Action count
 
-	FObjective(TSubclassOf<UActionObject> Action, int32 count)
-		:ActionClass(Action), TotalCount(count)
+	UPROPERTY()
+	UMissionObject* OwningMission;
+
+	FObjective(TSubclassOf<UActionObject> Action, int32 count, UMissionObject* _owningMission)
+		:ActionClass(Action), TotalCount(count),OwningMission(_owningMission)
 	{
 		//we dont want to create new object instead using the class CDO to call our logic in BP 
+		//thinking of making instances instead of using the cdo so we can use custom user variables and they can differ and no worries if multiple missions had the same
+		//action
 		ActivatedAction = ActionClass.GetDefaultObject();
 		bIsFinished = false;
 		ActionCount = 0;
@@ -135,7 +143,7 @@ struct FObjective
 		if (!bIsFinished)
 		{
 			ActionCount++;
-			ActivatedAction->OnPreformed(ActionCount, TotalCount);
+			ActivatedAction->OnPreformed(OwningMission,ActionCount, TotalCount);
 
 		    if (ActionCount >= TotalCount)
 			{
@@ -143,14 +151,15 @@ struct FObjective
 				{
 					TotalCount = ActionCount;
 
-					ActivatedAction->OnHighScore(ActionCount, TotalCount);
+					ActivatedAction->OnHighScore(OwningMission,ActionCount, TotalCount);
 					//should save here
 
 					return false;
 				}
 
 				bIsFinished = true;
-				ActivatedAction->OnFinished(ActionCount, TotalCount);
+				ActivatedAction->OnFinished(OwningMission,ActionCount, TotalCount);
+				AMS_TypesOperations::InvokeOnTaskFinished(OwningMission, ActionClass, ActionCount);
 
 				return true;//only return true if the objective is finished so we can try to check if all others are also finished
 			}
@@ -166,7 +175,8 @@ struct FObjective
 	//called from the details to activate the action assossiated with this objective
 	void Activate()
 	{
-		ActivatedAction->OnActivated(ActionCount, TotalCount);
+		ActivatedAction->OnActivated(OwningMission,ActionCount, TotalCount);
+		AMS_TypesOperations::InvokeOnTaskActivated(OwningMission, ActionClass, ActionCount, TotalCount);
 	}
 
 	//gets the status in : ActionName [ 1 / 5 ]
@@ -222,8 +232,16 @@ struct FObjective
 	{
 		return static_cast<float>(ActionCount) / static_cast<float>(TotalCount);
 	}
+
+	bool HasOwner()
+	{
+		return OwningMission != nullptr;
+	}
 };
 
+/*
+* holds the information for a mission instance 
+*/
 USTRUCT(BlueprintType)
 struct FMissionDetails
 {
@@ -313,10 +331,13 @@ struct FMissionDetails
 			return MissionProgress;
 		}
 
-		void ActivateActions()
+		void ActivateActions(UMissionObject* Owner)
 		{
 			for (auto& action : MissionRelatedActions)
 			{
+				if (!action.HasOwner())
+					action.OwningMission = Owner;
+
 				action.Activate();
 			}
 		}
@@ -363,8 +384,8 @@ struct FRecordEntry
 
 	FRecordEntry(const FRecordEntry& otherRecord):
 		MissionClass(otherRecord.MissionClass), MissionDetails(otherRecord.MissionDetails),
-		RequiredCount(otherRecord.RequiredCount),BlackListedCount(otherRecord.BlackListedCount),
-		MissionState(otherRecord.MissionState)
+		MissionState(otherRecord.MissionState), RequiredCount(otherRecord.RequiredCount),
+		BlackListedCount(otherRecord.BlackListedCount)
 	{
 		
 	}
@@ -405,9 +426,7 @@ struct FRecordEntry
 	}
 };
 
-/**
- *
- */
+
 class AMS_PLUGIN_API AMS_Types
 {
 
@@ -421,7 +440,7 @@ public:
 	{
 		TMap<TSubclassOf<UActionObject>, int32> InstancesMap;
 		FMissionDetails outDetails;
-
+		UMissionObject* hostMission = nullptr;
 		for (auto& itr : Actions)
 		{
 			UActionObject* ActionCDO = itr.GetDefaultObject();
@@ -438,7 +457,7 @@ public:
 
 		for (auto& kv : InstancesMap)
 		{
-			outDetails.MissionRelatedActions.Emplace(kv.Key, kv.Value);
+			outDetails.MissionRelatedActions.Emplace(kv.Key, kv.Value,hostMission);
 		}
 
 		return outDetails;

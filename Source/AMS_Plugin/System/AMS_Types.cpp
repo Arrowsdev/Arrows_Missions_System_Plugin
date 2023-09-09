@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+//Advanced Mission System Developed by AIS Studios @2023
 
 
 #include "AMS_Types.h"
@@ -11,3 +11,4 @@ AMS_Types::AMS_Types()
 AMS_Types::~AMS_Types()
 {
 }
+

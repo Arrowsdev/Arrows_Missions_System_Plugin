@@ -86,11 +86,12 @@ void UMissionObject::InitializeMission(bool bStart)
 
 	for (auto& kv : InstancesMap)
 	{
-		MissionDetails.MissionRelatedActions.Emplace(kv.Key, kv.Value);
+		MissionDetails.MissionRelatedActions.Emplace(kv.Key, kv.Value, this);
 	}
 
 FinishInit:
 	MissionDetails.RequiredCount = RequiredObjectivesCount;
+	MissionDetails.ActivateActions(this);
 	CurrentState = EFinishState::inProgress;
 	OnMissionBegin();
 	LOG_AMS("Mission is initilized", 10.0f, FColor::Green);

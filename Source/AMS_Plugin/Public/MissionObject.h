@@ -63,13 +63,13 @@ public:
 	* you can set this in the mission settings (task activation settings)
 	*/
 	UFUNCTION(BlueprintNativeEvent, Category = MissionEvents)
-		void OnTaskActivated();
-	virtual void OnTaskActivated_Implementation() {/*No Implement*/ }
+		void OnTaskActivated(TSubclassOf<UActionObject> ActivatedTask, int32 ActionCount, int32 totalCount);
+	virtual void OnTaskActivated_Implementation(TSubclassOf<UActionObject> ActivatedTask, int32 ActionCount, int32 totalCount) {/*No Implement*/ }
 
-	/*called when ever a task is finished*/
+	/*called when ever a task is finished, if you needed the total count use the subsystem calls for get action details*/
 	UFUNCTION(BlueprintNativeEvent, Category = MissionEvents)
-		void OnTaskFinished();
-	virtual void OnTaskFinished_Implementation() {/*No Implement*/ }
+		void OnTaskFinished(TSubclassOf<UActionObject> ActivatedTask, int32 ActionCount);
+	virtual void OnTaskFinished_Implementation(TSubclassOf<UActionObject> ActivatedTask, int32 ActionCount) {/*No Implement*/ }
 
 	//Mission Configuration
 	UPROPERTY(EditAnywhere, Category = Settings)

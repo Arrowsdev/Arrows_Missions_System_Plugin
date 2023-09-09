@@ -6,6 +6,8 @@
 #include "UObject/NoExportTypes.h"
 #include "ActionObject.generated.h"
 
+class UMissionObject;
+
 /**
  * defines the action type
  */
@@ -58,29 +60,29 @@ public:
 	* you need to use just the half to init the action so the player do only the remaining
 	*/
 	UFUNCTION(BlueprintNativeEvent, Category = ActionEvents)
-		void OnActivated(int32 count, int32 Total);
-	virtual void OnActivated_Implementation(int32 count, int32 Total) {/*No Implement*/ }
+		void OnActivated(UMissionObject* OnwningMission, int32 count, int32 Total);
+	virtual void OnActivated_Implementation(UMissionObject* OnwningMission,int32 count, int32 Total) {/*No Implement*/ }
 
 
 	/*called when the action is finished*/
 	UFUNCTION(BlueprintNativeEvent, Category = ActionEvents)
-		void OnFinished(int32 count, int32 Total);
-	virtual void OnFinished_Implementation(int32 count, int32 Total) {/*No Implement*/ }
+		void OnFinished(UMissionObject* OnwningMission,int32 count, int32 Total);
+	virtual void OnFinished_Implementation(UMissionObject* OnwningMission,int32 count, int32 Total) {/*No Implement*/ }
 
 
 	//called when the action is preformed, if it is a high score action then it will keep preforming even after the count is done and it will update the
 	//highscore objective total count so it will be considered the new highscore to beat
 	UFUNCTION(BlueprintNativeEvent, Category = ActionEvents)
-		void OnPreformed(int32 count, int32 Total);
-	virtual void OnPreformed_Implementation(int32 count, int32 Total) {/*No Implement*/ }
+		void OnPreformed(UMissionObject* OnwningMission,int32 count, int32 Total);
+	virtual void OnPreformed_Implementation(UMissionObject* OnwningMission,int32 count, int32 Total) {/*No Implement*/ }
 
 	//callled when the player reaches a highscore
 	//to do : dont know how the rest of the behaviour should be like when we call this , should the objective reset the action count to zero 
 	//so it starts to count again or maybe add another member to update the score to meet in the action it self so when ever a highscore is reached
 	//we update the score to meet so the player keep counting for new highscore, also should probably save at this point
 	UFUNCTION(BlueprintNativeEvent, Category = ActionEvents)
-		void OnHighScore(int32 count, int32 Total);
-	virtual void OnHighScore_Implementation(int32 count, int32 Total) {/*No Implement*/ }
+		void OnHighScore(UMissionObject* OnwningMission,int32 count, int32 Total);
+	virtual void OnHighScore_Implementation(UMissionObject* OnwningMission,int32 count, int32 Total) {/*No Implement*/ }
 
 
 	UWorld* GetWorld() const;
