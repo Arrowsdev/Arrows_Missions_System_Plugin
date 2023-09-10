@@ -119,6 +119,7 @@ void UMissionObject::CountTime(float deltaTime)
 	}
 }
 
+//the issue narrowed down till here , plus the check inside the loop causes some bugs i did not notice it , fix later 
 void UMissionObject::MissionCheckEnd(TSubclassOf<UActionObject> FinishedAction)
 {
 	EActionType FinishedObjectiveType = FinishedAction.GetDefaultObject()->ActionType;

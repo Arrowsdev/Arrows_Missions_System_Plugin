@@ -263,6 +263,7 @@ void UAMS_SubSystem::InvokeDataCenterLoadEvent(UAMS_SaveGame* saveGameObject)
 	
 }
 
+//@bug : if we have two tasks one is optional then if it was finished first the mission wont end even if the required actions are done
 void UAMS_SubSystem::PreformMissionAction(TSubclassOf<UMissionObject> Mission, TSubclassOf<UActionObject> PreformedAction, AActor* ActionSource)
 {
 	UActionObject* preformedActionCDO = PreformedAction.GetDefaultObject();
@@ -367,6 +368,8 @@ void UAMS_SubSystem::CancelMission(TSubclassOf<UMissionObject> mission)
 
 void UAMS_SubSystem::RestartMission(TSubclassOf<UMissionObject> mission, ERestartType restartType)
 {
+	if (!mission) return;
+
 	if (!ActiveMissions.Contains(mission))
 	{
 		StartNewMission(mission, ActiveSaveProfileName);

@@ -326,7 +326,7 @@ struct FMissionDetails
 					percent += objective.GetObjectiveProgress();
 				}
 			}
-			MissionProgress = percent / RequiredCount;
+			MissionProgress = percent / RequiredCount;//we need to re think about this, cuz optional tasks should be counted in the progress, but not to affect the is finished check
 
 			return MissionProgress;
 		}

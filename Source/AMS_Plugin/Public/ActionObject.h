@@ -28,7 +28,7 @@ class AMS_PLUGIN_API UActionObject : public UObject
 {
 	GENERATED_BODY()
 	/*
-	* @ToDo:
+	* @Done:
 	* action should also pass the mission that it was related to so we can use the action with multiple missions and have different behaviours 
 	* this means we need to change how we construct the mission details and the objectives or find a workaround for that 
 	*/

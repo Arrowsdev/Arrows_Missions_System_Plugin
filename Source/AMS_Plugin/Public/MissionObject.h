@@ -140,9 +140,11 @@ public:
 		return MissionDetails.MissionRelatedActions;
 	}
 
+	//@ToDo add get required list so we can see only requirements since the related actions has the blacklisted too
+
 	/*Get Current mission state, in porgress or paused or finished or canceled*/
 	UFUNCTION(BlueprintPure, Category = "Mission System", meta = (ReturnDisplayName = "Mission State"))
-		FORCEINLINE	EFinishState GetObjectiveCount()
+		FORCEINLINE	EFinishState GetMissionState()
 	{
 		return CurrentState;
 	}
