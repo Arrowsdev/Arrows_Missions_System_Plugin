@@ -32,7 +32,7 @@ inline void PrintLog(FString log, float duration = 0, FColor color = FColor::Blu
 		if(AMS_LOG::IsOnScreenDebugIsEnabled())
 		   GEngine->AddOnScreenDebugMessage(-1, duration, color, log);
 
-		UE_LOG(MissionSystem, Log, TEXT("%s"), *log);//so we log to the consol also
+		UE_LOG(MissionSystem, Warning, TEXT("%s"), *log);//so we log to the consol also
 	}
 }
 

@@ -6,7 +6,8 @@
 
 UMissionObject::UMissionObject()
 {
-	
+	LOG_AMS("Constrcut new Mission", 20.0f);
+	CurrentState = EFinishState::notPlayed;
 }
 
 UMissionObject::~UMissionObject()

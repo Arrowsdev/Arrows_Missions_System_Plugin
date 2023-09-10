@@ -189,6 +189,7 @@ public:
 	int32 BlackListedObjectivesCount;
 	bool bCanMissionTick;
 
+	UPROPERTY()
 	EFinishState CurrentState;
 
 	//Core Functions
