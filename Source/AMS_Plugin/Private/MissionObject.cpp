@@ -119,7 +119,7 @@ void UMissionObject::CountTime(float deltaTime)
 	}
 }
 
-//the issue narrowed down till here , plus the check inside the loop causes some bugs i did not notice it , fix later 
+
 void UMissionObject::MissionCheckEnd(TSubclassOf<UActionObject> FinishedAction)
 {
 	EActionType FinishedObjectiveType = FinishedAction.GetDefaultObject()->ActionType;
@@ -128,7 +128,7 @@ void UMissionObject::MissionCheckEnd(TSubclassOf<UActionObject> FinishedAction)
 	int32 FinishedCount = 0;
 	for (auto objective : MissionDetails.MissionRelatedActions)
 	{
-		if (FinishedObjectiveType == FinishedObjectiveType)
+		if (FinishedObjectiveType != EActionType::optional && FinishedObjectiveType != EActionType::highscore && objective.AffectMissionEnd())
 		{
 			if (objective.bIsFinished)
 				FinishedCount++;
@@ -144,7 +144,7 @@ void UMissionObject::MissionCheckEnd(TSubclassOf<UActionObject> FinishedAction)
 		}
 			
 	    
-		else
+		else if(FinishedAction.GetDefaultObject()->ActionType == EActionType::blacklisted)
 			EndMission(EFinishState::failed, FFailInfo(FinishedAction));
 	}
 }

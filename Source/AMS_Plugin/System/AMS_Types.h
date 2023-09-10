@@ -237,6 +237,11 @@ struct FObjective
 	{
 		return OwningMission != nullptr;
 	}
+
+	bool AffectMissionEnd()
+	{
+		return (ActionClass.GetDefaultObject()->ActionType == EActionType::required) || (ActionClass.GetDefaultObject()->ActionType == EActionType::blacklisted);
+	}
 };
 
 /*
