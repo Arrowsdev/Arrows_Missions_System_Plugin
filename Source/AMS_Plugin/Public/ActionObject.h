@@ -42,6 +42,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action Details")
 		EActionType ActionType;
 
+	//if this action can subscribe to it's owner mission tick
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action Details")
+		bool bCanTick;
+
 	//how many times this action instance needs to be preformed 
 	//if there are multiple instances of this class in the related actions inside the mission
 	//this will be multiplied by the number of instances in the related list
@@ -84,6 +88,10 @@ public:
 		void OnHighScore(UMissionObject* OnwningMission,int32 count, int32 Total);
 	virtual void OnHighScore_Implementation(UMissionObject* OnwningMission,int32 count, int32 Total) {/*No Implement*/ }
 
+	//hooked tick with the owning mission
+	UFUNCTION(BlueprintNativeEvent, Category = ActionEvents)
+		void ActionTick(float deltaTime);
+	virtual void ActionTick_Implementation(float deltaTime) {/*No Implement*/ }
 
 	UWorld* GetWorld() const;
 

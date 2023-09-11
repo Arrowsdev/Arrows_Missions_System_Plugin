@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 
+
 class UMissionObject;
 class UActionObject;
 
@@ -21,4 +22,9 @@ public:
 
 	//used to call the on task finished on the owning mission
 	static void InvokeOnTaskFinished(UMissionObject* mission, TSubclassOf<UActionObject> ActivatedTask, int32 ActionCount);
+
+	//used to create a new action object 
+	static UActionObject* NewActionObject(UMissionObject* Outter, TSubclassOf<UActionObject> Class);
+
+	static void SubscribeToMissionTick(UMissionObject* mission, UActionObject* ActivatedAction);
 };

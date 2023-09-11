@@ -4,8 +4,9 @@
 #include "AMS_SubSystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "AssetRegistry/AssetRegistryModule.h"
-#include "KismetCompilerModule.h"
-#include <Kismet2/KismetEditorUtilities.h>
+
+//#include "KismetCompilerModule.h"
+//#include <Kismet2/KismetEditorUtilities.h>
 
 #include "AMS_Plugin/Public/MissionObject.h"
 #include "AMS_Plugin/System/AMS_SaveGame.h"
@@ -419,6 +420,7 @@ float UAMS_SubSystem::Internal_GetGameProgress()
 }
 
 //called once on begin play so that the game knows the count of games missions 
+//@Bug : asset registry is not working on build
 void UAMS_SubSystem::InitiateFullGameProgressData()
 {
 	FullGameMissionsRecords.Empty();

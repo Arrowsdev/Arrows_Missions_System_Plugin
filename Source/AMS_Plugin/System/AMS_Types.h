@@ -126,17 +126,23 @@ struct FObjective
 	UPROPERTY()
 	UMissionObject* OwningMission;
 
+	//default constructor , that is used when creating objective struct 
 	FObjective(TSubclassOf<UActionObject> Action, int32 count, UMissionObject* _owningMission)
 		:ActionClass(Action), TotalCount(count),OwningMission(_owningMission)
 	{
 		//we dont want to create new object instead using the class CDO to call our logic in BP 
 		//thinking of making instances instead of using the cdo so we can use custom user variables and they can differ and no worries if multiple missions had the same
 		//action
-		ActivatedAction = ActionClass.GetDefaultObject();
+		//ActivatedAction = ActionClass.GetDefaultObject();
 		bIsFinished = false;
 		ActionCount = 0;
 	}
 
+	//copy constructor , called when this objective is copied
+	/*FObjective(FObjective& other)
+	{
+
+	}*/
 
 	bool Preform()// true means finished false means not finished or not required to finish
 	{
@@ -175,10 +181,23 @@ struct FObjective
 	//called from the details to activate the action assossiated with this objective
 	void Activate()
 	{
+		ActivatedAction = AMS_TypesOperations::NewActionObject(OwningMission, ActionClass);
 		ActivatedAction->OnActivated(OwningMission,ActionCount, TotalCount);
 		AMS_TypesOperations::InvokeOnTaskActivated(OwningMission, ActionClass, ActionCount, TotalCount);
+
+		if (ActivatedAction->bCanTick)
+		{
+			AMS_TypesOperations::SubscribeToMissionTick(OwningMission, ActivatedAction);
+		}
 	}
 
+	void Tick(float deltaTime)//deprecated
+	{
+		if (ActivatedAction)
+		{
+			ActivatedAction->ActionTick(deltaTime);
+		}
+	}
 	//gets the status in : ActionName [ 1 / 5 ]
 	FString GetObjectibeStatus(EStatusGetterType getterType, FString& ObjectiveType)
 	{
@@ -286,6 +305,10 @@ struct FMissionDetails
 	UPROPERTY()
 	int32 RequiredCount;
 
+	//saving the state here to avoid the loss of the actual value from the mission when saving , this is a work around for a bug
+	UPROPERTY(BlueprintReadWrite, Category = "MissionDetails")
+	EFinishState CurrentState;
+
 	//used for when recording the mission we need a place to put the calculated progress
 	UPROPERTY(BlueprintReadWrite, Category = "MissionDetails")
 	float MissionProgress;
@@ -338,6 +361,8 @@ struct FMissionDetails
 
 		void ActivateActions(UMissionObject* Owner)
 		{
+			CurrentState = EFinishState::inProgress;
+
 			for (auto& action : MissionRelatedActions)
 			{
 				if (!action.HasOwner())

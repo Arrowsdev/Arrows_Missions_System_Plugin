@@ -38,6 +38,7 @@ public class AMS_Plugin : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
+                "AssetRegistry",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

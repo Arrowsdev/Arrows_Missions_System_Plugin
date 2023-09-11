@@ -24,6 +24,7 @@ void UMissionObject::Tick(float DeltaTime)
 
 	MissionTick(DeltaTime);
 	CountTime(DeltaTime);
+	MissionTickDelegate.Broadcast(DeltaTime);
 	LOG_AMS("Mission Is In Progress", 0.0f);
 }
 
@@ -101,6 +102,7 @@ FinishInit:
 void UMissionObject::EndMission(EFinishState finishState, FFailInfo FailInfo)
 {
 	CurrentState = finishState;
+	MissionDetails.CurrentState = finishState;
 	UAMS_SubSystem::GetMissionSubSystem()->RecordMissionFinished(this);
 	OmMissionEnd(finishState, FailInfo);
 
@@ -150,6 +152,7 @@ void UMissionObject::MissionCheckEnd(TSubclassOf<UActionObject> FinishedAction)
 	}
 }
 
+#if WITH_EDITOR
 
 void UMissionObject::PostEditChangeProperty(struct FPropertyChangedEvent& changeEvent)
 {
@@ -160,6 +163,7 @@ void UMissionObject::PostEditChangeProperty(struct FPropertyChangedEvent& change
 		MissionDetails.OnDetailsChanged();
 	}	
 }
+#endif
 
 void UMissionObject::SaveGame()
 {

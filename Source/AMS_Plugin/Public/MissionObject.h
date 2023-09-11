@@ -11,6 +11,8 @@
 
 #include "MissionObject.generated.h"
 
+//used to tick on related actions 
+DECLARE_MULTICAST_DELEGATE_OneParam(FMissionTick, float deltaTime)
 
 /**
  * This class is responsible for missions logics implementation
@@ -189,6 +191,9 @@ public:
 	int32 BlackListedObjectivesCount;
 	bool bCanMissionTick;
 
+	FMissionTick MissionTickDelegate;
+
+	//DEPRECATED, use the state in the mission details it is safer
 	UPROPERTY()
 	EFinishState CurrentState;
 
@@ -202,10 +207,13 @@ public:
 	//called from the subsystem when the preformed action is finished so we need to check if all other actions from the same type are also finished
 	void MissionCheckEnd(TSubclassOf<UActionObject> FinishedAction);
 
+#if WITH_EDITOR
 	//when the user changes some values in the details pannel we need to refelect this to the details structs for it to 
 	//preform the needed logics , in this case we want the private default time to match the user set value so we can
 	//use it to restart the mission from the juernal records
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
+
+#endif
 
 	void SaveGame();
 };

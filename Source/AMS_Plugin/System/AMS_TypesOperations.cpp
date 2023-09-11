@@ -3,6 +3,7 @@
 
 #include "AMS_TypesOperations.h"
 #include "AMS_Plugin/Public/MissionObject.h"
+#include "AMS_Plugin/Public/ActionObject.h"
 
 AMS_TypesOperations::AMS_TypesOperations()
 {
@@ -20,4 +21,14 @@ void AMS_TypesOperations::InvokeOnTaskActivated(UMissionObject* mission, TSubcla
 void AMS_TypesOperations::InvokeOnTaskFinished(UMissionObject* mission, TSubclassOf<UActionObject> ActivatedTask, int32 ActionCount)
 {
 	mission->OnTaskFinished(ActivatedTask, ActionCount);
+}
+
+UActionObject* AMS_TypesOperations::NewActionObject(UMissionObject* Outter, TSubclassOf<UActionObject> Class)
+{
+	return NewObject<UActionObject>(Outter, Class);
+}
+
+void AMS_TypesOperations::SubscribeToMissionTick(UMissionObject* mission, UActionObject* ActivatedAction)
+{
+	mission->MissionTickDelegate.AddUObject(ActivatedAction, &UActionObject::ActionTick);
 }
