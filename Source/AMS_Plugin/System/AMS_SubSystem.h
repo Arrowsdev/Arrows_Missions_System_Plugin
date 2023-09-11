@@ -63,6 +63,8 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	UPROPERTY(config, EditAnywhere, Category = "Settings")
 		bool AllowScreenDebug;
 
+	
+
 // END OF PROJECT SETTINGS
 
 	/*starts new mission */

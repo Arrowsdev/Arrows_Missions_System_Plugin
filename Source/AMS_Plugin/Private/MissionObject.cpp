@@ -93,6 +93,7 @@ void UMissionObject::InitializeMission(bool bStart)
 
 FinishInit:
 	MissionDetails.RequiredCount = RequiredObjectivesCount;
+	MissionDetails.InitOptionalCout();
 	MissionDetails.ActivateActions(this);
 	CurrentState = EFinishState::inProgress;
 	OnMissionBegin();

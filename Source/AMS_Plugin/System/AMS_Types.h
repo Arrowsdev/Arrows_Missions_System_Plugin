@@ -314,6 +314,9 @@ struct FMissionDetails
 	UPROPERTY()
 	int32 RequiredCount;
 
+	UPROPERTY()
+	int32 OptionalCount;
+
 	//saving the state here to avoid the loss of the actual value from the mission when saving , this is a work around for a bug
 	UPROPERTY(BlueprintReadWrite, Category = "MissionDetails")
 	EFinishState CurrentState;
@@ -358,12 +361,12 @@ struct FMissionDetails
 
 			for (FObjective& objective : MissionRelatedActions)
 			{
-				if (objective == EActionType::required)
+				if (objective == EActionType::required || objective == EActionType::optional)
 				{
 					percent += objective.GetObjectiveProgress();
 				}
 			}
-			MissionProgress = percent / RequiredCount;//we need to re think about this, cuz optional tasks should be counted in the progress, but not to affect the is finished check
+			MissionProgress = percent / (RequiredCount + OptionalCount);//we need to re think about this, cuz optional tasks should be counted in the progress, but not to affect the is finished check
 
 			return MissionProgress;
 		}
@@ -378,6 +381,19 @@ struct FMissionDetails
 					action.OwningMission = Owner;
 
 				action.Activate();
+			}
+		}
+
+		//called from the mission init function 
+	    void InitOptionalCout()
+		{
+			OptionalCount = 0;
+			for (auto& itr : MissionRelatedActions)
+			{
+				if (itr.ActionType == EActionType::optional)
+				{
+					OptionalCount++;
+				}
 			}
 		}
 };

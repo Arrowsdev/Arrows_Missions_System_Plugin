@@ -377,7 +377,8 @@ void UAMS_SubSystem::RestartMission(TSubclassOf<UMissionObject> mission, ERestar
 		index++;
 		if (_FinishedMission == mission)
 		{
-			FinishedMissions.RemoveAt(index);
+			FinishedMissions.RemoveAt(index);//weird breakpoint happens here when restarting a finished mission, but it dosent happen in build game
+			//still trying to figure it out
 		}
 	}
 
@@ -435,7 +436,7 @@ void UAMS_SubSystem::InitiateFullGameProgressData()
 {
 	FullGameMissionsRecords.Empty();
 	FullGameMissionsCount = 0;
-
+	
 	if (GameMissionsList.IsEmpty())
 	{
 		TArray<FAssetData> FoundMissions;
@@ -454,10 +455,12 @@ void UAMS_SubSystem::InitiateFullGameProgressData()
 			FullGameMissionsRecords.Empty();
 			for (FAssetData& mission : FoundMissions)
 			{
+				LOG_AMS("Asset Registry Found Assets", 10.0f);
 
 				UBlueprint* MissionBlueprint = Cast<UBlueprint>(mission.GetAsset());
 				if (MissionBlueprint)
 				{
+					
 					UMissionObject* missionObject = Cast<UMissionObject>(MissionBlueprint->GeneratedClass.GetDefaultObject());
 					if (missionObject)
 					{
@@ -468,7 +471,10 @@ void UAMS_SubSystem::InitiateFullGameProgressData()
 						FullGameMissionsRecords.Add(newRecord);
 					}
 				}
-
+				else
+				{
+					LOG_AMS("Asset was not blueprint", 10.0f);
+				}
 
 			}
 		}
