@@ -22,6 +22,10 @@ enum class EActionType : uint8
 
 /*
 * This class is responsable for holding the logics per action and also being the atom for the missions objectives progress counting
+* when the mission starts and this action get's activated an instance of it will be created in the world , but it lives for the durtation of the mission 
+* and when loading you create new instance so this class is not suitable for holding your custom data  and variables you better if you have some variables 
+* to be used with this class create them in the mission class and get them from the owner mission pin in the activation event and also make sure to save 
+* this data in the data center by any way you see fits with your game needs , but make sure to not rely much on this class
 */
 UCLASS(Blueprintable, BlueprintType, HideDropDown)
 class AMS_PLUGIN_API UActionObject : public UObject

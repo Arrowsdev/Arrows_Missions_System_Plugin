@@ -5,6 +5,7 @@
 #include "AMS_Plugin/Public/MissionObject.h"
 #include "AMS_Plugin/Public/ActionObject.h"
 
+
 AMS_TypesOperations::AMS_TypesOperations()
 {
 }
@@ -32,3 +33,4 @@ void AMS_TypesOperations::SubscribeToMissionTick(UMissionObject* mission, UActio
 {
 	mission->MissionTickDelegate.AddUObject(ActivatedAction, &UActionObject::ActionTick);
 }
+

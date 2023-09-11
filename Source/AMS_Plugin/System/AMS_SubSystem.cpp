@@ -370,6 +370,16 @@ void UAMS_SubSystem::CancelMission(TSubclassOf<UMissionObject> mission)
 void UAMS_SubSystem::RestartMission(TSubclassOf<UMissionObject> mission, ERestartType restartType)
 {
 	if (!mission) return;
+	int32 index = -1;
+	//make sure if it was finished we remove it so when it starts it wont have a record as finished
+	for (auto& _FinishedMission : FinishedMissions)
+	{
+		index++;
+		if (_FinishedMission == mission)
+		{
+			FinishedMissions.RemoveAt(index);
+		}
+	}
 
 	if (!ActiveMissions.Contains(mission))
 	{

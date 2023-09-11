@@ -8,6 +8,7 @@
 class UMissionObject;
 class UActionObject;
 
+
 /**
  * this class is meant to work around the dependacy between the types and the system classes 
  */
@@ -27,4 +28,6 @@ public:
 	static UActionObject* NewActionObject(UMissionObject* Outter, TSubclassOf<UActionObject> Class);
 
 	static void SubscribeToMissionTick(UMissionObject* mission, UActionObject* ActivatedAction);
+
+	
 };

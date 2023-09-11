@@ -126,23 +126,25 @@ struct FObjective
 	UPROPERTY()
 	UMissionObject* OwningMission;
 
+	UPROPERTY()
+	EActionType ActionType;
+
+	UPROPERTY()
+	FString ActionName;
+
 	//default constructor , that is used when creating objective struct 
 	FObjective(TSubclassOf<UActionObject> Action, int32 count, UMissionObject* _owningMission)
 		:ActionClass(Action), TotalCount(count),OwningMission(_owningMission)
 	{
 		//we dont want to create new object instead using the class CDO to call our logic in BP 
 		//thinking of making instances instead of using the cdo so we can use custom user variables and they can differ and no worries if multiple missions had the same
-		//action
-		//ActivatedAction = ActionClass.GetDefaultObject();
+		//action,
+		ActionType = Cast<UActionObject>(ActionClass->GetDefaultObject())->ActionType;
+		ActionName = Cast<UActionObject>(ActionClass->GetDefaultObject())->ActionName;
 		bIsFinished = false;
 		ActionCount = 0;
 	}
 
-	//copy constructor , called when this objective is copied
-	/*FObjective(FObjective& other)
-	{
-
-	}*/
 
 	bool Preform()// true means finished false means not finished or not required to finish
 	{
@@ -181,7 +183,14 @@ struct FObjective
 	//called from the details to activate the action assossiated with this objective
 	void Activate()
 	{
+		//when activating we replace the cdo with new object instance
 		ActivatedAction = AMS_TypesOperations::NewActionObject(OwningMission, ActionClass);
+
+		//this so we dont need to rely on it's instance when we load the objective in the finished list
+		/*ActionType = ActivatedAction->ActionType;
+		ActionName = ActivatedAction->ActionName;*/
+	
+
 		ActivatedAction->OnActivated(OwningMission,ActionCount, TotalCount);
 		AMS_TypesOperations::InvokeOnTaskActivated(OwningMission, ActionClass, ActionCount, TotalCount);
 
@@ -202,7 +211,7 @@ struct FObjective
 	FString GetObjectibeStatus(EStatusGetterType getterType, FString& ObjectiveType)
 	{
 		//remove the enum class namespace and leave the value
-		ObjectiveType = UEnum::GetValueAsString(ActivatedAction->ActionType);
+		ObjectiveType = UEnum::GetValueAsString(ActionType);
 		FString SFrom = TEXT("EActionType::");
 		FString STo = TEXT("");
 		const TCHAR* From = *SFrom;
@@ -213,30 +222,30 @@ struct FObjective
 		{
 		    case EStatusGetterType::current:
 			{
-				return FString::Printf(TEXT("%s [ %d ]"), *ActivatedAction->ActionName, ActionCount);
+				return FString::Printf(TEXT("%s [ %d ]"), *ActionName, ActionCount);
 			}
 			case EStatusGetterType::total :
 			{
-				return FString::Printf(TEXT("%s [ %d ]"), *ActivatedAction->ActionName, TotalCount);
+				return FString::Printf(TEXT("%s [ %d ]"), *ActionName, TotalCount);
 			}
 			case EStatusGetterType::current_total:
 			{
-				return FString::Printf(TEXT("%s [ %d / %d ]"), *ActivatedAction->ActionName, ActionCount, TotalCount);
+				return FString::Printf(TEXT("%s [ %d / %d ]"), *ActionName, ActionCount, TotalCount);
 			}
 			case EStatusGetterType::total_current:
 			{
-				return FString::Printf(TEXT("%s [ %d / %d ]"), *ActivatedAction->ActionName, TotalCount, ActionCount);
+				return FString::Printf(TEXT("%s [ %d / %d ]"), *ActionName, TotalCount, ActionCount);
 			}
 		    default:
 			{
-				return FString::Printf(TEXT("%s [ %d ]"), *ActivatedAction->ActionName, ActionCount);
+				return FString::Printf(TEXT("%s [ %d ]"), *ActionName, ActionCount);
 			}
 		}
 		
 	}
 
 
-	bool operator==(TSubclassOf<UActionObject> action)
+	bool operator==(const TSubclassOf<UActionObject>& action)
 	{
 		return ActionClass == action;
 	}
@@ -272,7 +281,7 @@ struct FMissionDetails
 	GENERATED_USTRUCT_BODY()
 
 
-		FMissionDetails() {}
+	FMissionDetails() { CurrentState = EFinishState::notPlayed; }
 
 	//the name of the mission used to preview in ui
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MissionDetails", meta=(DisplayName="Mission Name"))
@@ -453,6 +462,16 @@ struct FRecordEntry
 	{
 		completion = MissionDetails.GetMissionCompeletion();
 		return MissionDetails.bIsMissionFinished;
+	}
+
+	bool operator==(const FRecordEntry& other)
+	{
+		return MissionClass == other.MissionClass;
+	}
+
+	bool operator==(const TSubclassOf<UMissionObject> mission)
+	{
+		return MissionClass == mission;
 	}
 };
 
