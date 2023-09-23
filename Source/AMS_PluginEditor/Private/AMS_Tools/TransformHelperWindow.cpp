@@ -392,4 +392,18 @@ FString STransformHelperWindow::ParseTransformString(FTransform transform)
     return results;
 }
     
+void SAboutWindow::Construct(const FArguments& args)
+{
+    ChildSlot
+    [
+         SNew(SBorder)
+        .BorderBackgroundColor(FColor(192, 192, 192, 255))
+        .Padding(15.0f)
+        [
+            SNew(STextBlock)
+            .Text(FText::FromString(TEXT("Arrows Interactive Systems (AIS) is a small sudanese indie games development studio.\nthis plugin was made for inhouse projects and distrebuted to help other developers too\n\n\n\n plugin version ( AMS v0.1 ) \nAll Rights Are Reserved AIS Studio @2023")))
+        ]
+    ];
+}
+    
   

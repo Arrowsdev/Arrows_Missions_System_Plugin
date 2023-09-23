@@ -51,3 +51,42 @@ protected:
     FText ToolTipText;
     
 };
+
+class AMS_PLUGINEDITOR_API AMS_About : public IExampleModuleListenerInterface, public TSharedFromThis<AMS_About>
+{
+public:
+
+    virtual ~AMS_About() {};
+
+    //called from the editor module to set this tool information
+    virtual void OnStartupModule() override
+    {
+        Initialize();
+        FGlobalTabmanager::Get()->RegisterNomadTabSpawner(TabName, FOnSpawnTab::CreateRaw(this, &AMS_About::SpawnTab))
+            .SetGroup(FAMS_PluginEditor::Get().GetMenuRoot())
+            .SetDisplayName(TabDisplayName)
+            .SetTooltipText(ToolTipText);
+
+        FAMS_PluginEditor::Get().AddMenuExtension(FMenuExtensionDelegate::CreateRaw(this, &AMS_About::MakeMenuEntry), FName("Section_1"));
+    };
+
+    virtual void OnShutdownModule() override
+    {
+        FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(TabName);
+    };
+
+
+    virtual void Initialize();
+
+    virtual TSharedRef<SDockTab> SpawnTab(const FSpawnTabArgs& TabSpawnArgs);
+
+    virtual void MakeMenuEntry(FMenuBuilder& menuBuilder)
+    {
+        FGlobalTabmanager::Get()->PopulateTabSpawnerMenu(menuBuilder, TabName);
+    };
+
+protected:
+    FName TabName;
+    FText TabDisplayName;
+    FText ToolTipText;
+};

@@ -88,3 +88,14 @@ protected:
 	FString ParseTransformString(FTransform transform);
 };
 
+class AMS_PLUGINEDITOR_API SAboutWindow : public SCompoundWidget
+{
+	SLATE_BEGIN_ARGS(SAboutWindow) {}
+	SLATE_ARGUMENT(TWeakPtr<class AMS_About>, About)
+	SLATE_END_ARGS()
+
+	void Construct(const FArguments& InArgs);
+
+protected:
+	TWeakPtr<AMS_About> about;
+};

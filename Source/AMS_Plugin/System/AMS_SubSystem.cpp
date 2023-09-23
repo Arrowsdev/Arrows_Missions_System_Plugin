@@ -179,6 +179,7 @@ void UAMS_SubSystem::GenerateActiveMissionsFromRecord(TArray<FRecordEntry> Activ
 
 			ActivatedMission->InitializeMission(INIT_LOAD);
 			ActiveMissions.Add(record.MissionClass, ActivatedMission);
+			ActiveMissions[record.MissionClass]->AddToRoot();
 		}
 		
 	}
@@ -196,7 +197,10 @@ void UAMS_SubSystem::GenerateActiveMissionsFromRecord(UAMS_SaveGame* saveGameObj
 {
 	TArray<FRecordEntry> ActiveRecords = saveGameObject->SG_ActiveMissionsWhenSaved;
 
+	//should make sure if i loaded while i have active missions like when the player pause the game and choose to load checkpoint we need to unroot missions first 
+	//do this later if the game crashed after loading and playing for a bit
 	ActiveMissions.Empty();
+
 	if (ActiveRecords.IsEmpty())
 	{
 		LOG_AMS("No Active Records", 10.0f, FColor::Red);
@@ -217,6 +221,7 @@ void UAMS_SubSystem::GenerateActiveMissionsFromRecord(UAMS_SaveGame* saveGameObj
 
 			ActivatedMission->InitializeMission(INIT_LOAD);
 			ActiveMissions.Add(record.MissionClass, ActivatedMission);
+			ActiveMissions[record.MissionClass]->AddToRoot();
 		}
 
 	}

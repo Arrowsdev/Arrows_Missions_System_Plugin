@@ -13,15 +13,32 @@ void AMS_TransformHelper::Initialize()
 
 TSharedRef<SDockTab> AMS_TransformHelper::SpawnTab(const FSpawnTabArgs& TabSpawnArgs)
 {
-   
-    
     TSharedRef<SDockTab> SpawnedTab = SNew(SDockTab)
         .TabRole(ETabRole::PanelTab)
-     
         [
             SNew(STransformHelperWindow)
             .TransformHelper(SharedThis(this))
-           
+        ];
+
+    return SpawnedTab;
+}
+
+
+//####### ABOUT SECTION #############
+void AMS_About::Initialize()
+{
+    TabName = "About";
+    TabDisplayName = FText::FromString(TEXT("About"));
+    ToolTipText = FText::FromString("About");
+}
+
+TSharedRef<SDockTab> AMS_About::SpawnTab(const FSpawnTabArgs& TabSpawnArgs)
+{
+    TSharedRef<SDockTab> SpawnedTab = SNew(SDockTab)
+        .TabRole(ETabRole::DocumentTab)
+        [
+            SNew(SAboutWindow)
+            .About(SharedThis(this))
         ];
 
     return SpawnedTab;

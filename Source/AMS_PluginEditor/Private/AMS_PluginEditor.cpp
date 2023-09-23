@@ -190,7 +190,8 @@ void FAMS_PluginEditor::InvokeShutdown()
 void FAMS_PluginEditor::AddModuleListeners()
 {
 	ModuleListeners.Add(MakeShareable(new AMS_TransformHelper));
-	
+	ModuleListeners.Add(MakeShareable(new AMS_About));
+
 	/*@TODO : add missions tweaker for editing all missions details in one window to make it wasy to tweak details if no need to
 	* edit to logics , so users can reset tasks and values or names and descriptions in central place for all available missions
 	* in the project
