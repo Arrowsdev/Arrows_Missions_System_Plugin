@@ -21,10 +21,13 @@
 			"LoadingPhase": "Default"
 		},
 
-       {
-            "Name": "AMS_PluginEditor",
+		{
+			"Name": "AMS_PluginEditor",
 			"Type": "Editor",
-			"LoadingPhase": "Default"
-       }
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
+		}
 	]
 }

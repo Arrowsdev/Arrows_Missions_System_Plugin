@@ -14,10 +14,11 @@ class UMissionObject;
 UENUM(BlueprintType)
 enum class EActionType : uint8
 {
-	required    UMETA(DisplayName = "Required Action", ToolTip = "this type means this action has to be done for the mission to progress"),
-	optional    UMETA(DisplayName = "Optional Action", ToolTip = "this type means the action is optional and you can provide a bounce for finishing it"),
-	blacklisted UMETA(DisplayName = "BlackListed Action", ToolTip = "this type is the action that should not be done while in this mission, or it will fail"),
-	highscore   UMETA(DisplayName = "HighScore Action", ToolTip = "this type means the action will count how many times it was preformed and return it as a score"),
+	required      UMETA(DisplayName = "Required Action", ToolTip = "this type means this action has to be done for the mission to progress"),
+	optional      UMETA(DisplayName = "Optional Action", ToolTip = "this type means the action is optional and you can provide a bounce for finishing it"),
+	blacklisted   UMETA(DisplayName = "BlackListed Action", ToolTip = "this type is the action that should not be done while in this mission, or it will fail"),
+	highscore     UMETA(DisplayName = "HighScore Action", ToolTip = "this type means the action will count how many times it was preformed and return it as a score"),
+	InputListener UMETA(Hidden)//this is just for internal use to differ the regular actions from input actions
 };
 
 /*

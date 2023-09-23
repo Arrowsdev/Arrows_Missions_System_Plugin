@@ -204,6 +204,8 @@ public:
 	void EndMission(EFinishState finishState, FFailInfo FailInfo);
 	void CountTime(float deltaTime);
 
+	void DeInitializeMission();
+
 	//called from the subsystem when the preformed action is finished so we need to check if all other actions from the same type are also finished
 	void MissionCheckEnd(TSubclassOf<UActionObject> FinishedAction);
 

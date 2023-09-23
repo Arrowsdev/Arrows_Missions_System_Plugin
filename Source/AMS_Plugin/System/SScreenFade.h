@@ -2,28 +2,41 @@
 
 #pragma once
 
-#include "SlateBasics.h"
-#include "SlateExtras.h"
-
-
+#include "CoreMinimal.h"
+#include "Blueprint/UserWidget.h"
+#include "Components/Border.h"
+#include "SScreenFade.generated.h"
 /**
- * 
+ * the idea of using slate for this is ditched , ill use umg for it , i was thinking this can be a way for me to practice slate but
+ * i think this will slow down the development
  */
-class AMS_PLUGIN_API SScreenFade : public SCompoundWidget
+UCLASS()
+class AMS_PLUGIN_API UScreenFade : public UUserWidget
 {
 public:
 
-	SLATE_BEGIN_ARGS(SScreenFade) {}
-	SLATE_END_ARGS()
+	GENERATED_BODY()
 
-	void Construct(const FArguments& Args);
+public:
 
-private:
+	UScreenFade(const FObjectInitializer& ObjectInitializer);
 
-	float Opacity;
-	FTimerHandle FadeTimerHandle;
+	virtual void NativeConstruct() override;
 
-	void StartFadeIn();
-	void StartFadeOut();
-	void UpdateOpacity(float NewOpacity);
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Category = "MissionfadeVars")
+		UBorder* Border;
+
+
+	UWidgetAnimation* FadeToPlay;
+
+	UWidgetAnimation* PlayToFade;
+
+	//initially used for when a mission starts but it has to set the player location so the fade is used to hide the transition
+	void RunFadeToPlay();
+
+	//this is when we restart any mission we fade to dark screen so we can set locations and other cleanup for mission to restart with proper world state
+	//like deleting old unkilled enemies so when it restarts it can spawn fresh new ones
+	void RunPlayToFade();
+
+	
 };

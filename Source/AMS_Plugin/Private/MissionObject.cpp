@@ -35,8 +35,8 @@ TStatId UMissionObject::GetStatId() const
 
 bool UMissionObject::IsTickable() const
 {
-	//only tick if we are not the default object CDO
-	return (this != GetClass()->GetDefaultObject() && CurrentState == EFinishState::inProgress);
+	//only tick if we are not the default object CDO //this != GetClass()->GetDefaultObject() && 
+	return (CurrentState == EFinishState::inProgress);
 }
 
 UWorld* UMissionObject::GetWorld() const
@@ -69,16 +69,17 @@ void UMissionObject::InitializeMission(bool bStart)
 	{
 		UActionObject* ActionCDO = itr.GetDefaultObject();
 
-		if (InstancesMap.Contains(itr))
+		if (InstancesMap.Contains(itr) && ActionCDO->ActionType != EActionType::InputListener)
 		{
 			InstancesMap[itr]+= ActionCDO->LocalActionCount;
 		}
 
-		else
+		else if(!InstancesMap.Contains(itr))//so we dont double counting the input listeners, and make sure we only add new entries 
 		{
 			InstancesMap.Add(itr, ActionCDO->LocalActionCount);
 
-			if (ActionCDO->ActionType == EActionType::required)
+			//inputs are considered required since they are required for tutorials to finish
+			if (ActionCDO->ActionType == EActionType::required || ActionCDO->ActionType == EActionType::InputListener)
 				RequiredObjectivesCount++;
 
 			if (ActionCDO->ActionType == EActionType::blacklisted)
@@ -123,12 +124,29 @@ void UMissionObject::CountTime(float deltaTime)
 	}
 }
 
+void UMissionObject::DeInitializeMission()
+{
+	for (auto& itr : MissionDetails.MissionRelatedActions)
+	{
+		if (itr.bIsActivated)
+		{
+			if(itr.ActivatedAction->IsRooted())
+			itr.ActivatedAction->RemoveFromRoot();
+		}
+		
+	}
+	
+	if(IsRooted())
+	RemoveFromRoot();
+}
+
 
 void UMissionObject::MissionCheckEnd(TSubclassOf<UActionObject> FinishedAction)
 {
 	EActionType FinishedObjectiveType = FinishedAction.GetDefaultObject()->ActionType;
 
-	int32* CountPtr = FinishedObjectiveType == EActionType::required ? &RequiredObjectivesCount : &BlackListedObjectivesCount;
+	bool bIsRequired = (FinishedObjectiveType == EActionType::required || FinishedObjectiveType == EActionType::InputListener);
+	int32* CountPtr = bIsRequired ? &RequiredObjectivesCount : &BlackListedObjectivesCount;
 	int32 FinishedCount = 0;
 	for (auto objective : MissionDetails.MissionRelatedActions)
 	{
@@ -141,9 +159,9 @@ void UMissionObject::MissionCheckEnd(TSubclassOf<UActionObject> FinishedAction)
 
 	if (FinishedCount == *CountPtr)
 	{
-		if (FinishedAction.GetDefaultObject()->ActionType == EActionType::required)
+		if (FinishedAction.GetDefaultObject()->ActionType == EActionType::required || FinishedObjectiveType == EActionType::InputListener)
 		{
-			EndMission(EFinishState::succeeded, FFailInfo());
+			EndMission(EFinishState::succeeded, FFailInfo(EMissionFailReason::notFailed,FinishedAction));
 			MissionDetails.bIsMissionFinished = true;
 		}
 			

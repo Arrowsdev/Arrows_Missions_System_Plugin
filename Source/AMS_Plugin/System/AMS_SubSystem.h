@@ -9,12 +9,23 @@
 #include "AMS_SubSystem.generated.h"
 
 
+//macro to simplfy calling short logics with the fade function 
+#define FADE_EXECUTE(FadeType, _LOGIC_ )\
+__FadeAndExecute(FadeType, [&]() { _LOGIC_ })
+
+//for large code blocks to wait for fade widget we use these two macros , one before the block and other after it
+//the block will be executed after the fade animation is finished
+#define START_FADE_BLOCK(FadeType)\
+__FadeAndExecute(FadeType, [&]() { 
+#define END_FADE_BLOCK });
+
 /**
- * 
+ * subsystem class that has all the core logics and it is the main interface to control your missions behaviours 
  */
 class UAMS_JuernalObject;
 class UAMS_SaveGame;
 class UAMS_DataCenter;
+
 
 static UAMS_SubSystem* MissionSubSystemInstance;
 
@@ -26,9 +37,20 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	UAMS_SubSystem();
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	
+	virtual void Deinitialize() override;
+	UPROPERTY()
+		TSubclassOf<UScreenFade> FadeWidgetClass;
 
-	TSharedPtr<SScreenFade> ScreenFade;
-	TSharedPtr<class SWidget> Container;
+	UPROPERTY()
+		UScreenFade* FadeWidget;
+
+	//enum to define how we use the screen fade widget
+	enum ScreenFadeType
+	{
+		FadeToPlay,
+		PlayToFade
+	};
 
 //PROJECT SETTINGS
 
@@ -235,17 +257,6 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		GetLogger()->LogSubsystem(this, 0.0f);
 	}
 	
-	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System | Debugging")
-		FORCEINLINE void Fade()
-	{
-		if (GEngine->GameViewport)
-		{
-			ScreenFade = SNew(SScreenFade);
-			GEngine->GameViewport->AddViewportWidgetContent(ScreenFade.ToSharedRef());
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, "Widget Created!");
-		}
-	}
-
 public:
 	
 	friend class AMS_LOG;
@@ -281,7 +292,9 @@ public:
 
 	void InitiateFullGameProgressData();
 
-
+	//should only pass lambdas so we can pass different parameters in the capture
+	void __FadeAndExecute(ScreenFadeType Type, TFunction<void(void)>&& Callback);
+	
 	//returns a records for the active missions so we can save it
 	TArray<FRecordEntry> GenerateRecordsFromActiveMissions();
 
@@ -301,6 +314,9 @@ public:
 	
 	void LoadFinishedMissionsToJuernal();
 	
+	//used to un root all missions pointers so the game can clear memeory when it's closing otherwise it will crash
+	void ClearMissionsFromRoot();
+
 private:
 	//used to save the missions instaces so they wont be collected by garbage collection
 	//(funny thing that the list it self wasn't safe from it untill we decorate it with the property macro XDD)
@@ -329,6 +345,16 @@ private:
 	UPROPERTY()
 	FName ActiveSaveProfileName;
 	
+	//used to set the start transform for the player, it will be set in any new mission start
+	//or checkPoint creation, or savegame , and used when loading game with any type (from start or checkpoint)
+	UPROPERTY()
+	FTransform StartTransform;
+
+	//not sure if i should worry about the level name and should let the user open the map he knows that the mission is  from
+	//but  i'll leave it to make room for expansion in this direction in the future if needed
+	UPROPERTY()
+	FName PlayingLevel;
+
 	//the mission count that is used to find how much of the game is finished
 	int32 FullGameMissionsCount = INDEX_NONE;
 };

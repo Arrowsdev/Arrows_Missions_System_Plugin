@@ -5,8 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 
-//#include "KismetCompilerModule.h"
-//#include <Kismet2/KismetEditorUtilities.h>
+#include "UObject/ConstructorHelpers.h"
 
 #include "AMS_Plugin/Public/MissionObject.h"
 #include "AMS_Plugin/System/AMS_SaveGame.h"
@@ -16,13 +15,16 @@
 
 
 
-
-
-
-
 UAMS_SubSystem::UAMS_SubSystem()
 {
 	LOG_AMS("Loaded", 10.0f, FColor::Green);
+
+	auto FoundFadeWidgetClass = ConstructorHelpers::FClassFinder<UScreenFade>(TEXT("/AMS_Plugin/AMS_ScreenFade.AMS_ScreenFade_C"));
+
+	if (FoundFadeWidgetClass.Class)
+	{
+		FadeWidgetClass = FoundFadeWidgetClass.Class;
+	}
 
 }
 
@@ -46,10 +48,29 @@ void UAMS_SubSystem::Initialize(FSubsystemCollectionBase& Collection)
 	if (!SaveGameClass)
 		LOG_AMS("No Save Game Class", 10.0f, FColor::Red);
 
+	//creating the widget but we dont add it to the viewport now , we add it when we need it and never remove it from the memory just from the screen
+	if (FadeWidgetClass)
+	{
+		FadeWidget = Cast<UScreenFade>(CreateWidget(GetWorld(), FadeWidgetClass, FName("FadeWidget")));
+	}
+}
+
+void UAMS_SubSystem::Deinitialize()
+{
+	ClearMissionsFromRoot();
+}
+
+void UAMS_SubSystem::ClearMissionsFromRoot()
+{
+	for (auto& itr : ActiveMissions)
+	{
+		itr.Value->DeInitializeMission();//unhandeled exption here, happens after long time playing and never have an active mission
+	}
 }
 
 void UAMS_SubSystem::StartMission(TSubclassOf<UMissionObject> newMission, FName SaveProfileName)
-{
+{	
+
 	ActiveSaveProfileName = SaveProfileName;
 	StartMission(newMission);
 	//Internal_MissionSave();//this makes an empty save profile for this new gameplay so we can store progress directly
@@ -77,6 +98,8 @@ void UAMS_SubSystem::RecordMissionFinished(UMissionObject* Mission)
 
 	if (SaveType == ESaveMissionType::Post)
 	Internal_MissionSave();
+
+	Mission->RemoveFromRoot();
 }
 
 //bug : the save class is null , due to project settings are not saving or changing the subsystem cdo values
@@ -127,6 +150,9 @@ void UAMS_SubSystem::StartMission(TSubclassOf<UMissionObject> newMission)
 	StartedMission->InitializeMission(INIT_START);
 
 	ActiveMissions.Add(newMission,StartedMission);
+
+	ActiveMissions[newMission]->AddToRoot();
+
 }
 
 
@@ -204,6 +230,11 @@ void UAMS_SubSystem::GenerateActiveMissionsFromRecord(UAMS_SaveGame* saveGameObj
 		LOG_AMS("Failed To Generate Acive List", 10.0f, FColor::Red);
 }
 
+
+void UAMS_SubSystem::__FadeAndExecute(ScreenFadeType Type, TFunction<void(void)>&& Callback)
+{
+	//..
+}
 
 TArray<FRecordEntry> UAMS_SubSystem::GenerateRecordsFromActiveMissions()
 {
@@ -419,6 +450,7 @@ void UAMS_SubSystem::PauseMission(TSubclassOf<UMissionObject> mission, bool IsPa
 
 float UAMS_SubSystem::Internal_GetGameProgress()
 {
+	LOG_AMS("Game Progress Is Being Called");
 	float progress = 0.0f;
 	for (auto& itr : FinishedMissions)
 	{

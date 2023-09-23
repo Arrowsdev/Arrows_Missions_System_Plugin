@@ -29,5 +29,8 @@ public:
 
 	static void SubscribeToMissionTick(UMissionObject* mission, UActionObject* ActivatedAction);
 
-	
+	static void InvokeActivateNext(int32 ObjectiveID, UMissionObject* OwningMission);
+
+	static void AddActionToRoot(UActionObject* action);
+	static void RemoveActionFromRoot(UActionObject* action);
 };

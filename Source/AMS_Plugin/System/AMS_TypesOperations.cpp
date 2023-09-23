@@ -34,3 +34,18 @@ void AMS_TypesOperations::SubscribeToMissionTick(UMissionObject* mission, UActio
 	mission->MissionTickDelegate.AddUObject(ActivatedAction, &UActionObject::ActionTick);
 }
 
+void AMS_TypesOperations::InvokeActivateNext(int32 ObjectiveID, UMissionObject* OwningMission)
+{
+	OwningMission->MissionDetails.ActivateNext(ObjectiveID, OwningMission);
+}
+
+void AMS_TypesOperations::AddActionToRoot(UActionObject* action)
+{
+	action->AddToRoot();
+}
+
+void AMS_TypesOperations::RemoveActionFromRoot(UActionObject* action)
+{
+	action->RemoveFromRoot();
+}
+

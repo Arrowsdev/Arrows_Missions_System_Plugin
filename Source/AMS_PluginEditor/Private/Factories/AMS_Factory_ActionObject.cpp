@@ -3,6 +3,8 @@
 
 #include "Factories/AMS_Factory_ActionObject.h"
 #include "AMS_Plugin/Public/ActionObject.h"
+#include "Helpers/AMS_Utilites.h"
+#include <KismetCompilerModule.h>
 
 UAMS_Factory_ActionObject::UAMS_Factory_ActionObject(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -11,9 +13,51 @@ UAMS_Factory_ActionObject::UAMS_Factory_ActionObject(const FObjectInitializer& O
 	SupportedClass = UActionObject::StaticClass();
 }
 
-UObject* UAMS_Factory_ActionObject::FactoryCreateNew(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn)
+UObject* UAMS_Factory_ActionObject::FactoryCreateNew(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn, FName CallingContext)
 {
-	UActionObject* NewActionObject = NewObject<UActionObject>(InParent, Class, Name, Flags | RF_Transactional);
+	if ((ParentClass == nullptr) || !FKismetEditorUtilities::CanCreateBlueprintOfClass(ParentClass))
+	{
+		FMessageDialog::Open(EAppMsgType::Ok,
+			FText::Format(NSLOCTEXT("UnrealEd", "CannotCreateBlueprintFromClass", "Cannot create a blueprint based on the class '{0}'."),
+			FText::FromString(ParentClass->GetName())));
 
-	return NewActionObject;
+		return nullptr;
+	}
+
+	else
+	{
+		UClass* BlueprintClass = nullptr;
+		UClass* BlueprintGeneratedClass = nullptr;
+		IKismetCompilerInterface& KismetCompilerModule = FModuleManager::LoadModuleChecked<IKismetCompilerInterface>("KismetCompiler");
+		KismetCompilerModule.GetBlueprintTypesForClass(ParentClass, BlueprintClass, BlueprintGeneratedClass);
+
+		UBlueprint* NewAsset = FKismetEditorUtilities::CreateBlueprint(
+			ParentClass,
+			InParent,
+			Name,
+			BlueprintType,
+			BlueprintClass,
+			BlueprintGeneratedClass,
+			CallingContext);
+
+		return NewAsset;
+	}
+}
+
+
+bool UAMS_Factory_ActionObject::ConfigureProperties()
+{
+	static const FText TitleText = FText::FromString(TEXT("Pick Parent Class for new Action Object"));
+
+	UClass* ChosenClass = nullptr;
+	const bool bPressedOk = FAMsEditorUtilities::PickChildrenOfClass(TitleText, ChosenClass, SupportedClass);
+	if (bPressedOk && ChosenClass)
+	{
+		ParentClass = ChosenClass;
+	}
+	else
+	{
+		return false;
+	}
+	return bPressedOk;
 }

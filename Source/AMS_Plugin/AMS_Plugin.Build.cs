@@ -39,6 +39,8 @@ public class AMS_Plugin : ModuleRules
 				"Slate",
 				"SlateCore",
                 "AssetRegistry",
+				"UMG",
+				"InputCore"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

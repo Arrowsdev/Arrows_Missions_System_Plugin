@@ -57,7 +57,8 @@ enum class EMissionFailReason : uint8
 {
 	timeOut        UMETA(DisplayName = "Time Out"),
 	PlayerAction   UMETA(DisplayName = "Player Action"),
-	canceled       UMETA(DisplayName = "Canceled")
+	canceled       UMETA(DisplayName = "Canceled"),
+	notFailed      UMETA(DisplayName = "Didn't Fail")
 };
 
 UENUM(BlueprintType)
@@ -92,6 +93,15 @@ enum class EMissionType : uint8
 	side   UMETA(DisplayName = "Side Mission", ToolTip = "not needed for the game to finish \n but considered in the full game progress")
 };
 
+//defines how we activate the tasks , if they should be in order like activate the first one 
+//and wait for it to finish then activate the next one 
+UENUM(BlueprintType)
+enum class ETasksOrderPolicy : uint8
+{
+	noOrder   UMETA(DisplayName = "Not Ordered Tasks", ToolTip = "all actions are activated on start\n and they can be done in any order"),
+	order     UMETA(DisplayName = "Ordered Taks", ToolTip = "activate actions one by one after each action finish")
+};
+
 //STRUCTURES:
 
 //this is the representation of the action after activation
@@ -124,13 +134,19 @@ struct FObjective
 	bool bIsFinished;//will be true if preformed X times, while X is the Action count
 
 	UPROPERTY()
+	bool bIsActivated;
+
+	UPROPERTY()
 	UMissionObject* OwningMission;
 
 	UPROPERTY()
-	EActionType ActionType;
+	EActionType ActionType;//should expose ?
 
 	UPROPERTY()
 	FString ActionName;
+
+	UPROPERTY()
+	int32 ObjectiveID;
 
 	//default constructor , that is used when creating objective struct 
 	FObjective(TSubclassOf<UActionObject> Action, int32 count, UMissionObject* _owningMission)
@@ -145,10 +161,20 @@ struct FObjective
 		ActionCount = 0;
 	}
 
+	//dedecated constructor to create objective struct that is not gameplay related , it is aimed to fix the crash when we have a full game
+	//missions record we dont have activated action so we pass the cdo instead.
+    explicit FObjective(TSubclassOf<UActionObject> Action,UActionObject* AsActivatede, int32 count, UMissionObject* _owningMission)
+		:ActivatedAction(AsActivatede), ActionClass(Action), TotalCount(count), OwningMission(_owningMission)
+	{
+		ActionType = Cast<UActionObject>(ActionClass->GetDefaultObject())->ActionType;
+		ActionName = Cast<UActionObject>(ActionClass->GetDefaultObject())->ActionName;
+		bIsFinished = false;
+		ActionCount = 0;
+	}
 
 	bool Preform()// true means finished false means not finished or not required to finish
 	{
-		if (!bIsFinished)
+		if (!bIsFinished && bIsActivated && ActivatedAction)
 		{
 			ActionCount++;
 			ActivatedAction->OnPreformed(OwningMission,ActionCount, TotalCount);
@@ -169,6 +195,13 @@ struct FObjective
 				ActivatedAction->OnFinished(OwningMission,ActionCount, TotalCount);
 				AMS_TypesOperations::InvokeOnTaskFinished(OwningMission, ActionClass, ActionCount);
 
+				if (HasOwner())
+				{
+					AMS_TypesOperations::InvokeActivateNext(ObjectiveID+1, OwningMission);
+				}
+
+				AMS_TypesOperations::RemoveActionFromRoot(ActivatedAction);
+
 				return true;//only return true if the objective is finished so we can try to check if all others are also finished
 			}
 
@@ -181,10 +214,14 @@ struct FObjective
 	}
 
 	//called from the details to activate the action assossiated with this objective
-	void Activate()
+	void Activate(int32 ID)
 	{
+		bIsActivated = true;
+		ObjectiveID = ID;
+
 		//when activating we replace the cdo with new object instance
 		ActivatedAction = AMS_TypesOperations::NewActionObject(OwningMission, ActionClass);
+		AMS_TypesOperations::AddActionToRoot(ActivatedAction);
 
 		//this so we dont need to rely on it's instance when we load the objective in the finished list
 		/*ActionType = ActivatedAction->ActionType;
@@ -196,7 +233,7 @@ struct FObjective
 
 		if (ActivatedAction->bCanTick)
 		{
-			AMS_TypesOperations::SubscribeToMissionTick(OwningMission, ActivatedAction);
+			//AMS_TypesOperations::SubscribeToMissionTick(OwningMission, ActivatedAction);
 		}
 	}
 
@@ -230,7 +267,8 @@ struct FObjective
 			}
 			case EStatusGetterType::current_total:
 			{
-				return FString::Printf(TEXT("%s [ %d / %d ]"), *ActionName, ActionCount, TotalCount);
+				FString Activ = bIsActivated ? "Active" : "Not Active";
+				return FString::Printf(TEXT("%s [ %d / %d ] %s with ID : %d"), *ActionName, ActionCount, TotalCount,*Activ, ObjectiveID);
 			}
 			case EStatusGetterType::total_current:
 			{
@@ -268,7 +306,9 @@ struct FObjective
 
 	bool AffectMissionEnd()
 	{
-		return (ActionClass.GetDefaultObject()->ActionType == EActionType::required) || (ActionClass.GetDefaultObject()->ActionType == EActionType::blacklisted);
+		return (ActionClass.GetDefaultObject()->ActionType == EActionType::required)
+			   || (ActionClass.GetDefaultObject()->ActionType == EActionType::blacklisted
+			   || ActionClass.GetDefaultObject()->ActionType == EActionType::InputListener);
 	}
 };
 
@@ -294,6 +334,10 @@ struct FMissionDetails
 	//if the mission is main or side mission
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MissionDetails", meta = (DisplayName = "Mission Type"))
 		EMissionType MissionType;
+
+	//define how the mission tasks should be, if order of execution is needed choose the ordered policy
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MissionDetails", meta = (DisplayName = "Tasks Order Policy"))
+		ETasksOrderPolicy OrderPolicy;
 
 	//if the mission have a count down for it's end or not
 	UPROPERTY(EditAnywhere, Category = "MissionDetails", meta = (DisplayName = "Has Timer?"))
@@ -321,6 +365,7 @@ struct FMissionDetails
 	UPROPERTY(BlueprintReadWrite, Category = "MissionDetails")
 	EFinishState CurrentState;
 
+
 	//used for when recording the mission we need a place to put the calculated progress
 	UPROPERTY(BlueprintReadWrite, Category = "MissionDetails")
 	float MissionProgress;
@@ -333,6 +378,15 @@ struct FMissionDetails
 	UPROPERTY(BlueprintReadWrite, Category = "MissionDetails")
 	    TArray<FObjective> MissionRelatedActions;
 
+	//if the mission has a custom start location, if so then before we init mission data we transfair the player to that location
+	UPROPERTY(BlueprintReadWrite, Category = "MissionDetails")
+		bool bHasCustomStartPostion;
+
+	//the transform used for the mission when started fresh, other wise we use the start transform from the subsystem since we may have many active missions 
+	//the subsystem record the latest used for mission start or location when check point is reached
+	//position for load game and restart game so it wont get confused
+	UPROPERTY(BlueprintReadWrite, Category = "MissionDetails", meta = (EditCondition = "bHasCustomStartPostion"))
+		FTransform StartTransform;
 
 		//find the objective for specific action to preform
 		FObjective& GetActionRelatedObjective(TSubclassOf<UActionObject> action)
@@ -374,13 +428,63 @@ struct FMissionDetails
 		void ActivateActions(UMissionObject* Owner)
 		{
 			CurrentState = EFinishState::inProgress;
-
-			for (auto& action : MissionRelatedActions)
+			int32 ID = 0;
+			if (OrderPolicy == ETasksOrderPolicy::noOrder)
 			{
+				for (auto& action : MissionRelatedActions)
+				{
+					if (!action.HasOwner())
+						action.OwningMission = Owner;
+
+					action.Activate(ID);
+					ID++;
+				}
+			}
+			else if (OrderPolicy == ETasksOrderPolicy::order)
+			{
+				//if the mission was loaded then we need to make sure we walk through all objectives and 
+				//see the first inactive one and activate it and not just activate the first  one since maybe we are loading 
+				//after the player has finished the first one
+				for (auto& action : MissionRelatedActions)
+				{
+					if (!action.bIsActivated)
+					{
+						ActivateNext(ID, Owner);
+						break;
+					}
+
+					else if (!action.bIsFinished && action.bIsActivated)
+					{
+						//if loaded the mission from save then it is surely wont have an owner mission since the owner would have been cleaned when closed
+						//so we give it a new instance of the owner , this is the one that is started from load
+						if (!action.HasOwner())
+							action.OwningMission = Owner;
+
+						//if it was activated before closing and loaded we want to just activate it again so it has a valid action pointer
+						action.Activate(ID);
+					}
+
+					ID++;
+				}
+				
+			}
+		}
+
+		//activate one action after another
+		void ActivateNext(int32 NextID, UMissionObject* Owner)
+		{
+			//cuz we are calling this from the action finish logics we want to make sure if the policy was no order then this function
+			//should not be accounted 
+			if (OrderPolicy != ETasksOrderPolicy::order) return;
+
+			if (MissionRelatedActions.IsValidIndex(NextID))
+			{
+				auto& action = MissionRelatedActions[NextID];
+
 				if (!action.HasOwner())
 					action.OwningMission = Owner;
 
-				action.Activate();
+				action.Activate(NextID);
 			}
 		}
 
@@ -427,6 +531,12 @@ struct FFailInfo
 
 	}
 
+	//constructor for when the mission is passed we need valid way to represent this case , so i added the new fail reason "notFail"
+explicit FFailInfo(EMissionFailReason Reason, TSubclassOf<UActionObject> Action):
+	     FailReason(Reason), CausedAction(Action)
+	{
+
+	}
 };
 
 //used to record missions finish states in the subsystem
@@ -522,7 +632,8 @@ public:
 
 		for (auto& kv : InstancesMap)
 		{
-			outDetails.MissionRelatedActions.Emplace(kv.Key, kv.Value,hostMission);
+			//using the new constructor 
+			outDetails.MissionRelatedActions.Emplace(kv.Key, kv.Key.GetDefaultObject(), kv.Value,hostMission);
 		}
 
 		return outDetails;

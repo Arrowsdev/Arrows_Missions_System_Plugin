@@ -26,7 +26,18 @@ public class AMS_PluginEditor : ModuleRules
 			new string[]
 			{
 				"Core",
-				"AMS_Plugin"
+                "Engine",
+                "CoreUObject",
+                "AMS_Plugin",
+                "EditorWidgets",
+                "LevelEditor",
+                "Slate", 
+                "EditorStyle",
+                "AssetTools",
+                "EditorWidgets",
+                "UnrealEd",
+                "ComponentVisualizers",
+                
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -43,7 +54,13 @@ public class AMS_PluginEditor : ModuleRules
 				"AssetRegistry",
 				"AssetTools",
 				"EditorStyle",
-				"UnrealEd"
+				"UnrealEd",
+                "AppFramework",
+                "KismetWidgets",
+                "MainFrame",
+                "PropertyEditor",
+                "ComponentVisualizers",
+                "TypedElementRuntime",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
