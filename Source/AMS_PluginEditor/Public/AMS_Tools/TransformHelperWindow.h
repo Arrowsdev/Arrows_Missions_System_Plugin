@@ -39,8 +39,9 @@ protected:
 	TSharedPtr<SBorder> ResultsBorder;
 	TSharedPtr<STextBlock> ResultsText;
 
-	//list of names and cdo's 
-	TMap<FString, UMissionObject*> SelectionList;
+	//list of names and cdo's , changed to save the classes instead of the cdo cuz that was causing crash if the user opened any class editor 
+	//while the transform helper is opened, my guess that when that class compiles the generated class will have new address so the stored cdo will be not valid
+	TMap<FString, TSubclassOf<UMissionObject>> MissionsList;
 	
 	//selected names used to pull the correct cdo from the map
 	FString SelectedVariableName;

@@ -160,7 +160,7 @@ void STransformHelperWindow::Construct(const FArguments& InArgs)
 
 void STransformHelperWindow::GenerateClassesOptions()
 {
-    SelectionList.Empty();
+    MissionsList.Empty();
 
     TArray<FAssetData> FoundMissions;
     FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
@@ -183,7 +183,7 @@ void STransformHelperWindow::GenerateClassesOptions()
                     FString newSelection = CleanString(missionObject->GetName());
                     ClassesOptions.Add(MakeShareable(new FString(newSelection)));
 
-                    SelectionList.Add(newSelection, missionObject);
+                    MissionsList.Add(newSelection, missionObject->GetClass());
                 }
             }
         }
@@ -233,7 +233,7 @@ void STransformHelperWindow::OnVariableSelectionChanged(TSharedPtr<FString> Sele
 void STransformHelperWindow::GenerateVariableListForSelection(TSharedPtr<FString> Selection)
 {
 
-    UMissionObject* SelectedMissionCDO = SelectionList[*Selection];
+    UMissionObject* SelectedMissionCDO = MissionsList[*Selection].GetDefaultObject();
 
     TMap<FProperty*, bool> GenericTransformType;
     FProperty* prop = SelectedMissionCDO->GetClass()->PropertyLink;
@@ -263,7 +263,7 @@ void STransformHelperWindow::GenerateVariableListForSelection(TSharedPtr<FString
      {
         FString propertyName = itr.Key->GetName();
         ClassVariables.Add((MakeShareable(new FString(propertyName))));
-        Typed_VariablesList.Add(propertyName, PropertyTypePair(itr.Key, itr.Value));
+        Typed_VariablesList.Add(propertyName, PropertyTypePair(itr.Key, itr.Value));//we dont need the property here anymore
      }
   
     if(GenericTransformType.Num() == 0)
@@ -304,13 +304,13 @@ FReply STransformHelperWindow::OnApplyButtonClicked()
     }
 
     bool IsSingle = Typed_VariablesList[SelectedVariableName].IsSingle;
-    FProperty* PropertyToEdit = Typed_VariablesList[SelectedVariableName]._Property;
-
-    UMissionObject* MissionToEdit = SelectionList[SelectedMission];
+ 
+    UMissionObject* MissionCDO = MissionsList[SelectedMission].GetDefaultObject();
 
     if (IsSingle)
     {
-        FTransform* ValuePtr = PropertyToEdit->ContainerPtrToValuePtr<FTransform>(MissionToEdit);
+        FStructProperty* StructProperty = FindFProperty<FStructProperty>(MissionCDO->GetClass(), FName(SelectedVariableName));
+        FTransform* ValuePtr = StructProperty->ContainerPtrToValuePtr<FTransform>(MissionCDO);
         if (ValuePtr)
         {
         
@@ -323,7 +323,9 @@ FReply STransformHelperWindow::OnApplyButtonClicked()
 
     else
     {
-        TArray<FTransform>* ArrValuePtr = PropertyToEdit->ContainerPtrToValuePtr<TArray<FTransform>>(MissionToEdit);
+        FArrayProperty* StructProperty = FindFProperty<FArrayProperty>(MissionCDO->GetClass(), FName(SelectedVariableName));
+        TArray<FTransform>* ArrValuePtr = StructProperty->ContainerPtrToValuePtr<TArray<FTransform>>(MissionCDO);
+      
         ArrValuePtr->Empty();//remove old data in that array
 
         for (auto& transform : list)
