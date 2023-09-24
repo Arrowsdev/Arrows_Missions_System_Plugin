@@ -14,11 +14,15 @@
 #include "Widgets/Views/STableRow.h"
 #include "Widgets/DeclarativeSyntaxSupport.h"
 #include "Input/Reply.h" 
+#include <BlueprintEditorModule.h>
 
 struct FBrowserObject
 {
 public:
 	TWeakObjectPtr<UObject> Object;
+
+	//point to the bp asset that holds this object so we can open bp asset for this browserObject
+	TWeakObjectPtr<UBlueprint> ObjectBP;
 };
 
 class IDetailsView;
@@ -133,7 +137,7 @@ public:
 
 	virtual FReply OnMouseButtonDoubleClick(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent) override
 	{
-		if (UObject* LiveObject = BrowserObject->Object.Get())
+		if (UObject* LiveObject = BrowserObject->ObjectBP.Get())
 		{
 			if (GEditor)
 			{

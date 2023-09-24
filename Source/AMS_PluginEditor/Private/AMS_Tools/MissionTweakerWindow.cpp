@@ -113,6 +113,7 @@ void MissionTweakerWindow::RefreshList()
 	Tags.Add("MissionObject");
 	AssetRegistryModule.Get().GetAssetsByTags(Tags, FoundMissions);
 
+
 	if (FoundMissions.Num() > 0)
 	{
 		for (FAssetData& mission : FoundMissions)
@@ -120,17 +121,25 @@ void MissionTweakerWindow::RefreshList()
 			UBlueprint* MissionBlueprint = Cast<UBlueprint>(mission.GetAsset());
 			if (MissionBlueprint)
 			{
+				
 				UMissionObject* missionObject = Cast<UMissionObject>(MissionBlueprint->GeneratedClass.GetDefaultObject());
 				if (missionObject)
 				{
-					TSharedPtr<FBrowserObject> NewObject = MakeShareable(new FBrowserObject());
-					NewObject->Object = missionObject;
-
-					LiveObjects.Add(NewObject);
+					FString ObjectName = missionObject->GetClass()->GetDisplayNameText().ToString();
+					if (ObjectName.Contains(FilterString) || FilterString.IsEmpty())
+					{
+						TSharedPtr<FBrowserObject> NewObject = MakeShareable(new FBrowserObject());
+						NewObject->Object = missionObject;
+						NewObject->ObjectBP = MissionBlueprint;
+						LiveObjects.Add(NewObject);
+					}
+					
 				}
 			}
 		}
 	}
+
+	ObjectListView->RequestListRefresh();
 }
 
 
