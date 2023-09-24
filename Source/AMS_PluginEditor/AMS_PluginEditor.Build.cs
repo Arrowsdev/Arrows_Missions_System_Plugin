@@ -37,6 +37,7 @@ public class AMS_PluginEditor : ModuleRules
                 "EditorWidgets",
                 "UnrealEd",
                 "ComponentVisualizers",
+                "InputCore",
                 
 				// ... add other public dependencies that you statically link with here ...
 			}

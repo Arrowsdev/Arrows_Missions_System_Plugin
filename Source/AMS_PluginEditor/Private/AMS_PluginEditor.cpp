@@ -18,6 +18,7 @@
 #include "AMS_PluginEditor/Public/AssetTypes/AMS_AssetType_SaveGame.h"
 
 #include "AMS_PluginEditor/Public/AMS_Tools/AMS_TransformHelper.h"
+#include "AMS_PluginEditor/Public/AMS_Tools/MissionsTweaker.h"
 
 #define LOCTEXT_NAMESPACE "FAMS_PluginEditorModule"
 
@@ -151,6 +152,11 @@ void FAMS_PluginEditor::FillPulldownMenu(FMenuBuilder& menuBuilder)
 	menuBuilder.BeginSection("Tools", FText::FromString("Section 1"));
 	menuBuilder.AddMenuSeparator(FName("Section_1"));
 	menuBuilder.EndSection();
+
+	//documentation section
+	menuBuilder.BeginSection("Docs", FText::FromString("documentation"));
+	menuBuilder.AddMenuSeparator(FName("documentation"));
+	menuBuilder.EndSection();
 }
 
 void FAMS_PluginEditor::CreateBarExtention()
@@ -191,6 +197,7 @@ void FAMS_PluginEditor::AddModuleListeners()
 {
 	ModuleListeners.Add(MakeShareable(new AMS_TransformHelper));
 	ModuleListeners.Add(MakeShareable(new AMS_About));
+	ModuleListeners.Add(MakeShareable(new MissionsTweaker));
 
 	/*@TODO : add missions tweaker for editing all missions details in one window to make it wasy to tweak details if no need to
 	* edit to logics , so users can reset tasks and values or names and descriptions in central place for all available missions

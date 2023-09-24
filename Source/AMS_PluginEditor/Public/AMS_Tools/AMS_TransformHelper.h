@@ -67,7 +67,7 @@ public:
             .SetDisplayName(TabDisplayName)
             .SetTooltipText(ToolTipText);
 
-        FAMS_PluginEditor::Get().AddMenuExtension(FMenuExtensionDelegate::CreateRaw(this, &AMS_About::MakeMenuEntry), FName("Section_1"));
+        FAMS_PluginEditor::Get().AddMenuExtension(FMenuExtensionDelegate::CreateRaw(this, &AMS_About::MakeMenuEntry), FName("documentation"));
     };
 
     virtual void OnShutdownModule() override
