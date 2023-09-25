@@ -60,7 +60,6 @@ void FAMS_PluginEditor::StartupModule()
 	if (StyleWasSet)
 	{
 		FSlateStyleRegistry::RegisterSlateStyle(*AMS_StyleSet);
-		Logo = new FSlateImageBrush(AMS_StyleSet->RootToContentDir(TEXT("Resources/FadeScreen.png")), FVector2D(100));
 	}
 
 	RegisterAssetTypes();
@@ -122,6 +121,10 @@ bool FAMS_PluginEditor::SetupStyle()
 	MAKE_STYLE(AMS_SaveGame, SIcon.png, 64, 32);
 	MAKE_STYLE(AMS_JuernalObject, JIcon2.png, 64, 32);
 	MAKE_STYLE(MissionObject, JIcon2.png, 64, 32);
+	MAKE_STYLE(LOGO, AMSLogo.png, 400, 200);
+	
+	//registering brushes for differenet tools ui
+	AMS_StyleSet->Set("AboutWindow", new FSlateImageBrush(AMS_StyleSet->RootToContentDir(TEXT("Resources/AMSLogo.png")), FVector2D(400,200)));
 
 	return true;
 }
@@ -208,11 +211,6 @@ void FAMS_PluginEditor::AddModuleListeners()
 	ModuleListeners.Add(MakeShareable(new AMS_About));
 	ModuleListeners.Add(MakeShareable(new MissionsTweaker));
 
-	/*@TODO : add missions tweaker for editing all missions details in one window to make it wasy to tweak details if no need to
-	* edit to logics , so users can reset tasks and values or names and descriptions in central place for all available missions
-	* in the project
-	*/
-	
 }
 
 void FAMS_PluginEditor::AddMenuExtension(const FMenuExtensionDelegate& extensionDelegate, FName extensionHook, const TSharedPtr<FUICommandList>& CommandList, EExtensionHook::Position position)

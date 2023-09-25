@@ -66,6 +66,7 @@ public:
             .SetGroup(FAMS_PluginEditor::Get().GetMenuRoot())
             .SetDisplayName(TabDisplayName)
             .SetTooltipText(ToolTipText);
+        FGlobalTabmanager::Get()->RegisterDefaultTabWindowSize(TabName, FVector2D(400, 200));
 
         FAMS_PluginEditor::Get().AddMenuExtension(FMenuExtensionDelegate::CreateRaw(this, &AMS_About::MakeMenuEntry), FName("documentation"));
     };
@@ -84,6 +85,8 @@ public:
     {
         FGlobalTabmanager::Get()->PopulateTabSpawnerMenu(menuBuilder, TabName);
     };
+
+    void OpenAsWindow();
 
 protected:
     FName TabName;

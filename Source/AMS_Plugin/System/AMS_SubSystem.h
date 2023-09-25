@@ -244,6 +244,15 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		return MissionSubSystemInstance->Internal_GetGameProgress();
 	}
 
+	//check if a record is played or fresh not played, used to help making ui for playing games from the list of the game missions
+	//since there my example ui used to restart all missions when "play this mission" button is pressed but restarting a mission without having playing any mission
+	//gives the player a default profile of "NONE" so it saves in the wrong place, this is just a utility function
+	UFUNCTION(BlueprintPure, Category = "Arrows Mission System")
+	static FORCEINLINE void GetRecordState(FRecordEntry record, UPARAM(DisplayName="played?") bool& bIsPlayed)
+	{
+		bIsPlayed = record.MissionState != EFinishState::notPlayed;
+	}
+
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System | Debugging")
 		FORCEINLINE	int32 GetActiveMissionsCount(FName& UsedProfile)
 	{

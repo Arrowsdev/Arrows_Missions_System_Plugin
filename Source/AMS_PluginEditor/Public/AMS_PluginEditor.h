@@ -46,8 +46,6 @@ public:
 		return FModuleManager::Get().IsModuleLoaded("AMS_PluginEditor");
 	}
 
-	//temp cuz i dont know how to get textures references in slate this will work around for me, still didnt work XDDD , still learning slate
-	FSlateBrush* Logo;
 
 private:
 	EAssetTypeCategories::Type AssetCategoryBit;

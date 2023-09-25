@@ -34,6 +34,7 @@ void AMS_About::Initialize()
 
 TSharedRef<SDockTab> AMS_About::SpawnTab(const FSpawnTabArgs& TabSpawnArgs)
 {
+
     TSharedRef<SDockTab> SpawnedTab = SNew(SDockTab)
         .TabRole(ETabRole::DocumentTab)
         [
@@ -42,4 +43,9 @@ TSharedRef<SDockTab> AMS_About::SpawnTab(const FSpawnTabArgs& TabSpawnArgs)
         ];
 
     return SpawnedTab;
+}
+
+void AMS_About::OpenAsWindow()
+{
+  //for later i want to learn how to make standalone windows
 }

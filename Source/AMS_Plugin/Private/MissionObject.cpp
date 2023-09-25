@@ -130,8 +130,12 @@ void UMissionObject::DeInitializeMission()
 	{
 		if (itr.bIsActivated)
 		{
-			if(itr.ActivatedAction->IsRooted())
-			itr.ActivatedAction->RemoveFromRoot();
+			if (itr.ActivatedAction)
+			{
+				if(itr.ActivatedAction->IsRooted())
+				  itr.ActivatedAction->RemoveFromRoot();
+			}
+			
 		}
 		
 	}

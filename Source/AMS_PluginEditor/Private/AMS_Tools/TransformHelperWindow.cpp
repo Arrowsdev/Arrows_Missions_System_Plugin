@@ -66,7 +66,6 @@ SAssignNew(VariableSelector,STextComboBox)\
 void STransformHelperWindow::Construct(const FArguments& InArgs)
 {
    
-    Logo = FAMS_PluginEditor::Get().Logo;
     FSlateFontInfo FontInfo = FCoreStyle::Get().GetFontStyle("EmbossedText");
     FontInfo.Size = 24.f;
    
@@ -396,16 +395,60 @@ FString STransformHelperWindow::ParseTransformString(FTransform transform)
     
 void SAboutWindow::Construct(const FArguments& args)
 {
+    const FSlateBrush* AboutLogo = FAMS_PluginEditor::Get().AMS_StyleSet->GetBrush(FName("AboutWindow"));
+
+    FSlateFontInfo FontInfo = FCoreStyle::Get().GetFontStyle("EmbossedText");
+    FontInfo.Size = 8.f;
+
+    FSlateFontInfo copyRights = FontInfo;
+    copyRights.Size = 6.f;
+
     ChildSlot
     [
          SNew(SBorder)
         .BorderBackgroundColor(FColor(192, 192, 192, 255))
-        .Padding(15.0f)
+        .Padding(0.0f)
         [
-            SNew(STextBlock)
-            .Text(FText::FromString(TEXT("Arrows Interactive Systems (AIS) is a small sudanese indie games development studio.\nthis plugin was made for inhouse projects and distrebuted to help other developers too\n\n\n\n plugin version ( AMS v0.1 ) \nAll Rights Are Reserved AIS Studio @2023")))
+            SNew(SVerticalBox)
+            + SVerticalBox::Slot()
+            [
+                SNew(SImage)
+                .Image(AboutLogo)
+            ]
+            +SVerticalBox::Slot()
+            .Padding(5.0f)
+            [
+               SNew(SVerticalBox)
+               + SVerticalBox::Slot()
+               .Padding(0.0f,5.0f,0.0f,0.0f)
+               [
+                    SNew(STextBlock)
+                    .Text(FText::FromString(TEXT("Arrows Interactive Systems (AIS) is a small sudanese indie games development studio.\nthis plugin was made for inhouse projects and distrebuted to help other developers too")))
+                    .Font(FontInfo)
+                    .AutoWrapText(true)
+               ]
+               + SVerticalBox::Slot()
+               .VAlign(VAlign_Bottom)
+               [
+                   SNew(SHorizontalBox)
+                   +SHorizontalBox::Slot()
+                   .HAlign(HAlign_Left)
+                   [
+                       SNew(STextBlock)
+                       .Text(FText::FromString(TEXT("Arrows Missions System v0.1")))
+                      .Font(copyRights)
+                   ]
+                  + SHorizontalBox::Slot()
+                   .HAlign(HAlign_Right)
+                   [
+                       SNew(STextBlock)
+                       .Text(FText::FromString(TEXT("All Rights Are Reserved AIS Studio @2023")))
+                        .Font(copyRights)
+                   ]
+                   
+               ]
+
+            ]
         ]
     ];
 }
-    
-  

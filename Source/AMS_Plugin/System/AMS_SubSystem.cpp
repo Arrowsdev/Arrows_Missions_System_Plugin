@@ -474,6 +474,7 @@ void UAMS_SubSystem::InitiateFullGameProgressData()
 	FullGameMissionsRecords.Empty();
 	FullGameMissionsCount = 0;
 	
+	
 	if (GameMissionsList.IsEmpty())
 	{
 		TArray<FAssetData> FoundMissions;
@@ -518,7 +519,7 @@ void UAMS_SubSystem::InitiateFullGameProgressData()
 
 		PrintLog(FString::Printf(TEXT("found %d of Mission Object Blueprints and first one is :  "), FoundMissions.Num()), 10.0f);
 	}
-
+	
 	else
 	{
 		FullGameMissionsCount = GameMissionsList.Num();

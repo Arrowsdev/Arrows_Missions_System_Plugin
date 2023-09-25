@@ -14,6 +14,7 @@
 
 class UTypedElementSelectionSet;
 
+
 ///**
 // * slate window for the transform helper tool 
 // */
@@ -30,7 +31,6 @@ protected:
 
 	FSlateBrush* Logo;
 
-	
 	TArray<TSharedPtr<FString>> ClassesOptions;
 	TArray<TSharedPtr<FString>> ClassVariables;
 	
@@ -99,4 +99,5 @@ class AMS_PLUGINEDITOR_API SAboutWindow : public SCompoundWidget
 
 protected:
 	TWeakPtr<AMS_About> about;
+
 };
