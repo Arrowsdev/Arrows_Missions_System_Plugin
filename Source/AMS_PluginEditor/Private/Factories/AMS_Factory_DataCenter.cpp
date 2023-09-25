@@ -1,25 +1,26 @@
 //Advanced Mission System Developed by AIS Studios @2023
 
 
-#include "Factories/AMS_Factory_SaveGame.h"
-#include "AMS_Plugin/System/AMS_SaveGame.h"
+#include "Factories/AMS_Factory_DataCenter.h"
+#include "AMS_Plugin/System/AMS_DataCenter.h"
 #include "Kismet2/KismetEditorUtilities.h"
 #include "AMS_PluginEditor/Public/AMS_CustomBlueprint.h"
 
-UAMS_Factory_SaveGame::UAMS_Factory_SaveGame(const FObjectInitializer& ObjectInitializer) : UBlueprintFactory(ObjectInitializer)
+UAMS_Factory_DataCenter::UAMS_Factory_DataCenter(const FObjectInitializer& ObjectInitializer): UBlueprintFactory(ObjectInitializer)
 {
 	bCreateNew = true;
 	bEditAfterNew = true;
-	SupportedClass = UAMS_SaveGame::StaticClass();
+	SupportedClass = UAMS_DataCenter::StaticClass();
 
 	ParentClass = SupportedClass;
 }
 
-UObject* UAMS_Factory_SaveGame::FactoryCreateNew(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn, FName CallingContext)
+
+UObject* UAMS_Factory_DataCenter::FactoryCreateNew(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn, FName CallingContext)
 {
 	if ((ParentClass == nullptr) || !FKismetEditorUtilities::CanCreateBlueprintOfClass(ParentClass))
 	{
-	
+
 		FMessageDialog::Open(EAppMsgType::Ok,
 			FText::Format(NSLOCTEXT("UnrealEd", "CannotCreateBlueprintFromClass", "Cannot create a blueprint based on the class '{0}'."),
 				FText::FromString(ParentClass->GetName())));
@@ -34,16 +35,16 @@ UObject* UAMS_Factory_SaveGame::FactoryCreateNew(UClass* Class, UObject* InParen
 			InParent,
 			Name,
 			BlueprintType,
-			UAMS_SaveGameBlueprint::StaticClass(),
-			UAMS_SaveGameGeneratedBlueprint::StaticClass(),
+			UAMS_DataCenterBlueprint::StaticClass(),
+			UAMS_DataCenterGeneratedBlueprint::StaticClass(),
 			CallingContext);
 
 		return NewAsset;
 	}
 }
 
-bool UAMS_Factory_SaveGame::ConfigureProperties()
+bool UAMS_Factory_DataCenter::ConfigureProperties()
 {
 	ParentClass = SupportedClass;
-	return true;
+    return true;
 }

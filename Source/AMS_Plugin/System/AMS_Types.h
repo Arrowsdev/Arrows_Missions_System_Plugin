@@ -159,6 +159,7 @@ struct FObjective
 		ActionName = Cast<UActionObject>(ActionClass->GetDefaultObject())->ActionName;
 		bIsFinished = false;
 		ActionCount = 0;
+		ObjectiveID = INDEX_NONE;
 	}
 
 	//dedecated constructor to create objective struct that is not gameplay related , it is aimed to fix the crash when we have a full game
@@ -170,6 +171,7 @@ struct FObjective
 		ActionName = Cast<UActionObject>(ActionClass->GetDefaultObject())->ActionName;
 		bIsFinished = false;
 		ActionCount = 0;
+		ObjectiveID = INDEX_NONE;
 	}
 
 	bool Preform()// true means finished false means not finished or not required to finish

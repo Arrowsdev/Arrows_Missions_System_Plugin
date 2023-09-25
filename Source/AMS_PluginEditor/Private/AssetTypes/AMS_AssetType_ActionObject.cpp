@@ -25,11 +25,6 @@ UClass* UAMS_AssetType_ActionObject::GetSupportedClass() const
 	return UActionObject::StaticClass();
 }
 
-void UAMS_AssetType_ActionObject::OpenAssetEditor(const TArray<UObject*>& InObjects, TSharedPtr<class IToolkitHost> EditWithinLevelEditor)
-{
-	FSimpleAssetEditor::CreateEditor(EToolkitMode::Standalone, EditWithinLevelEditor, InObjects);
-}
-
 uint32 UAMS_AssetType_ActionObject::GetCategories()
 {
 	return MyAssetCategory;

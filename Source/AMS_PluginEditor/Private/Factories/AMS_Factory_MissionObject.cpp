@@ -3,10 +3,9 @@
 
 #include "Factories/AMS_Factory_MissionObject.h"
 #include "AMS_Plugin/Public/MissionObject.h"
-#include <Kismet2/KismetEditorUtilities.h>
+#include "Kismet2/KismetEditorUtilities.h"
 #include "Helpers/AMS_Utilites.h"
-#include <KismetCompilerModule.h>
-
+#include "AMS_PluginEditor/Public/AMS_CustomBlueprint.h"
 
 
 
@@ -35,20 +34,16 @@ UObject* UAMS_Factory_MissionObject::FactoryCreateNew(UClass* Class, UObject* In
 
 	else
 	{
-		UClass* BlueprintClass = nullptr;
-		UClass* BlueprintGeneratedClass = nullptr;
-		IKismetCompilerInterface& KismetCompilerModule = FModuleManager::LoadModuleChecked<IKismetCompilerInterface>("KismetCompiler");
-		KismetCompilerModule.GetBlueprintTypesForClass(ParentClass, BlueprintClass, BlueprintGeneratedClass);
-		
 		UBlueprint* NewAsset = FKismetEditorUtilities::CreateBlueprint(
 				ParentClass,
 				InParent,
 				Name,
 				BlueprintType,
-				BlueprintClass,
-				BlueprintGeneratedClass,
+			    UAMS_MissionBlueprint::StaticClass(),
+			    UAMS_MissionGeneratedBlueprint::StaticClass(),
 				CallingContext);
 		
+		    
 			return NewAsset;
 	}
 }

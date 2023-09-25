@@ -5,6 +5,7 @@
 #include "AMS_Plugin/Public/ActionObject.h"
 #include "Helpers/AMS_Utilites.h"
 #include <KismetCompilerModule.h>
+#include "AMS_PluginEditor/Public/AMS_CustomBlueprint.h"
 
 UAMS_Factory_ActionObject::UAMS_Factory_ActionObject(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -26,18 +27,13 @@ UObject* UAMS_Factory_ActionObject::FactoryCreateNew(UClass* Class, UObject* InP
 
 	else
 	{
-		UClass* BlueprintClass = nullptr;
-		UClass* BlueprintGeneratedClass = nullptr;
-		IKismetCompilerInterface& KismetCompilerModule = FModuleManager::LoadModuleChecked<IKismetCompilerInterface>("KismetCompiler");
-		KismetCompilerModule.GetBlueprintTypesForClass(ParentClass, BlueprintClass, BlueprintGeneratedClass);
-
 		UBlueprint* NewAsset = FKismetEditorUtilities::CreateBlueprint(
 			ParentClass,
 			InParent,
 			Name,
 			BlueprintType,
-			BlueprintClass,
-			BlueprintGeneratedClass,
+			UAMS_ActionBlueprint::StaticClass(),
+			UAMS_ActionGeneratedBlueprint::StaticClass(),
 			CallingContext);
 
 		return NewAsset;

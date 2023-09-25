@@ -14,7 +14,7 @@
 #include "Widgets/Views/STableRow.h"
 #include "Widgets/DeclarativeSyntaxSupport.h"
 #include "Input/Reply.h" 
-#include <BlueprintEditorModule.h>
+#include "BlueprintEditorModule.h"
 
 struct FBrowserObject
 {

@@ -16,6 +16,9 @@
 #include "AMS_PluginEditor/Public/AssetTypes/AMS_AssetType_JuernalObject.h"
 #include "AMS_PluginEditor/Public/AssetTypes/AMS_AssetType_MissionObject.h"
 #include "AMS_PluginEditor/Public/AssetTypes/AMS_AssetType_SaveGame.h"
+#include "AMS_PluginEditor/Public/AssetTypes/AMS_AssetType_DataCenter.h"
+
+#include "AMS_PluginEditor/Public/AssetTypes/AMS_AssetType_CustomBlueprint.h"
 
 #include "AMS_PluginEditor/Public/AMS_Tools/AMS_TransformHelper.h"
 #include "AMS_PluginEditor/Public/AMS_Tools/MissionsTweaker.h"
@@ -133,6 +136,12 @@ void FAMS_PluginEditor::RegisterAssetTypes()
 	REGISTER_ASSET_TYPE(UAMS_AssetType_JuernalObject);
 	REGISTER_ASSET_TYPE(UAMS_AssetType_MissionObject);
 	REGISTER_ASSET_TYPE(UAMS_AssetType_SaveGame);
+	REGISTER_ASSET_TYPE(UAMS_AssetType_DataCenter);
+
+	REGISTER_ASSET_TYPE(AMS_AssetType_MissionBlueprint);
+	REGISTER_ASSET_TYPE(AMS_AssetType_SaveGameBlueprint);
+	REGISTER_ASSET_TYPE(AMS_AssetType_ActionBlueprint);
+	REGISTER_ASSET_TYPE(AMS_AssetType_DataCenterBlueprint);
 }
 
 void FAMS_PluginEditor::MakePulldownMenu(FMenuBarBuilder& menuBuilder)
