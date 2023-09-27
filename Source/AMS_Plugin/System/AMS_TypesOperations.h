@@ -33,4 +33,7 @@ public:
 
 	static void AddActionToRoot(UActionObject* action);
 	static void RemoveActionFromRoot(UActionObject* action);
+
+	static void TutorialActionSelfPreform(TSubclassOf<UMissionObject> tutorialMission, TSubclassOf<UActionObject> tutorialAction);
+
 };

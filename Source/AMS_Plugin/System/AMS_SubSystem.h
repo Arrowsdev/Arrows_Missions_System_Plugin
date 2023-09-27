@@ -326,6 +326,8 @@ public:
 	//used to un root all missions pointers so the game can clear memeory when it's closing otherwise it will crash
 	void ClearMissionsFromRoot();
 
+	void PreformTutorialAction(TSubclassOf<UMissionObject> tutorialMission, TSubclassOf<UActionObject> tutorialAction);
+
 private:
 	//used to save the missions instaces so they wont be collected by garbage collection
 	//(funny thing that the list it self wasn't safe from it untill we decorate it with the property macro XDD)

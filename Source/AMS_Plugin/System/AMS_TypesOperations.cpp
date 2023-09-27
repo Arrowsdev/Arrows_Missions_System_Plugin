@@ -4,7 +4,7 @@
 #include "AMS_TypesOperations.h"
 #include "AMS_Plugin/Public/MissionObject.h"
 #include "AMS_Plugin/Public/ActionObject.h"
-
+#include "AMS_Plugin/System/AMS_SubSystem.h"
 
 AMS_TypesOperations::AMS_TypesOperations()
 {
@@ -47,5 +47,13 @@ void AMS_TypesOperations::AddActionToRoot(UActionObject* action)
 void AMS_TypesOperations::RemoveActionFromRoot(UActionObject* action)
 {
 	action->RemoveFromRoot();
+}
+
+void AMS_TypesOperations::TutorialActionSelfPreform(TSubclassOf<UMissionObject> tutorialMission, TSubclassOf<UActionObject> tutorialAction)
+{
+	if (MissionSubSystemInstance)
+	{
+		MissionSubSystemInstance->PreformTutorialAction(tutorialMission, tutorialAction);
+	}
 }
 

@@ -125,6 +125,7 @@ bool FAMS_PluginEditor::SetupStyle()
 	
 	//registering brushes for differenet tools ui
 	AMS_StyleSet->Set("AboutWindow", new FSlateImageBrush(AMS_StyleSet->RootToContentDir(TEXT("Resources/AMSLogo.png")), FVector2D(400,200)));
+	AMS_StyleSet->Set("ToolsIcon", new FSlateImageBrush(AMS_StyleSet->RootToContentDir(TEXT("Resources/ToolsIcon.png")), FVector2D(64)));
 
 	return true;
 }

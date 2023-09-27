@@ -195,6 +195,7 @@ struct FObjective
 
 				bIsFinished = true;
 				ActivatedAction->OnFinished(OwningMission,ActionCount, TotalCount);
+				ActivatedAction->OnActionFinished();
 				AMS_TypesOperations::InvokeOnTaskFinished(OwningMission, ActionClass, ActionCount);
 
 				if (HasOwner())
@@ -231,6 +232,7 @@ struct FObjective
 	
 
 		ActivatedAction->OnActivated(OwningMission,ActionCount, TotalCount);
+		ActivatedAction->OnActionActivated();
 		AMS_TypesOperations::InvokeOnTaskActivated(OwningMission, ActionClass, ActionCount, TotalCount);
 
 		if (ActivatedAction->bCanTick)

@@ -3,6 +3,7 @@
 
 #include "AMS_SubSystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/Classes/GameFramework/Character.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 
 #include "UObject/ConstructorHelpers.h"
@@ -66,6 +67,12 @@ void UAMS_SubSystem::ClearMissionsFromRoot()
 	{
 		itr.Value->DeInitializeMission();//unhandeled exption here, happens after long time playing and never have an active mission
 	}
+}
+
+void UAMS_SubSystem::PreformTutorialAction(TSubclassOf<UMissionObject> tutorialMission, TSubclassOf<UActionObject> tutorialAction)
+{
+	ACharacter* player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	PreformMissionAction(tutorialMission, tutorialAction, player);
 }
 
 void UAMS_SubSystem::StartMission(TSubclassOf<UMissionObject> newMission, FName SaveProfileName)

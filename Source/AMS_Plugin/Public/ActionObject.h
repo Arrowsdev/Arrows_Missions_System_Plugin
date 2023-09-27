@@ -100,4 +100,7 @@ public:
 
 	UWorld* GetWorld() const;
 
+	//used by tutorial action
+	virtual void OnActionActivated() {/*No Implement*/ };
+	virtual void OnActionFinished()  {/*No Implement*/ };
 };

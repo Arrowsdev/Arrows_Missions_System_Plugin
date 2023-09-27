@@ -39,6 +39,11 @@ public:
 
 	UAMS_ActionBlueprint(const FObjectInitializer& ObjectInitializer);
 	~UAMS_ActionBlueprint() {};
+
+	//for tutorial actions we need to override those to allow using inputs in it's graph reference Engine/Blueprint.h
+	virtual bool AllowsDynamicBinding() const { return true; }
+	virtual bool SupportsInputEvents() const { return true; }
+
 };
 
 UCLASS(NeedsDeferredDependencyLoading)
