@@ -62,6 +62,7 @@ public class AMS_PluginEditor : ModuleRules
                 "PropertyEditor",
                 "ComponentVisualizers",
                 "TypedElementRuntime",
+				"SourceControl",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

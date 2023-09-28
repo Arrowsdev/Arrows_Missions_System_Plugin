@@ -15,6 +15,8 @@
 #include "Widgets/DeclarativeSyntaxSupport.h"
 #include "Input/Reply.h" 
 #include "BlueprintEditorModule.h"
+#include "UObject\SavePackage.h"
+#include "AMS_PluginEditor.h"
 
 struct FBrowserObject
 {
@@ -54,6 +56,8 @@ private:
 
 	void HandleListSelectionChanged(TSharedPtr<FBrowserObject> TransactionInfo, ESelectInfo::Type SelectInfo);
 
+	FReply OnSavedClicked();
+	
 	
 	//used for searching for missions by name
 	FText FilterText;
@@ -89,7 +93,7 @@ public:
 	void Construct(const FArguments& InArgs, const TSharedRef<STableViewBase>& InOwnerTableView)
 	{
 		BrowserObject = InArgs._Object;
-
+		
 		if (UObject* Obj = InArgs._Object->Object.Get())
 		{
 			Name = FText::FromString(Obj->GetName());
@@ -131,7 +135,7 @@ public:
 			 return SNew(STextBlock)
 			.Text(Package);
 		}
-
+		
 		return SNullWidget::NullWidget;
 	}
 
@@ -147,6 +151,7 @@ public:
 
 		return FReply::Handled();
 	}
+
 
 private:
 

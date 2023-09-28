@@ -6,7 +6,7 @@
 #include "Kismet2/SClassPickerDialog.h"
 #include "EditorFontGlyphs.h"
 #include "AssetRegistry/AssetRegistryModule.h"
-
+#include "SourceControlHelpers.h"
 
 void MissionTweakerWindow::Construct(const FArguments& InArgs)
 {
@@ -33,67 +33,87 @@ void MissionTweakerWindow::Construct(const FArguments& InArgs)
 	
 ChildSlot
 [
-			SNew(SSplitter)
-			.Orientation(EOrientation::Orient_Horizontal)
-
-		+ SSplitter::Slot()
-		.Value(3)
+	SNew(SVerticalBox)
+	+SVerticalBox::Slot()
+	.VAlign(VAlign_Top)
+	.AutoHeight()
+	[
+		SNew(SBox)
+		.WidthOverride(100)
+	    .HAlign(HAlign_Left)
 		[
-			SNew(SBorder)
-			.Padding(FMargin(3))
-		    .BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
-		    [
+			SNew(SButton)
+			.Text(FText::FromString("Save All"))
+	        .OnClicked(this, &MissionTweakerWindow::OnSavedClicked)
+		]
+	
+	]
+   + SVerticalBox::Slot()
+   .VAlign(VAlign_Fill)
+   [
+		   SNew(SSplitter)
+		   .Orientation(EOrientation::Orient_Horizontal)
+
+		   + SSplitter::Slot()
+		   .Value(3)
+		   [
+			   SNew(SBorder)
+			   .Padding(FMargin(3))
+		   .BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
+		   [
 			   SNew(SVerticalBox)
 			   + SVerticalBox::Slot()
-		       .AutoHeight()
-		       [
-			       SNew(SHorizontalBox)
-	               +SHorizontalBox::Slot()
-				   .FillWidth(1.0f)
-				   [
-					   SNew(SEditableTextBox)
-					  .HintText(FText::FromString("Mission Name"))
-					  .OnTextCommitted(this, &MissionTweakerWindow::OnNewHostTextCommited)
-					  .OnTextChanged(this, &MissionTweakerWindow::OnNewHostTextCommited, ETextCommit::Default)
-				   ]
-	            ]
-	            +SVerticalBox::Slot()
-		        .FillHeight(1.0f)
-		        [
-					SNew(SBorder)
-					.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
-				   .Padding(FMargin(0.0f, 4.0f))
-				   [
-						 SAssignNew(ObjectListView, SListView< TSharedPtr<FBrowserObject> >)
-						.ItemHeight(24.0f)
-						.ListItemsSource(&LiveObjects)
-						.SelectionMode(ESelectionMode::Single)
-						.OnGenerateRow(this, &MissionTweakerWindow::HandleListGenerateRow)
-						.OnSelectionChanged(this, &MissionTweakerWindow::HandleListSelectionChanged)
-						.HeaderRow
-						 (
-				            SNew(SHeaderRow)
-				            .Visibility(EVisibility::Visible)
-							+ SHeaderRow::Column(NAME_Class)
-							 .DefaultLabel(FText::FromString("Mission"))
-							+ SHeaderRow::Column(NAME_Package)
-							 .DefaultLabel(FText::FromString("Path"))
-			             )
-	               ]
-	         ]
-	    ]
-  ]
+		   .AutoHeight()
+		   [
+			   SNew(SHorizontalBox)
+			   + SHorizontalBox::Slot()
+		   .FillWidth(1.0f)
+		   [
+			   SNew(SEditableTextBox)
+			   .HintText(FText::FromString("Mission Name"))
+		   .OnTextCommitted(this, &MissionTweakerWindow::OnNewHostTextCommited)
+		   .OnTextChanged(this, &MissionTweakerWindow::OnNewHostTextCommited, ETextCommit::Default)
+		   ]
+	   ]
+       + SVerticalBox::Slot()
+	   .FillHeight(1.0f)
+	   [
+		   SNew(SBorder)
+		   .BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
+	       .Padding(FMargin(0.0f, 4.0f))
+		   [
+			   SAssignNew(ObjectListView, SListView< TSharedPtr<FBrowserObject> >)
+			   .ItemHeight(24.0f)
+			   .ListItemsSource(&LiveObjects)
+			   .SelectionMode(ESelectionMode::Single)
+			   .OnGenerateRow(this, &MissionTweakerWindow::HandleListGenerateRow)
+			   .OnSelectionChanged(this, &MissionTweakerWindow::HandleListSelectionChanged)
+			   .HeaderRow
+			   (
+				   SNew(SHeaderRow)
+				   .Visibility(EVisibility::Visible)
+				   + SHeaderRow::Column(NAME_Class)
+				   .DefaultLabel(FText::FromString("Mission"))
+				   + SHeaderRow::Column(NAME_Package)
+				   .DefaultLabel(FText::FromString("Path"))
+			   )
+	       ]
+	   ]
+	   ]
+	   ]
 
-	      +SSplitter::Slot()
-		  .Value(2)
-	      [
-			 SNew(SBorder)
-			.Padding(FMargin(3))
-			.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
-			 [
-				 PropertyView.ToSharedRef()
-			 ]
-	      ]
+       + SSplitter::Slot()
+	   .Value(2)
+	   [
+		   SNew(SBorder)
+		   .Padding(FMargin(3))
+	   .BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
+	   [
+		   PropertyView.ToSharedRef()
+	   ]
+	   ]
+   ]
+		
 	];
 
 	RefreshList();
@@ -176,4 +196,52 @@ void MissionTweakerWindow::HandleListSelectionChanged(TSharedPtr<FBrowserObject>
 		
 	else
 		UE_LOG(LogTemp, Warning, TEXT("no property view exsist"));
+}
+
+FReply MissionTweakerWindow::OnSavedClicked()
+{
+	TArray<FAssetData> FoundMissions;
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	FTopLevelAssetPath BaseClassName = UMissionObject::StaticClass()->GetDefaultObject()->GetClass()->GetClassPathName();
+
+	TArray<FName>Tags;
+	Tags.Add("MissionObject");
+	AssetRegistryModule.Get().GetAssetsByTags(Tags, FoundMissions);
+
+
+	if (FoundMissions.Num() > 0)
+	{
+		for (FAssetData& mission : FoundMissions)
+		{
+			UBlueprint* MissionBlueprint = Cast<UBlueprint>(mission.GetAsset());
+			if (MissionBlueprint)
+			{		
+				FSavePackageArgs saveArgs;
+				saveArgs.TopLevelFlags = RF_Public | RF_Standalone;
+				saveArgs.SaveFlags = SAVE_NoError;
+
+				UPackage* Package = MissionBlueprint->GetPackage();
+
+				FString NameStr = USourceControlHelpers::PackageFilename(Package);
+				const TCHAR* FileName = *NameStr;
+
+				if (Package->IsDirty())
+				{
+					if(UPackage::SavePackage(Package, MissionBlueprint, FileName, saveArgs))
+					UE_LOG(LogTemp, Warning, TEXT("Mission Saved : %s"), *MissionBlueprint->GetName())
+
+					else
+					{
+						UE_LOG(LogTemp, Warning, TEXT("Faild To Save Mission %s"), *MissionBlueprint->GetName());
+					}
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("%s Mission Has No Changes"), *MissionBlueprint->GetName());
+				}
+			}
+		}
+	}
+
+	return FReply::Handled();
 }
