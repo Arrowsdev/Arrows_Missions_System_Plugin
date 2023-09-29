@@ -39,6 +39,11 @@ void AMS_TypesOperations::InvokeActivateNext(int32 ObjectiveID, UMissionObject* 
 	OwningMission->MissionDetails.ActivateNext(ObjectiveID, OwningMission);
 }
 
+void AMS_TypesOperations::InvokeMissionUpdate(UMissionObject* mission)
+{
+	mission->MissionHasUpdated();
+}
+
 void AMS_TypesOperations::AddActionToRoot(UActionObject* action)
 {
 	action->AddToRoot();

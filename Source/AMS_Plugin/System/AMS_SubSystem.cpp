@@ -80,13 +80,13 @@ void UAMS_SubSystem::Deinitialize()
 
 void UAMS_SubSystem::ClearMissionsFromRoot()
 {
-	TArray<UMissionObject*> ActiveMissionsArray;
-	ActiveMissions.GenerateValueArray(ActiveMissionsArray);
+	//TArray<UMissionObject*> ActiveMissionsArray;
+	//ActiveMissions.GenerateValueArray(ActiveMissionsArray);
 
-	for (auto& itr : ActiveMissionsArray)
-	{
-		itr->DeInitializeMission();//unhandeled exption here, happens after long time playing and never have an active mission
-	}
+	//for (auto& itr : ActiveMissionsArray)
+	//{
+	//	itr->DeInitializeMission();//unhandeled exption here, happens after long time playing and never have an active mission
+	//}
 }
 
 void UAMS_SubSystem::PreformTutorialAction(TSubclassOf<UMissionObject> tutorialMission, TSubclassOf<UActionObject> tutorialAction)

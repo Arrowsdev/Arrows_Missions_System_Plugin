@@ -74,6 +74,20 @@ public:
 		void OnTaskFinished(TSubclassOf<UActionObject> ActivatedTask, int32 ActionCount);
 	virtual void OnTaskFinished_Implementation(TSubclassOf<UActionObject> ActivatedTask, int32 ActionCount) {/*No Implement*/ }
 
+
+	/*just a cosmatic event to have a cheaper way to present mission details in the ui without the need to constantly getting values 
+	* but instead we get values when changes happens 
+	*/
+	UFUNCTION(BlueprintNativeEvent, Category = MissionEvents, BlueprintCosmetic)
+		void OnMissionUpdates(FMissionDetails NewMissionDetiales ,EFinishState missionState);
+	virtual void OnMissionUpdates_Implementation(FMissionDetails NewMissionDetiales, EFinishState missionState) {/*No Implement*/ }
+
+	//triggered from the objective when it is preformed or when the mission is initialized
+	inline void MissionHasUpdated()
+	{
+		OnMissionUpdates(MissionDetails, CurrentState);
+	}
+
 	//Mission Configuration
 	UPROPERTY(EditAnywhere, Category = Settings)
 		FMissionDetails MissionDetails;
@@ -98,6 +112,11 @@ public:
 	//the tag that should be in an actor for the mission to consider it's actions 
 	UPROPERTY(EditAnywhere, Category = Settings, meta = (DisplayName = "Assossiated Tag"))
 		FName AssossiatedTag;
+
+	//used to be found by the transform helper so it can shove it inside the mission details struct
+	UPROPERTY()
+	FTransform StartTransform;
+
 	// Mission API
 
 	/*Gets The Current Time Of the Mission

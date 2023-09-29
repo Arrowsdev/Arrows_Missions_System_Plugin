@@ -92,6 +92,7 @@ void STransformHelperWindow::Construct(const FArguments& InArgs)
        SNew(SVerticalBox)
        + SVerticalBox::Slot()
         .VAlign(VAlign_Fill)
+        .AutoHeight()
         [//#1
             SNew(SScrollBox)
             + SScrollBox::Slot()
@@ -130,13 +131,22 @@ void STransformHelperWindow::Construct(const FArguments& InArgs)
            [
                SAssignNew(ResultsText,STextBlock)
                .Text(FText::FromString(TEXT(" ")))
+               .AutoWrapText(true)
            ]
 
         ]//#2
-
+       + SVerticalBox::Slot()
+       .VAlign(VAlign_Bottom)
+       .AutoHeight()
+       [
+           SAssignNew(WarningText, STextBlock)
+           .Text(FText::FromString(TEXT("")))
+           .AutoWrapText(true)
+       ]
        + SVerticalBox::Slot()
        .VAlign(VAlign_Bottom)
        .HAlign(HAlign_Right)
+       .AutoHeight()
         [//#3
            SNew(SVerticalBox)
            + SVerticalBox::Slot()
@@ -306,6 +316,8 @@ FReply STransformHelperWindow::OnApplyButtonClicked()
  
     UMissionObject* MissionCDO = MissionsList[SelectedMission].GetDefaultObject();
 
+    FString WarningMessage = FString();
+
     if (IsSingle)
     {
         FStructProperty* StructProperty = FindFProperty<FStructProperty>(MissionCDO->GetClass(), FName(SelectedVariableName));
@@ -314,6 +326,19 @@ FReply STransformHelperWindow::OnApplyButtonClicked()
         {
         
             *ValuePtr = list[0];
+            if (SelectedVariableName == FString("StartTransform"))
+            {
+                MissionCDO->MissionDetails.StartTransform = list[0];
+                WarningMessage = MissionCDO->MissionDetails.bHasCustomStartPostion ? "" : "[WARRNING : you are setting the start transform but -Has Custom Start Position- Condition is not set!]";
+
+               WarningText->SetText(FText::FromString(WarningMessage));
+               WarningText->SetColorAndOpacity(FColor::Yellow);
+
+            }
+            else
+            {
+                WarningText->SetText(FText::FromString(""));
+            }
         }
 
         FString ValueString = ParseTransformString(*ValuePtr);

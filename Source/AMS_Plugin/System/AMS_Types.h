@@ -129,7 +129,7 @@ struct FObjective
 	UActionObject* ActivatedAction;
 
 	//to prevent temp values form being optimized away by the garbage collector while saving game
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite, Category = "Objective")
 	TSubclassOf<UActionObject> ActionClass;
 
 	UPROPERTY(BlueprintReadWrite, Category="Objective")
@@ -140,19 +140,19 @@ struct FObjective
 	UPROPERTY(BlueprintReadWrite, Category = "Objective")
 	int32 TotalCount;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite, Category = "Objective")
 	bool bIsFinished;//will be true if preformed X times, while X is the Action count
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite, Category = "Objective")
 	bool bIsActivated;
 
 	UPROPERTY()
 	UMissionObject* OwningMission;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite, Category = "Objective")
 	EActionType ActionType;//should expose ?
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite, Category = "Objective")
 	FString ActionName;
 
 	UPROPERTY()
@@ -190,7 +190,7 @@ struct FObjective
 		{
 			ActionCount++;
 			ActivatedAction->OnPreformed(OwningMission,ActionCount, TotalCount);
-
+			
 		    if (ActionCount >= TotalCount)
 			{
 				if (ActivatedAction->ActionType == EActionType::highscore)
@@ -214,10 +214,12 @@ struct FObjective
 				}
 
 				AMS_TypesOperations::RemoveActionFromRoot(ActivatedAction);
+				AMS_TypesOperations::InvokeMissionUpdate(OwningMission);
 
 				return true;//only return true if the objective is finished so we can try to check if all others are also finished
 			}
 
+			AMS_TypesOperations::InvokeMissionUpdate(OwningMission);
 		}
 
 		else
@@ -444,7 +446,7 @@ struct FMissionDetails
 
 			for (FObjective& objective : MissionRelatedActions)
 			{
-				if (objective == EActionType::required || objective == EActionType::optional)
+				if (objective == EActionType::required || objective == EActionType::optional || objective == EActionType::InputListener)
 				{
 					percent += objective.GetObjectiveProgress();
 				}

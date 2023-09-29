@@ -99,6 +99,7 @@ FinishInit:
 	MissionDetails.InitOptionalCout();
 	MissionDetails.ActivateActions(this);
 	CurrentState = EFinishState::inProgress;
+	MissionHasUpdated();
 	OnMissionBegin();
 	LOG_AMS("Mission is initilized", 10.0f, FColor::Green);
 }
@@ -171,11 +172,16 @@ void UMissionObject::MissionCheckEnd(TSubclassOf<UActionObject> FinishedAction)
 		{
 			EndMission(EFinishState::succeeded, FFailInfo(EMissionFailReason::notFailed,FinishedAction));
 			MissionDetails.bIsMissionFinished = true;
+			MissionHasUpdated();
 		}
 			
 	    
-		else if(FinishedAction.GetDefaultObject()->ActionType == EActionType::blacklisted)
+		else if (FinishedAction.GetDefaultObject()->ActionType == EActionType::blacklisted)
+		{
 			EndMission(EFinishState::failed, FFailInfo(FinishedAction));
+			MissionHasUpdated();
+		}
+			
 	}
 }
 
@@ -189,6 +195,7 @@ void UMissionObject::PostEditChangeProperty(struct FPropertyChangedEvent& change
 	{
 		MissionDetails.OnDetailsChanged();
 	}	
+
 }
 #endif
 
