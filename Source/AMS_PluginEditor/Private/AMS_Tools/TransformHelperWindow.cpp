@@ -240,7 +240,7 @@ void STransformHelperWindow::GenerateVariableListForSelection(TSharedPtr<FString
     //get all transform variables, (Arrays and single transforms)
     while (prop)
     {
-        if ((prop->GetClass() == FStructProperty::StaticClass() || prop->GetClass() == FArrayProperty::StaticClass()) && !prop->IsNative())
+        if ((prop->GetClass() == FStructProperty::StaticClass() || prop->GetClass() == FArrayProperty::StaticClass()))// && !prop->IsNative())
         {
             FStructProperty* AsStruct = CastField<FStructProperty>(prop);
             FArrayProperty* AsArrayStruct = CastField<FArrayProperty>(prop);

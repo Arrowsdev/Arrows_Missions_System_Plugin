@@ -113,7 +113,17 @@ struct FObjective
 
 	GENERATED_BODY()
 
-	FObjective() {};
+	FObjective()
+	{
+		ActivatedAction = nullptr;
+		ActionClass = nullptr;
+		ActionCount = 0;
+		TotalCount = 0;
+		bIsFinished = false;
+		bIsActivated = false;
+		OwningMission = nullptr;
+		ActionType = EActionType::NotDefined;
+	};
 
 	UPROPERTY(BlueprintReadWrite, Category = "Objective")
 	UActionObject* ActivatedAction;
@@ -224,7 +234,9 @@ struct FObjective
 
 		//when activating we replace the cdo with new object instance
 		ActivatedAction = AMS_TypesOperations::NewActionObject(OwningMission, ActionClass);
-		AMS_TypesOperations::AddActionToRoot(ActivatedAction);
+
+		//we dont add to root now , not for action or missions i want to test something so we can do this in much cleaner way
+		//AMS_TypesOperations::AddActionToRoot(ActivatedAction);
 
 		//this so we dont need to rely on it's instance when we load the objective in the finished list
 		/*ActionType = ActivatedAction->ActionType;
@@ -237,7 +249,7 @@ struct FObjective
 
 		if (ActivatedAction->bCanTick)
 		{
-			//AMS_TypesOperations::SubscribeToMissionTick(OwningMission, ActivatedAction);
+			AMS_TypesOperations::SubscribeToMissionTick(OwningMission, ActivatedAction);
 		}
 	}
 
@@ -325,7 +337,20 @@ struct FMissionDetails
 	GENERATED_USTRUCT_BODY()
 
 
-	FMissionDetails() { CurrentState = EFinishState::notPlayed; }
+		FMissionDetails()
+	    { 
+		   CurrentState = EFinishState::notPlayed;
+		   MissionType = EMissionType::main;
+		   OrderPolicy = ETasksOrderPolicy::order;
+		   bHasTimer = false;
+		   MissionTime = 0.0f;
+		   DefaultMissionTime = 0.0f;
+		   RequiredCount = 0;
+		   OptionalCount = 0;
+		   MissionProgress = 0.0f;
+		   bHasCustomStartPostion = false;
+		   bIsMissionFinished = false;
+	    }
 
 	//the name of the mission used to preview in ui
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MissionDetails", meta=(DisplayName="Mission Name"))
@@ -383,13 +408,13 @@ struct FMissionDetails
 	    TArray<FObjective> MissionRelatedActions;
 
 	//if the mission has a custom start location, if so then before we init mission data we transfair the player to that location
-	UPROPERTY(BlueprintReadWrite, Category = "MissionDetails")
+	UPROPERTY(EditAnywhere, Category = "MissionDetails")
 		bool bHasCustomStartPostion;
 
 	//the transform used for the mission when started fresh, other wise we use the start transform from the subsystem since we may have many active missions 
 	//the subsystem record the latest used for mission start or location when check point is reached
 	//position for load game and restart game so it wont get confused
-	UPROPERTY(BlueprintReadWrite, Category = "MissionDetails", meta = (EditCondition = "bHasCustomStartPostion"))
+	UPROPERTY(EditAnywhere, Category = "MissionDetails", meta = (EditCondition = "bHasCustomStartPostion"))
 		FTransform StartTransform;
 
 		//find the objective for specific action to preform
@@ -549,7 +574,13 @@ struct FRecordEntry
 {
 	GENERATED_BODY()
 
-	FRecordEntry() {};
+	FRecordEntry()
+	{
+		MissionState = EFinishState::notPlayed;
+		MissionClass = nullptr;
+		RequiredCount = 0;
+		BlackListedCount = 0;
+	};
 
 	FRecordEntry(const FRecordEntry& otherRecord):
 		MissionClass(otherRecord.MissionClass), MissionDetails(otherRecord.MissionDetails),

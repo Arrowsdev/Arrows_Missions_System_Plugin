@@ -4,9 +4,11 @@
 #include "AMS_SubSystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/Classes/GameFramework/Character.h"
+#include "GameFramework/PlayerController.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 
 #include "UObject/ConstructorHelpers.h"
+#include "Containers/Ticker.h"
 
 #include "AMS_Plugin/Public/MissionObject.h"
 #include "AMS_Plugin/System/AMS_SaveGame.h"
@@ -32,7 +34,7 @@ UAMS_SubSystem::UAMS_SubSystem()
 void UAMS_SubSystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	MissionSubSystemInstance = this;
-
+	
 	InitiateFullGameProgressData();
 	UE_LOG(LogTemp, Warning, TEXT("Missions Count Is Calculated to be : %d"), FullGameMissionsCount);
 
@@ -58,14 +60,32 @@ void UAMS_SubSystem::Initialize(FSubsystemCollectionBase& Collection)
 
 void UAMS_SubSystem::Deinitialize()
 {
-	ClearMissionsFromRoot();
+	/*if (ActiveMissions.Num() != 0)
+	ClearMissionsFromRoot();*/
 }
+
+//UWorld* UAMS_SubSystem::GetWorld() const
+//{
+//	if (GIsEditor && !GIsPlayInEditorWorld)
+//	{
+//		return nullptr;
+//	}
+//	else if (GetOuter())
+//	{
+//		return GetOuter()->GetWorld();
+//	}
+//
+//	return nullptr;
+//}
 
 void UAMS_SubSystem::ClearMissionsFromRoot()
 {
-	for (auto& itr : ActiveMissions)
+	TArray<UMissionObject*> ActiveMissionsArray;
+	ActiveMissions.GenerateValueArray(ActiveMissionsArray);
+
+	for (auto& itr : ActiveMissionsArray)
 	{
-		itr.Value->DeInitializeMission();//unhandeled exption here, happens after long time playing and never have an active mission
+		itr->DeInitializeMission();//unhandeled exption here, happens after long time playing and never have an active mission
 	}
 }
 
@@ -79,7 +99,18 @@ void UAMS_SubSystem::StartMission(TSubclassOf<UMissionObject> newMission, FName 
 {	
 
 	ActiveSaveProfileName = SaveProfileName;
-	StartMission(newMission);
+	if (newMission.GetDefaultObject()->MissionDetails.bHasCustomStartPostion)
+	{
+		MissionsQueue.Add(newMission);
+		SetupStartupPosition();
+		FADE_EXECUTE(FadeToPlay, &UAMS_SubSystem::StartQueuedMissions);
+	}
+	else
+	{
+		StartMission(newMission);
+	}
+	//FADE_EXECUTE(FadeToPlay, StartMission(newMission););//this now dosent call the mission from the callback
+
 	//Internal_MissionSave();//this makes an empty save profile for this new gameplay so we can store progress directly
 }
 
@@ -106,7 +137,7 @@ void UAMS_SubSystem::RecordMissionFinished(UMissionObject* Mission)
 	if (SaveType == ESaveMissionType::Post)
 	Internal_MissionSave();
 
-	Mission->RemoveFromRoot();
+	//Mission->RemoveFromRoot();
 }
 
 //bug : the save class is null , due to project settings are not saving or changing the subsystem cdo values
@@ -153,12 +184,14 @@ void UAMS_SubSystem::Internal_CompleteSave(UAMS_SaveGame* saveGameObject)
 
 void UAMS_SubSystem::StartMission(TSubclassOf<UMissionObject> newMission)
 {
-	UMissionObject* StartedMission = NewObject<UMissionObject>(this, newMission);
+	ACharacter* player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	UMissionObject* StartedMission = NewObject<UMissionObject>(player, newMission);
 	StartedMission->InitializeMission(INIT_START);
 
 	ActiveMissions.Add(newMission,StartedMission);
 
-	ActiveMissions[newMission]->AddToRoot();
+	//StartedMission->AddToRoot();
+	//ActiveMissions[newMission]->AddToRoot();
 
 }
 
@@ -186,7 +219,8 @@ void UAMS_SubSystem::GenerateActiveMissionsFromRecord(TArray<FRecordEntry> Activ
 
 			ActivatedMission->InitializeMission(INIT_LOAD);
 			ActiveMissions.Add(record.MissionClass, ActivatedMission);
-			ActiveMissions[record.MissionClass]->AddToRoot();
+			//ActivatedMission->AddToRoot();
+			//ActiveMissions[record.MissionClass]->AddToRoot();
 		}
 		
 	}
@@ -228,7 +262,8 @@ void UAMS_SubSystem::GenerateActiveMissionsFromRecord(UAMS_SaveGame* saveGameObj
 
 			ActivatedMission->InitializeMission(INIT_LOAD);
 			ActiveMissions.Add(record.MissionClass, ActivatedMission);
-			ActiveMissions[record.MissionClass]->AddToRoot();
+			//ActivatedMission->AddToRoot();
+			//ActiveMissions[record.MissionClass]->AddToRoot();
 		}
 
 	}
@@ -245,7 +280,45 @@ void UAMS_SubSystem::GenerateActiveMissionsFromRecord(UAMS_SaveGame* saveGameObj
 
 void UAMS_SubSystem::__FadeAndExecute(ScreenFadeType Type, TFunction<void(void)>&& Callback)
 {
-	//..
+
+	FadeWidget = Cast<UScreenFade>(CreateWidget(GetWorld(), FadeWidgetClass, FName("FadeWidget")));
+	FadeWidget->AddToViewport(100);//to come above all ui 
+	
+	float length = FadeWidget->RunFadeToPlay();
+	
+	FTimerHandle FadeHandle;
+	GetWorld()->GetTimerManager().SetTimer(FadeHandle,this, &UAMS_SubSystem::StartQueuedMissions, length, false);
+}
+
+void UAMS_SubSystem::__FadeAndExecute(ScreenFadeType Type, typename FTimerDelegate::TMethodPtr<UAMS_SubSystem> Callback)
+{
+	FadeWidget = Cast<UScreenFade>(CreateWidget(GetWorld(), FadeWidgetClass, FName("FadeWidget")));
+	FadeWidget->AddToViewport(100);//to come above all ui 
+
+	float length = Type == ScreenFadeType::FadeToPlay? FadeWidget->RunFadeToPlay() : FadeWidget->RunPlayToFade();
+
+	FTimerHandle FadeHandle;
+	GetWorld()->GetTimerManager().SetTimer(FadeHandle, this, Callback, length, false);
+}
+
+void UAMS_SubSystem::SetupStartupPosition()
+{
+	if (MissionsQueue.Num() > 0)
+	{
+		int32 lastIndex = MissionsQueue.Num() - 1;
+		StartTransform = MissionsQueue[lastIndex].GetDefaultObject()->MissionDetails.StartTransform;
+
+		UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->SetActorTransform(StartTransform);
+	}
+}
+
+void UAMS_SubSystem::StartQueuedMissions()
+{
+	for (auto& mission : MissionsQueue)
+	{
+		StartMission(mission);
+	}
+	MissionsQueue.Empty();
 }
 
 TArray<FRecordEntry> UAMS_SubSystem::GenerateRecordsFromActiveMissions()

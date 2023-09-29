@@ -5,7 +5,7 @@
 #include "AMS_Plugin/Public/MissionObject.h"
 #include "Kismet2/KismetEditorUtilities.h"
 #include "Helpers/AMS_Utilites.h"
-#include "AMS_PluginEditor/Public/AMS_CustomBlueprint.h"
+#include "AMS_Plugin/System/AMS_CustomBlueprint.h"
 
 
 

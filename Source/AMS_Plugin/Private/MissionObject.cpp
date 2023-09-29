@@ -4,6 +4,7 @@
 #include "MissionObject.h"
 #include "AMS_Plugin/System/AMS_SubSystem.h"
 
+
 UMissionObject::UMissionObject()
 {
 	LOG_AMS("Constrcut new Mission", 20.0f);
@@ -50,6 +51,7 @@ UWorld* UMissionObject::GetWorld() const
 		return GetOuter()->GetWorld();
 	}
 	return nullptr;
+
 }
 
 void UMissionObject::GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const
@@ -108,6 +110,8 @@ void UMissionObject::EndMission(EFinishState finishState, FFailInfo FailInfo)
 	UAMS_SubSystem::GetMissionSubSystem()->RecordMissionFinished(this);
 	OmMissionEnd(finishState, FailInfo);
 
+	//instead of letting the subsystem take care of removing it i though it would be better to just do it here and make sure that actions are also cleaned if some still rooted
+	//DeInitializeMission();
 }
 
 
@@ -126,7 +130,7 @@ void UMissionObject::CountTime(float deltaTime)
 
 void UMissionObject::DeInitializeMission()
 {
-	for (auto& itr : MissionDetails.MissionRelatedActions)
+	/*for (auto& itr : MissionDetails.MissionRelatedActions)
 	{
 		if (itr.bIsActivated)
 		{
@@ -141,7 +145,7 @@ void UMissionObject::DeInitializeMission()
 	}
 	
 	if(IsRooted())
-	RemoveFromRoot();
+	RemoveFromRoot();*/
 }
 
 

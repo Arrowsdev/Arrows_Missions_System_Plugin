@@ -11,17 +11,18 @@
  * so we can make a custom type for it
  */
 UCLASS(config = Engine)
-class AMS_PLUGINEDITOR_API UAMS_MissionBlueprint : public UBlueprint
+class AMS_PLUGIN_API UAMS_MissionBlueprint : public UBlueprint
 {
 public:
 	GENERATED_BODY()
 
 	UAMS_MissionBlueprint(const FObjectInitializer& ObjectInitializer);
 	~UAMS_MissionBlueprint() {};
+
 };
 
 UCLASS(NeedsDeferredDependencyLoading)
-class AMS_PLUGINEDITOR_API UAMS_MissionGeneratedBlueprint : public UBlueprintGeneratedClass
+class AMS_PLUGIN_API UAMS_MissionGeneratedBlueprint : public UBlueprintGeneratedClass
 {
 public:
 	GENERATED_BODY()
@@ -32,7 +33,7 @@ public:
 
 
 UCLASS(config = Engine)
-class AMS_PLUGINEDITOR_API UAMS_ActionBlueprint : public UBlueprint
+class AMS_PLUGIN_API UAMS_ActionBlueprint : public UBlueprint
 {
 public:
 	GENERATED_BODY()
@@ -47,7 +48,7 @@ public:
 };
 
 UCLASS(NeedsDeferredDependencyLoading)
-class AMS_PLUGINEDITOR_API UAMS_ActionGeneratedBlueprint : public UBlueprintGeneratedClass
+class AMS_PLUGIN_API UAMS_ActionGeneratedBlueprint : public UBlueprintGeneratedClass
 {
 public:
 	GENERATED_BODY()
@@ -58,7 +59,7 @@ public:
 
 
 UCLASS(config = Engine)
-class AMS_PLUGINEDITOR_API UAMS_SaveGameBlueprint : public UBlueprint
+class AMS_PLUGIN_API UAMS_SaveGameBlueprint : public UBlueprint
 {
 public:
 	GENERATED_BODY()
@@ -68,7 +69,7 @@ public:
 };
 
 UCLASS(NeedsDeferredDependencyLoading)
-class AMS_PLUGINEDITOR_API UAMS_SaveGameGeneratedBlueprint : public UBlueprintGeneratedClass
+class AMS_PLUGIN_API UAMS_SaveGameGeneratedBlueprint : public UBlueprintGeneratedClass
 {
 public:
 	GENERATED_BODY()
@@ -79,7 +80,7 @@ public:
 
 
 UCLASS(config = Engine)
-class AMS_PLUGINEDITOR_API UAMS_DataCenterBlueprint : public UBlueprint
+class AMS_PLUGIN_API UAMS_DataCenterBlueprint : public UBlueprint
 {
 public:
 	GENERATED_BODY()
@@ -89,7 +90,7 @@ public:
 };
 
 UCLASS(NeedsDeferredDependencyLoading)
-class AMS_PLUGINEDITOR_API UAMS_DataCenterGeneratedBlueprint : public UBlueprintGeneratedClass
+class AMS_PLUGIN_API UAMS_DataCenterGeneratedBlueprint : public UBlueprintGeneratedClass
 {
 public:
 	GENERATED_BODY()

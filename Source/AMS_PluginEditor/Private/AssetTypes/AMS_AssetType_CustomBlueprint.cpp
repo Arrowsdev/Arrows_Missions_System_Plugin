@@ -2,7 +2,7 @@
 
 
 #include "AssetTypes/AMS_AssetType_CustomBlueprint.h"
-#include "AMS_PluginEditor/Public/AMS_CustomBlueprint.h"
+#include "AMS_Plugin/System/AMS_CustomBlueprint.h"
 #include "AMS_Plugin/Public/MissionObject.h"
 
 AMS_AssetType_CustomBlueprint::AMS_AssetType_CustomBlueprint(EAssetTypeCategories::Type InAssetCategory):

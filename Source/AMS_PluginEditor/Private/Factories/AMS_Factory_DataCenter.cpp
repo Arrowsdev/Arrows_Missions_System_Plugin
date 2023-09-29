@@ -4,7 +4,7 @@
 #include "Factories/AMS_Factory_DataCenter.h"
 #include "AMS_Plugin/System/AMS_DataCenter.h"
 #include "Kismet2/KismetEditorUtilities.h"
-#include "AMS_PluginEditor/Public/AMS_CustomBlueprint.h"
+#include "AMS_Plugin/System/AMS_CustomBlueprint.h"
 
 UAMS_Factory_DataCenter::UAMS_Factory_DataCenter(const FObjectInitializer& ObjectInitializer): UBlueprintFactory(ObjectInitializer)
 {

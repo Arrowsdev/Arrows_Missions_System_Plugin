@@ -31,8 +31,10 @@ public:
 
 	static void InvokeActivateNext(int32 ObjectiveID, UMissionObject* OwningMission);
 
+	/*root logics here are deprecated*/
 	static void AddActionToRoot(UActionObject* action);
 	static void RemoveActionFromRoot(UActionObject* action);
+	/*root logics here are deprecated*/
 
 	static void TutorialActionSelfPreform(TSubclassOf<UMissionObject> tutorialMission, TSubclassOf<UActionObject> tutorialAction);
 

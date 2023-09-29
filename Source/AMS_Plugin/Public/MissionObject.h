@@ -19,6 +19,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FMissionTick, float deltaTime)
  */
 class AMS_SubSystem;
 
+
 UCLASS(Blueprintable, BlueprintType, HideDropDown)
 class AMS_PLUGIN_API UMissionObject : public UObject , public FTickableGameObject
 {

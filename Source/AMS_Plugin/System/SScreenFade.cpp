@@ -29,7 +29,8 @@ void UScreenFade::NativeConstruct()
 
 				if (WidgetAnimation)
 				{
-					UWidgetAnimation** AnimationPtr = WidgetAnimation->GetName() == FString("FadeToPlay") ? &FadeToPlay : &PlayToFade;
+					UE_LOG(LogTemp, Warning, TEXT("Widget animation found"));
+					UWidgetAnimation** AnimationPtr = WidgetAnimation->MovieScene->GetName() == FString("FadeToPlay") ? &FadeToPlay : &PlayToFade;
 					*AnimationPtr = WidgetAnimation;
 				}
 			}
@@ -39,10 +40,23 @@ void UScreenFade::NativeConstruct()
 	}
 }
 
-void UScreenFade::RunFadeToPlay()
+float UScreenFade::RunFadeToPlay()
 {
+	if (FadeToPlay)
+	{
+		PlayAnimation(FadeToPlay);
+		return FadeToPlay->GetEndTime() + 0.25;
+	}
+	return 0.0f;
 }
 
-void UScreenFade::RunPlayToFade()
+float UScreenFade::RunPlayToFade()
 {
+	if (PlayToFade)
+	{
+		PlayAnimation(PlayToFade);
+		return PlayToFade->GetEndTime() + 0.25;
+	}
+	
+	return 0.0f;
 }

@@ -5,7 +5,11 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/Border.h"
+#include "Delegates/Delegate.h"
 #include "SScreenFade.generated.h"
+
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAnimationPlayRequested);
 /**
  * the idea of using slate for this is ditched , ill use umg for it , i was thinking this can be a way for me to practice slate but
  * i think this will slow down the development
@@ -27,16 +31,19 @@ public:
 		UBorder* Border;
 
 
+	UPROPERTY(BlueprintAssignable, Category = "Delegates")
+	FOnAnimationPlayRequested OnAnimationPlayRequested;
+
 	UWidgetAnimation* FadeToPlay;
 
 	UWidgetAnimation* PlayToFade;
 
 	//initially used for when a mission starts but it has to set the player location so the fade is used to hide the transition
-	void RunFadeToPlay();
+	float RunFadeToPlay();
 
 	//this is when we restart any mission we fade to dark screen so we can set locations and other cleanup for mission to restart with proper world state
 	//like deleting old unkilled enemies so when it restarts it can spawn fresh new ones
-	void RunPlayToFade();
+	float RunPlayToFade();
 
 	
 };

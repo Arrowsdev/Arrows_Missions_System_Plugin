@@ -46,7 +46,7 @@ void AMS_TypesOperations::AddActionToRoot(UActionObject* action)
 
 void AMS_TypesOperations::RemoveActionFromRoot(UActionObject* action)
 {
-	action->RemoveFromRoot();
+	//action->RemoveFromRoot();
 }
 
 void AMS_TypesOperations::TutorialActionSelfPreform(TSubclassOf<UMissionObject> tutorialMission, TSubclassOf<UActionObject> tutorialAction)

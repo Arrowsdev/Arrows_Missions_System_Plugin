@@ -10,13 +10,13 @@
 
 
 //macro to simplfy calling short logics with the fade function 
-#define FADE_EXECUTE(FadeType, _LOGIC_ )\
-__FadeAndExecute(FadeType, [&]() { _LOGIC_ })
+#define FADE_EXECUTE(FadeType, CallBack )\
+__FadeAndExecute(FadeType, CallBack )
 
 //for large code blocks to wait for fade widget we use these two macros , one before the block and other after it
 //the block will be executed after the fade animation is finished
-#define START_FADE_BLOCK(FadeType)\
-__FadeAndExecute(FadeType, [&]() { 
+#define START_FADE_BLOCK(FadeType,...)\
+__FadeAndExecute(FadeType, [&, __VA_ARGS__]() { 
 #define END_FADE_BLOCK });
 
 /**
@@ -39,7 +39,10 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	
 	virtual void Deinitialize() override;
-	UPROPERTY()
+
+	//UWorld* GetWorld() const;
+
+	UPROPERTY(config, EditAnywhere, Category = "Settings")
 		TSubclassOf<UScreenFade> FadeWidgetClass;
 
 	UPROPERTY()
@@ -303,7 +306,16 @@ public:
 
 	//should only pass lambdas so we can pass different parameters in the capture
 	void __FadeAndExecute(ScreenFadeType Type, TFunction<void(void)>&& Callback);
-	
+
+	void __FadeAndExecute(ScreenFadeType Type, typename FTimerDelegate::TMethodPtr< UAMS_SubSystem > Callback);
+
+	//used when starting queued missoins to set the location while the screen is black so the player wont see the transition
+	void SetupStartupPosition();
+
+	//this will be called after the fade since we are losing the reference of the started mission while waiting for the 
+	//fade i though it is a better idea to store a copy of the argument in the queue list and start them directly when the time comes
+	void StartQueuedMissions();
+
 	//returns a records for the active missions so we can save it
 	TArray<FRecordEntry> GenerateRecordsFromActiveMissions();
 
@@ -333,6 +345,10 @@ private:
 	//(funny thing that the list it self wasn't safe from it untill we decorate it with the property macro XDD)
 	UPROPERTY()
 	TMap<TSubclassOf<UMissionObject>, UMissionObject*> ActiveMissions;
+
+	//list of missions waiting for fade to finish so they can start
+	UPROPERTY()
+	TArray<TSubclassOf<UMissionObject>> MissionsQueue;
 
 	/*Temp holder for the finished missions , use the juernal version of this one , not temp anymore used to have internal records if we dont  have a juernal*/
 	UPROPERTY()

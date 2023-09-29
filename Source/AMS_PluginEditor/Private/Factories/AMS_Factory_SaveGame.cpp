@@ -4,7 +4,7 @@
 #include "Factories/AMS_Factory_SaveGame.h"
 #include "AMS_Plugin/System/AMS_SaveGame.h"
 #include "Kismet2/KismetEditorUtilities.h"
-#include "AMS_PluginEditor/Public/AMS_CustomBlueprint.h"
+#include "AMS_Plugin/System/AMS_CustomBlueprint.h"
 
 UAMS_Factory_SaveGame::UAMS_Factory_SaveGame(const FObjectInitializer& ObjectInitializer) : UBlueprintFactory(ObjectInitializer)
 {
