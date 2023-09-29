@@ -6,6 +6,11 @@
   AIS studio for in house projects.
 
  # Supported Version 
- the code it self half was made in unreal engine 4.26.2 and completed in unreal engine 5.1, it complies in both.
+ Being Developed om : 5.1.1 - State : not stable
+
+ -Planning To Support : 4.26 -> Future Versions
+
+ **USE ONLY RELEASED VERSIONS**
+ 
 
  
