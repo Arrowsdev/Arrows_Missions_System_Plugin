@@ -34,4 +34,13 @@ public:
 	//save also checkpoints so if the game was closed and then opened we can restore the saved checkpoint
 	UPROPERTY()
 		TArray<FRecordEntry> SG_CheckPointMissionsRecords;
+
+	UFUNCTION(BlueprintCallable, Category = "SaveGameHook")
+	FORCEINLINE void HookSubSystemData(FAMS_SavePackage SubsystemPackage)
+	{
+		SG_FinishedMissions = SubsystemPackage.SG_FinishedMissions;
+		SG_ActiveMissionsWhenSaved = SubsystemPackage.SG_ActiveMissionsWhenSaved;
+		SG_CheckPointMissionsRecords = SubsystemPackage.SG_CheckPointMissionsRecords;
+	}
+
 };

@@ -278,17 +278,27 @@ public:
 
 	void Internal_MissionSave();
 
-	//called from the data center if the user overrided the on save process started event
-	void Internal_CompleteSave(UAMS_SaveGame* saveGameObject);
-
 	//unexposed overload for the start mission used for auto go to next mission by the system while the other one is used for in bp open mission
 	void StartMission(TSubclassOf<UMissionObject> newMission);
 
 	//get the singleton for the subsystem
 	static UAMS_SubSystem* GetMissionSubSystem();
 
-	//used to tell the data center singleton about the save process to let the user hook thier logics with this one
-	void InvokeDataCenterSaveEvent(UAMS_SaveGame* saveGameObject);
+	//for new save logics
+	static inline TSubclassOf<UAMS_SaveGame> GetSaveGameClass()
+	{
+		if(MissionSubSystemInstance)
+		return MissionSubSystemInstance->SaveGameClass;
+
+		return nullptr;
+	}
+	static inline FName GetSaveProfile()
+	{
+		if (MissionSubSystemInstance)
+			return MissionSubSystemInstance->ActiveSaveProfileName;
+
+		return FName();
+	}
 
 	//used to tell the data center about the loading 
 	void InvokeDataCenterLoadEvent(UAMS_SaveGame* saveGameObject);
@@ -339,6 +349,16 @@ public:
 	void ClearMissionsFromRoot();
 
 	void PreformTutorialAction(TSubclassOf<UMissionObject> tutorialMission, TSubclassOf<UActionObject> tutorialAction);
+
+	//to work around some execptions errors
+	inline FAMS_SavePackage GetSubsystemSavePackage()
+	{
+		FAMS_SavePackage package;
+		package.SG_ActiveMissionsWhenSaved = GenerateRecordsFromActiveMissions();
+		package.SG_CheckPointMissionsRecords = CheckPointMissionsRecords;
+		package.SG_FinishedMissions = GetFinishedMissions();
+		return package;
+	}
 
 private:
 	//used to save the missions instaces so they wont be collected by garbage collection

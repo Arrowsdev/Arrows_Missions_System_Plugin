@@ -238,7 +238,7 @@ struct FObjective
 		ActivatedAction = AMS_TypesOperations::NewActionObject(OwningMission, ActionClass);
 
 		//we dont add to root now , not for action or missions i want to test something so we can do this in much cleaner way
-		//AMS_TypesOperations::AddActionToRoot(ActivatedAction);
+		AMS_TypesOperations::AddActionToRoot(ActivatedAction);
 
 		//this so we dont need to rely on it's instance when we load the objective in the finished list
 		/*ActionType = ActivatedAction->ActionType;
@@ -638,6 +638,23 @@ struct FRecordEntry
 	}
 };
 
+//used to pass around instead of passing the save game pointer
+USTRUCT(BlueprintType)
+struct FAMS_SavePackage
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+		TArray<FRecordEntry> SG_FinishedMissions;
+
+	UPROPERTY()
+		TArray<FRecordEntry> SG_ActiveMissionsWhenSaved;
+
+	
+	UPROPERTY()
+		TArray<FRecordEntry> SG_CheckPointMissionsRecords;
+
+};
 
 class AMS_PLUGIN_API AMS_Types
 {

@@ -144,43 +144,19 @@ void UAMS_SubSystem::RecordMissionFinished(UMissionObject* Mission)
 //(fixed from the properties specifires need to make them configs)
 void UAMS_SubSystem::Internal_MissionSave()
 {
-    if(UGameplayStatics::DoesSaveGameExist(ActiveSaveProfileName.ToString(), 0))
+   
+	if (DataCenterSinglton)
 	{
-		UAMS_SaveGame* SaveGameObject = Cast<UAMS_SaveGame>(UGameplayStatics::LoadGameFromSlot(ActiveSaveProfileName.ToString(), 0));
-
-		SaveGameObject->SG_FinishedMissions = GetFinishedMissions();
-		SaveGameObject->SG_ActiveMissionsWhenSaved = GenerateRecordsFromActiveMissions();
-		SaveGameObject->SG_CheckPointMissionsRecords = CheckPointMissionsRecords;
-
-		if (SaveGameObject->SG_ActiveMissionsWhenSaved.IsEmpty())
-		{
-			FString Mes = FString::Printf(TEXT("No Active Mission in profile [ %s ] saved but finished are : %d"),*ActiveSaveProfileName.ToString(), SaveGameObject->SG_FinishedMissions.Num());
-			LOG_AMS(Mes, 10.0f, FColor::Yellow);
-		}
-		InvokeDataCenterSaveEvent(SaveGameObject);
-		//UGameplayStatics::SaveGameToSlot(SaveGameObject, ActiveSaveProfileName.ToString(), 0);
-		FString Mes = FString::Printf(TEXT("Saved Game : Active = %d , Finished = %d "), SaveGameObject->SG_ActiveMissionsWhenSaved.Num(), SaveGameObject->SG_FinishedMissions.Num());
-		LOG_AMS(Mes, 10.0f, FColor::Green);
+		DataCenterSinglton->OnGameSaveStarted(GetSubsystemSavePackage(), ActiveSaveProfileName);
 	}
-
 	else
 	{
-		UAMS_SaveGame* SaveGameObject = Cast<UAMS_SaveGame>(UGameplayStatics::CreateSaveGameObject(SaveGameClass));
-		SaveGameObject->SG_FinishedMissions = FinishedMissions;
-		SaveGameObject->SG_ActiveMissionsWhenSaved = GenerateRecordsFromActiveMissions();
-		SaveGameObject->SG_CheckPointMissionsRecords = CheckPointMissionsRecords;
-		InvokeDataCenterSaveEvent(SaveGameObject);
-		LOG_AMS("Save Game Initiated", 10.0f, FColor::Green);
-		//UGameplayStatics::SaveGameToSlot(SaveGameObject, ActiveSaveProfileName.ToString(), 0);
+		LOG_AMS("please provide a data center and dont forget to override the save event", 10.0f, FColor::Green);
 	}
+	LOG_AMS("Save Game Initiated", 10.0f, FColor::Green);
+	
 }
 
-
-void UAMS_SubSystem::Internal_CompleteSave(UAMS_SaveGame* saveGameObject)
-{
-	LOG_AMS("Internal Save Was Called", 10.0f);
-	UGameplayStatics::SaveGameToSlot(saveGameObject, ActiveSaveProfileName.ToString(), 0);
-}
 
 void UAMS_SubSystem::StartMission(TSubclassOf<UMissionObject> newMission)
 {
@@ -358,18 +334,6 @@ UAMS_SubSystem* UAMS_SubSystem::GetMissionSubSystem()
 	return MissionSubSystemInstance;
 }
 
-void UAMS_SubSystem::InvokeDataCenterSaveEvent(UAMS_SaveGame* saveGameObject)
-{
-	if (DataCenterSinglton)
-	{
-		DataCenterSinglton->OnGameSaveStarted(saveGameObject);
-	}
-
-	else
-	{
-		Internal_CompleteSave(saveGameObject);
-	}
-}
 
 void UAMS_SubSystem::InvokeDataCenterLoadEvent(UAMS_SaveGame* saveGameObject)
 {

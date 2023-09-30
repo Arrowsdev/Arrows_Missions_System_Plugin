@@ -46,7 +46,7 @@ void AMS_TypesOperations::InvokeMissionUpdate(UMissionObject* mission)
 
 void AMS_TypesOperations::AddActionToRoot(UActionObject* action)
 {
-	action->AddToRoot();
+	//action->AddToRoot();
 }
 
 void AMS_TypesOperations::RemoveActionFromRoot(UActionObject* action)

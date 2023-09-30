@@ -4,10 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "AMS_Types.h"
 #include "AMS_DataCenter.generated.h"
 
-
-class UAMS_SaveGame;
 
 /**
  * this class is meant to be a portal to add custom data saving along side the mission save
@@ -25,8 +24,8 @@ public:
 	* overheads
 	*/
 	UFUNCTION(BlueprintNativeEvent, Category = MissionEvents)
-		void OnGameSaveStarted(UAMS_SaveGame* SaveGameObject);
-	virtual void OnGameSaveStarted_Implementation(UAMS_SaveGame* SaveGameObject);/*Implemented*/
+		void OnGameSaveStarted(FAMS_SavePackage SaveGamePackage, FName AtProfile);
+	virtual void OnGameSaveStarted_Implementation(FAMS_SavePackage SaveGamePackage, FName AtProfile) {/*No Implementation*/ }
 
 
 	/*called when the load game is called and it helpes to give a central place to read loaded data along side with the save game object
@@ -36,12 +35,7 @@ public:
 		void OnGameLoaded(UAMS_SaveGame* SaveGameObject);
 	virtual void OnGameLoaded_Implementation(UAMS_SaveGame* SaveGameObject){/*Implemented*/ }
 
-	//used to hook your custom save data to the default save process by hijaking the save event returned save object
-	//and after setting the values you call this function to complete the saving
-	UFUNCTION(BlueprintCallable, Category = "Mission System")
-		void CompleteSaving(UPARAM(ref)UAMS_SaveGame* saveGameObject);
-
-
+	
 	UWorld* GetWorld() const;
 	
 };
