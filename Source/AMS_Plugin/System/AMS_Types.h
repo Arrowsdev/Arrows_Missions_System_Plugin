@@ -168,6 +168,8 @@ struct FObjective
 		ActionType = Cast<UActionObject>(ActionClass->GetDefaultObject())->ActionType;
 		ActionName = Cast<UActionObject>(ActionClass->GetDefaultObject())->ActionName;
 		bIsFinished = false;
+		bIsActivated = false;
+		ActivatedAction = nullptr;
 		ActionCount = 0;
 		ObjectiveID = INDEX_NONE;
 	}
@@ -180,6 +182,7 @@ struct FObjective
 		ActionType = Cast<UActionObject>(ActionClass->GetDefaultObject())->ActionType;
 		ActionName = Cast<UActionObject>(ActionClass->GetDefaultObject())->ActionName;
 		bIsFinished = false;
+		bIsActivated = false;
 		ActionCount = 0;
 		ObjectiveID = INDEX_NONE;
 	}
@@ -200,6 +203,7 @@ struct FObjective
 					ActivatedAction->OnHighScore(OwningMission,ActionCount, TotalCount);
 					//should save here
 
+					AMS_TypesOperations::InvokeMissionUpdate(OwningMission);
 					return false;
 				}
 
@@ -253,6 +257,7 @@ struct FObjective
 		{
 			AMS_TypesOperations::SubscribeToMissionTick(OwningMission, ActivatedAction);
 		}
+
 	}
 
 	void Tick(float deltaTime)//deprecated
@@ -470,9 +475,11 @@ struct FMissionDetails
 					action.Activate(ID);
 					ID++;
 				}
+
 			}
 			else if (OrderPolicy == ETasksOrderPolicy::order)
 			{
+				
 				//if the mission was loaded then we need to make sure we walk through all objectives and 
 				//see the first inactive one and activate it and not just activate the first  one since maybe we are loading 
 				//after the player has finished the first one

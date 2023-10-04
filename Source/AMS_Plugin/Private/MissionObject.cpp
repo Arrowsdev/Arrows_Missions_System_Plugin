@@ -99,8 +99,8 @@ FinishInit:
 	MissionDetails.InitOptionalCout();
 	MissionDetails.ActivateActions(this);
 	CurrentState = EFinishState::inProgress;
-	MissionHasUpdated();
 	OnMissionBegin();
+	MissionHasUpdated();
 	LOG_AMS("Mission is initilized", 10.0f, FColor::Green);
 }
 
