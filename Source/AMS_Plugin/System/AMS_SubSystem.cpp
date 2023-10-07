@@ -8,7 +8,6 @@
 #include "AssetRegistry/AssetRegistryModule.h"
 
 #include "UObject/ConstructorHelpers.h"
-#include "Containers/Ticker.h"
 
 #include "AMS_Plugin/Public/MissionObject.h"
 #include "AMS_Plugin/System/AMS_SaveGame.h"
@@ -307,7 +306,9 @@ TArray<FRecordEntry> UAMS_SubSystem::GenerateRecordsFromActiveMissions()
 		int32 required = kvPair.Value->RequiredObjectivesCount;
 		int32 blacklisted = kvPair.Value->BlackListedObjectivesCount;
 
-		Records.Emplace(kvPair.Key, kvPair.Value->MissionDetails, kvPair.Value->CurrentState, required, blacklisted);
+		kvPair.Value->UpdateCounterInDetails();//copy the counter inside the details so it get saved with it for use later after loading 
+
+		Records.Emplace(kvPair.Key, kvPair.Value->MissionDetails, kvPair.Value->CurrentState, required, blacklisted);	
 	}
 	return Records;
 }

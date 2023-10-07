@@ -98,6 +98,7 @@ FinishInit:
 	MissionDetails.RequiredCount = RequiredObjectivesCount;
 	MissionDetails.InitOptionalCout();
 	MissionDetails.ActivateActions(this);
+	TimeCounter = MissionDetails.MissionTimeCounter;
 	CurrentState = EFinishState::inProgress;
 	OnMissionBegin();
 	MissionHasUpdated();

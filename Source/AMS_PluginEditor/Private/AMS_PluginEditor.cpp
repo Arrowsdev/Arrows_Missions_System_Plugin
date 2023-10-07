@@ -3,6 +3,7 @@
 #include "AMS_PluginEditor.h"
 #include "ISettingsModule.h"
 #include "AMS_Plugin/System/AMS_SubSystem.h"
+#include "AMS_Plugin/Public/MissionObject.h"
 
 #include "Runtime/Projects/Public/Interfaces/IPluginManager.h"
 #include "Styling/SlateStyle.h"
@@ -19,6 +20,7 @@
 #include "AMS_PluginEditor/Public/AssetTypes/AMS_AssetType_DataCenter.h"
 
 #include "AMS_PluginEditor/Public/AssetTypes/AMS_AssetType_CustomBlueprint.h"
+#include "AMS_DetailCustomizations.h"
 
 #include "AMS_PluginEditor/Public/AMS_Tools/AMS_TransformHelper.h"
 #include "AMS_PluginEditor/Public/AMS_Tools/MissionsTweaker.h"
@@ -64,6 +66,13 @@ void FAMS_PluginEditor::StartupModule()
 
 	RegisterAssetTypes();
 
+	// register custom layouts
+	{
+		FPropertyEditorModule& PropertyModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
+		PropertyModule.RegisterCustomClassLayout(UActionObject::StaticClass()->GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&Action_DetailCustomizations::MakeInstance));
+		PropertyModule.RegisterCustomClassLayout(UMissionObject::StaticClass()->GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&Missions_DetailCustomizations::MakeInstance));
+	}
+
 }
 
 void FAMS_PluginEditor::ShutdownModule()
@@ -96,6 +105,13 @@ void FAMS_PluginEditor::ShutdownModule()
 
 	CreatedAssetTypeActions.Empty();
 
+	//unregister the custom layouts
+	if (FModuleManager::Get().IsModuleLoaded("PropertyEditor"))
+	{
+		FPropertyEditorModule& PropertyModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
+		PropertyModule.UnregisterCustomClassLayout(UActionObject::StaticClass()->GetFName());
+		PropertyModule.UnregisterCustomClassLayout(UMissionObject::StaticClass()->GetFName());
+	}
 }
 
 bool FAMS_PluginEditor::SetupStyle()

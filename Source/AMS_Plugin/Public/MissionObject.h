@@ -119,6 +119,9 @@ public:
 
 	// Mission API
 
+	UPROPERTY(VisibleAnywhere, Category=API)
+		bool APIHook;
+
 	/*Gets The Current Time Of the Mission
 	* @param formatedTime gives the time in [ minutes : seconds ] fasion
 	*/
@@ -225,6 +228,12 @@ public:
 	void CountTime(float deltaTime);
 
 	void DeInitializeMission();
+
+	//used to update the current time variable in the details with the value in the mission
+	inline void UpdateCounterInDetails()
+	{
+		MissionDetails.MissionTimeCounter = TimeCounter;
+	}
 
 	//called from the subsystem when the preformed action is finished so we need to check if all other actions from the same type are also finished
 	void MissionCheckEnd(TSubclassOf<UActionObject> FinishedAction);

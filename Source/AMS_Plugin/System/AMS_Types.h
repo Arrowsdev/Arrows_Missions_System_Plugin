@@ -123,6 +123,7 @@ struct FObjective
 		bIsActivated = false;
 		OwningMission = nullptr;
 		ActionType = EActionType::NotDefined;
+		ObjectiveID = INDEX_NONE;
 	};
 
 	UPROPERTY(BlueprintReadWrite, Category = "Objective")
@@ -351,6 +352,7 @@ struct FMissionDetails
 		   OrderPolicy = ETasksOrderPolicy::order;
 		   bHasTimer = false;
 		   MissionTime = 0.0f;
+		   MissionTimeCounter = 0;
 		   DefaultMissionTime = 0.0f;
 		   RequiredCount = 0;
 		   OptionalCount = 0;
@@ -396,6 +398,10 @@ struct FMissionDetails
 
 	UPROPERTY()
 	int32 OptionalCount;
+
+	//used to restore the last time the mission was on when the game was saved, used only when load mission
+	UPROPERTY()
+	int32 MissionTimeCounter;
 
 	//saving the state here to avoid the loss of the actual value from the mission when saving , this is a work around for a bug
 	UPROPERTY(BlueprintReadWrite, Category = "MissionDetails")

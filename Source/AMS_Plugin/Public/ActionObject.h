@@ -40,6 +40,10 @@ class AMS_PLUGIN_API UActionObject : public UObject
 	*/
 public:
 
+	//used only to reserve a place in the details panel for the details customization
+	UPROPERTY(VisibleAnywhere,Category = "ActionInfo")
+	bool ActionInfo;
+
 	/*the name of this acion that is used for UI preview*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Action Details")
 	    FString ActionName = "type action name here";
