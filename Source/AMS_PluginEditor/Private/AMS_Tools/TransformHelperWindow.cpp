@@ -4,7 +4,8 @@
 #include "AMS_Tools/TransformHelperWindow.h"
 #include "LevelEditor.h"
 #include "Elements/Framework/TypedElementSelectionSet.h"
-
+#include "AMS_PluginEditor/Public/Helpers/API_Helper.h"
+#include "AMS_Plugin/System/AMS_SubSystem.h"
 
 /*
 * @TODO : add search logics so user can filter classes list to find desired class easieir
@@ -476,4 +477,32 @@ void SAboutWindow::Construct(const FArguments& args)
             ]
         ]
     ];
+}
+
+void SAMS_Subsystem_API_Window::Construct(const FArguments& InArgs)
+{
+    ChildSlot
+      [
+         SNew(SBorder)
+         [
+           SNew(SVerticalBox)
+           + SVerticalBox::Slot()
+           .AutoHeight()
+           [
+             SNew(STextBlock)
+             .Text(FText::FromString(TEXT("Missions SubSystem API Calls")))
+             .Justification(ETextJustify::Center)
+           ]
+           + SVerticalBox::Slot()
+           [
+               SNew(SScrollBox)
+               + SScrollBox::Slot()
+               [
+                   SNew(SAPI_Helper)
+                  .Src(UAMS_SubSystem::StaticClass())
+               ]
+
+            ]
+          ]
+       ];
 }

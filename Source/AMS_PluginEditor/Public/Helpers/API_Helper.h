@@ -22,12 +22,14 @@ public:
 	FString Number;
 };
 /**
- * this class is meant to help exposing functions in a list form for beginner users to read instead of the docs
+ * this class is meant to help exposing Source Class functions in a list form for beginners users to read instead of the docs
  */
 class AMS_PLUGINEDITOR_API SAPI_Helper : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SAPI_Helper) {}
+	SLATE_ARGUMENT(UClass*, Src)
+	SLATE_ARGUMENT(FText, Title)
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
@@ -38,6 +40,8 @@ public:
 	TSharedRef<ITableRow> OnGenerateRow(TSharedPtr<API_Expose> api, const TSharedRef<STableViewBase>& ListView);
 
 	void GetAPI();
+	UClass* Src;
+	FText Title;
 };
 
 

@@ -226,9 +226,9 @@ void FAMS_PluginEditor::InvokeShutdown()
 void FAMS_PluginEditor::AddModuleListeners()
 {
 	ModuleListeners.Add(MakeShareable(new AMS_TransformHelper));
+	ModuleListeners.Add(MakeShareable(new AMS_Subsystem_API));
 	ModuleListeners.Add(MakeShareable(new AMS_About));
 	ModuleListeners.Add(MakeShareable(new MissionsTweaker));
-
 }
 
 void FAMS_PluginEditor::AddMenuExtension(const FMenuExtensionDelegate& extensionDelegate, FName extensionHook, const TSharedPtr<FUICommandList>& CommandList, EExtensionHook::Position position)

@@ -49,3 +49,23 @@ void AMS_About::OpenAsWindow()
 {
   //for later i want to learn how to make standalone windows
 }
+
+//####### Subsystem API SECTION #############
+
+void AMS_Subsystem_API::Initialize()
+{
+    TabName = "Subsystem API";
+    TabDisplayName = FText::FromString(TEXT("Subsystem API"));
+    ToolTipText = FText::FromString("here you will find all subsystem functions to for you to use");
+}
+
+TSharedRef<SDockTab> AMS_Subsystem_API::SpawnTab(const FSpawnTabArgs& TabSpawnArgs)
+{
+    TSharedRef<SDockTab> SpawnedTab = SNew(SDockTab)
+        .TabRole(ETabRole::DocumentTab)
+        [
+            SNew(SAMS_Subsystem_API_Window)
+        ];
+
+    return SpawnedTab;
+}

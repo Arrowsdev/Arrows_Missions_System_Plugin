@@ -104,3 +104,12 @@ protected:
 	TWeakPtr<AMS_About> about;
 
 };
+
+class AMS_PLUGINEDITOR_API SAMS_Subsystem_API_Window : public SCompoundWidget
+{
+	SLATE_BEGIN_ARGS(SAMS_Subsystem_API_Window) {}
+	SLATE_END_ARGS()
+
+	void Construct(const FArguments& InArgs);
+
+};

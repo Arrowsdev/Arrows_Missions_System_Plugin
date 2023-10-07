@@ -39,6 +39,8 @@ void Missions_DetailCustomizations::CustomizeDetails(IDetailLayoutBuilder& Detai
         .WholeRowContent()
         [
             SNew(SAPI_Helper)
+            .Src(UMissionObject::StaticClass())
+            .Title(FText::FromString("Mission API Calls"))
         ];
 
 }

@@ -6,7 +6,9 @@
 
 void SAPI_Helper::Construct(const FArguments& InArgs)
 {
-	
+	Src = InArgs._Src;
+	Title = InArgs._Title;
+
 	ChildSlot
 		[
 			SNew(SBorder)
@@ -16,7 +18,8 @@ void SAPI_Helper::Construct(const FArguments& InArgs)
 		        .AutoHeight()
 		        [
 					SNew(STextBlock)
-					.Text(FText::FromString("Mission API Calls"))
+					.Text(Title)
+		            .Justification(ETextJustify::Center)
 		        ]
 	            + SVerticalBox::Slot()
 		        [
@@ -49,7 +52,6 @@ TSharedRef<ITableRow> SAPI_Helper::OnGenerateRow(TSharedPtr<API_Expose> api, con
 
 void SAPI_Helper::GetAPI()
 {
-	UClass* Src = UMissionObject::StaticClass();
 	API_List.Reset();
 
 	int32 Num = 1;
@@ -60,6 +62,11 @@ void SAPI_Helper::GetAPI()
 		if (!function) continue;
 
 		FString FuncName = function->GetName();
+		FString CalledWith = FuncName.Contains("ST_") ? "Called Without ( ST_ )" : "";
+		FString Subfix = function->HasAnyFunctionFlags(FUNC_Static) ? FString::Printf(TEXT(" [ Static Function %s ]"), *CalledWith) : "";
+
+		FuncName += Subfix;
+
 		//get only normal callable functions or pure functions or Events
 		if ((function->HasAnyFunctionFlags(FUNC_BlueprintCallable) || function->HasAnyFunctionFlags(FUNC_BlueprintPure)
 			                  || function->HasAnyFunctionFlags(FUNC_BlueprintEvent)) && FuncName != "ExecuteUbergraph")
@@ -67,6 +74,7 @@ void SAPI_Helper::GetAPI()
 			TSharedPtr<API_Expose> _Func = MakeShareable(new API_Expose(FText::FromString(FuncName), Num));
 			API_List.Add(_Func);
 			Num++;
+
 		}
 	}
 
