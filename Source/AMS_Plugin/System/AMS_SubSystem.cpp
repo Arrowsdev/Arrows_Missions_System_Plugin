@@ -134,7 +134,9 @@ void UAMS_SubSystem::RecordMissionFinished(UMissionObject* Mission)
 		ActiveMissions.Remove(Mission->GetClass());
 	}
 
-	if (SaveType == ESaveMissionType::Post)
+	//if failed we always save , but other wise we check  if we save after mission finish
+	bool SaveCondition = Mission->MissionDetails.CurrentState == EFinishState::failed ? true : (SaveType == ESaveMissionType::Post);
+	if (SaveCondition)
 	Internal_MissionSave();
 
 	//Mission->RemoveFromRoot();
@@ -424,6 +426,16 @@ UAMS_SaveGame* UAMS_SubSystem::LoadGame(FName playerProfile, bool& found)
 		return nullptr;
 	}
 
+}
+
+void UAMS_SubSystem::AssossiateActor(AActor* Actor, TSubclassOf<UMissionObject> forMission)
+{
+	if (!Actor || !forMission) return;
+
+	if (ActiveMissions.Contains(forMission))
+	{
+		ActiveMissions[forMission]->AssossiateActor(Actor);
+	}
 }
 
 void UAMS_SubSystem::CreateCheckPoint()

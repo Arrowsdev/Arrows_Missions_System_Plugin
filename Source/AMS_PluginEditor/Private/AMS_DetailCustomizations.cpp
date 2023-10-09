@@ -41,6 +41,7 @@ void Missions_DetailCustomizations::CustomizeDetails(IDetailLayoutBuilder& Detai
             SNew(SAPI_Helper)
             .Src(UMissionObject::StaticClass())
             .Title(FText::FromString("Mission API Calls"))
+            .ExposeLevel(EExposeLevel::simple)
         ];
 
 }

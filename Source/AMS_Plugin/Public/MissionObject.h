@@ -206,6 +206,16 @@ public:
 		CurrentState = IsPaused? EFinishState::paused : EFinishState::inProgress;
 	}
 
+	//used to assossiate certain actor with this mission at runtime , knowing that only assossiated actors actions are took into
+	//consideration when happening, meaning if an enemy is not assossiated  with this mission then his death wont be accounted
+	UFUNCTION(BlueprintCallable, Category = "Mission System")
+		FORCEINLINE void AssossiateActor(AActor* Actor)
+	{
+		if (!Actor)return;
+
+		Actor->Tags.Add(AssossiatedTag);
+	}
+
 // NO EXPOSE:
 // 
 	//Core Properties:

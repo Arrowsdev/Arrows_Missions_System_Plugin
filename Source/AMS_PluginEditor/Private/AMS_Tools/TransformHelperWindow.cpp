@@ -500,6 +500,7 @@ void SAMS_Subsystem_API_Window::Construct(const FArguments& InArgs)
                [
                    SNew(SAPI_Helper)
                   .Src(UAMS_SubSystem::StaticClass())
+                  .ExposeLevel(EExposeLevel::advanced)
                ]
 
             ]

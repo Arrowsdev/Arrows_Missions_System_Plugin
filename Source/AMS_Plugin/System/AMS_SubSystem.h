@@ -149,6 +149,11 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		Internal_MissionSave();
 	}
 
+	//global version of setting actors assossiated with any of the active missions
+	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
+		void  AssossiateActor(AActor* Actor, TSubclassOf<UMissionObject> forMission);
+	
+
 	/*used to save game at desired time and not on the subsystem times
 	* dont forget to use the data center to put the data you want to save
 	*/
