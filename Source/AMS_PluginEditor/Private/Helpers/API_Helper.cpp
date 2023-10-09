@@ -194,6 +194,24 @@ ChildSlot
 				    .Justification(ETextJustify::Left)
 				]
 			]
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+		    .Padding(0.f, 5.f)
+			[
+				SNew(STextBlock)
+				.Text(FText::FromString("Parameters :"))
+			]
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			[
+				SNew(SBorder)
+				.Padding(5)
+				[
+					SAssignNew(Parameters, STextBlock)
+					.AutoWrapText(true)
+				    .Justification(ETextJustify::Left)
+				]
+			]
 		
 		]
 		+ SVerticalBox::Slot()
@@ -212,5 +230,6 @@ void SAPI_Reporter::RequestRefresh()
 {
 	if (!API) return;
 	Comment->SetText(API->Comment);
+	Parameters->SetText(API->Parameters);
 	Extra->SetText(API->Extra);
 }

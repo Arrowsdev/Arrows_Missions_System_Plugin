@@ -92,11 +92,17 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 
 // END OF PROJECT SETTINGS
 
-	/*starts new mission */
+	/*starts new mission;
+	 @newMission %the new mission class to start;
+	 @SaveProfileName %the name of the new player's profile name;
+	*/
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
     void StartMission(TSubclassOf<UMissionObject> newMission, FName SaveProfileName);
 
-	/*Starts New Mission*/
+	/*starts new mission;
+	 @newMission %the new mission class to start;
+	 @SaveProfileName %the name of the new player's profile name;
+	*/
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 	static FORCEINLINE void StartNewMission(TSubclassOf<UMissionObject> newMission, FName SaveProfileName)
 	{
@@ -108,10 +114,22 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	//the call will be ignored, the source should also have a mission associated tag for it action to be considered
 	//so if killing enemies was an action we want only those who has the tag to be counted so not all enemies are counted 
 	// you need to add this tag on spawn for your enemies to distinguish the default enemy class from the enemy that was spawned 
-	//for this passed mission
+	//for this passed mission;
+	//@Mission %The Mission That Has This Action As Related Action.;
+	//@PreformedAction %The Related Action That Was Preformed!.;
+	//@ActionSource %The Source Of This Action, The Actor That Did This Action;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 	void PreformMissionAction(TSubclassOf<UMissionObject> Mission, TSubclassOf<UActionObject> PreformedAction, AActor* ActionSource);
 	
+
+	//preform an action for specific mission from the active missions , if the provided mission is not active
+	//the call will be ignored, the source should also have a mission associated tag for it action to be considered
+	//so if killing enemies was an action we want only those who has the tag to be counted so not all enemies are counted 
+	// you need to add this tag on spawn for your enemies to distinguish the default enemy class from the enemy that was spawned 
+	//for this passed mission;
+	//@Mission %The Mission That Has This Action As Related Action.;
+	//@PreformedAction %The Related Action That Was Preformed!.;
+	//@ActionSource %The Source Of This Action, The Actor That Did This Action;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 	static FORCEINLINE void PreformAction(TSubclassOf<UMissionObject> Mission, TSubclassOf<UActionObject> PreformedAction, AActor* ActionSource)
 	{
@@ -120,19 +138,22 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	}
 
 	//this function creates a savegame object , if there was an old profile it loads the last progress and let you 
-	//hook your new data too before saving the file again
+	//hook your new data too before saving the file again [Deprecated Function];
+	//@NaN;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 	UAMS_SaveGame* CreateMissionSaveObject();
 
-	/*this function loads specific player profile data, returns a reference to the loaded object
-	* so you can load the custom data you have saved
-	*/
+	//this function loads specific player profile data, returns a reference to the loaded object
+	//so you can load the custom data you have saved;
+	//@PlayerProfile %The Name Of The New Profile To Load.;
+	//@Found %If The Profile Was Found Or Not!.;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 		UAMS_SaveGame* LoadGame(FName playerProfile, bool& found);
 
-	/*this function loads specific player profile data, returns a reference to the loaded object
-	* so you can load the custom data you have saved
-	*/
+	//this function loads specific player profile data, returns a reference to the loaded object
+	//so you can load the custom data you have saved;
+	//@PlayerProfile %The Name Of The New Profile To Load.;
+	//@Found %If The Profile Was Found Or Not!.;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System", meta=(DisplayName="Load Game"))
 		static FORCEINLINE UAMS_SaveGame* ST_LoadGame(FName playerProfile, bool& found)//ST = static
 	{
@@ -140,23 +161,25 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		return MissionSubSystemInstance->LoadGame(playerProfile, found);
 	}
 
-	/*used to save game at desired time and not on the subsystem times
-	* dont forget to use the data center to put the data you want to save 
-	*/
+	//used to save game at desired time and not on the subsystem times
+	//dont forget to use the data center to put the data you want to save;
+	//@NaN;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 		FORCEINLINE	void SaveGame() 
 	{
 		Internal_MissionSave();
 	}
 
-	//global version of setting actors assossiated with any of the active missions
+	//global version of setting actors assossiated with any of the active missions;
+	//@Actor %The Actor That Should be Assossiated To The Provided Mission.;
+	//@ForMission %This is The Provided Mission.;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 		void  AssossiateActor(AActor* Actor, TSubclassOf<UMissionObject> forMission);
 	
 
-	/*used to save game at desired time and not on the subsystem times
-	* dont forget to use the data center to put the data you want to save
-	*/
+	//used to save game at desired time and not on the subsystem times
+	//dont forget to use the data center to put the data you want to save;
+	//@NaN;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System", meta = (DisplayName = "Save Game"))
 	static FORCEINLINE void ST_SaveGame()
 	{
@@ -164,31 +187,37 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		MissionSubSystemInstance->SaveGame();
 	}
 
-	/*used to create a check point for missions to restart from for the active player profile*/
+	//used to create a check point for missions to restart from for the active player profile;
+	//@NaN;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 		void CreateCheckPoint();
 
-	/*used to load last created checkpoint for the active player profile*/
+	//used to load last created checkpoint for the active player profile;
+	//@NaN;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 		void LoadCheckPoint();
 
-	/*used to cancel the mission , it will be added to the finished missions 
-	* and marked as failed 
-	*/
+	//used to cancel the mission , it will be added to the finished missions 
+	//and marked as failed;
+	//@Mission %The Mission To Cancel.;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 		void CancelMission(TSubclassOf<UMissionObject> mission);
 
-	/*used to restart any mission if it was active or recently failed, and if not it will start the mission*/
+	//used to restart any mission if it was active or recently failed, and if not it will start the mission;
+	//@Mission %The Mission To Restart.;
+	//@RestrtType %How To Restart, From Restart? Or From Checkpoint?.;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 		void RestartMission(TSubclassOf<UMissionObject> mission, ERestartType restartType);
 
-	//called to pause a mission by it class if it was running 
+	//called to pause a mission by it class if it was running;
+	//@Mission %The Mission To Pause or Unpause.;
+	//@Pause? %Should Pause Or Unpause.;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 		void PauseMission(TSubclassOf<UMissionObject> mission, UPARAM(DisplayName = "Pause?") bool IsPaused);
 
-	/*used to cancel the mission , it will be added to the finished missions
-	* and marked as failed
-	*/
+	//used to cancel the mission , it will be added to the finished missions
+	//and marked as failed;
+	//@Mission %The Mission To Cancel.;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System", meta = (DisplayName = "Cancel Mission"))
 	static FORCEINLINE void ST_CancleMission(TSubclassOf<UMissionObject> mission)
 	{
@@ -196,14 +225,16 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		return MissionSubSystemInstance->CancelMission(mission);
 	}
 
-	//get the records for the finished missions , should move this logics for the juernal later when i finish implementing its logics
+	//get the records for the finished missions , should move this logics for the juernal later when i finish implementing its logics;
+	//@NaN;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 		FORCEINLINE	TArray<FRecordEntry> GetFinishedMissionsRecords()
 	{
 		return FinishedMissions;
 	}
 
-	//get currently active missions with their informations 
+	//get currently active missions with their informations;
+	//@NaN;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 	static	FORCEINLINE	TArray<FRecordEntry> GetActiveMissions()
 	{
@@ -211,7 +242,8 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		return MissionSubSystemInstance->GenerateRecordsFromActiveMissions();
 	}
 
-	//get the juernal for the current active user 
+	//get the juernal for the current active user;
+	//@NaN;
 	UFUNCTION(BlueprintPure, Category = "Arrows Mission System")
 	static	FORCEINLINE	UAMS_JuernalObject* GetJuernal()
 	{
@@ -219,16 +251,19 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		return MissionSubSystemInstance->JuernalSingelton;
 	}
 
-	/*parse the passed objective to string, the struct is objective but it counts for blacklisted actions and also required or optional actions
-	* i hope it is not confusing using one struct for all of them , this way is cleaner , the type can be used in ui for the displayed info
-	*/
+	//parse the passed objective to string, the struct is objective but it counts for blacklisted actions and also required or optional actions
+	//i hope it is not confusing using one struct for all of them , this way is cleaner , the type can be used in ui for the displayed info.;
+	//@Objective %The Objective To Parse.;
+	//@GetterType %The Format In Which The Objective String Will Be Returned In!.;
+	//@ObjectiveType %The Type Of The Objective , Required Or Other Types.;
 	UFUNCTION(BlueprintPure, Category = "Arrows Mission System")
 	static	FORCEINLINE FString ParseObjective(FObjective objective, EStatusGetterType getterType, FString& ObjectiveType)
 	{
 		return objective.GetObjectibeStatus(getterType, ObjectiveType);
 	}
 
-	/*get mission refernce if it was active so you can get   global access to it's properties and functions*/
+	//get mission refernce if it was active so you can get   global access to it's properties and functions.;
+	//@MissionClass %The Class Of The Mission You Want It's Instance From The Active List If Found.;
 	UFUNCTION(BlueprintPure, Category = "Arrows Mission System")
 	static	FORCEINLINE UMissionObject* GetMissionByClass(TSubclassOf<UMissionObject> missionClass)
 	{
@@ -236,7 +271,8 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		return MissionSubSystemInstance->ActiveMissions[missionClass];
 	}
 
-	//get all game missins records so you can use them to create a menu that the player can select a mission to play, or any other use
+	//get all game missins records so you can use them to create a menu that the player can select a mission to play, or any other use.;
+	//@NaN;
 	UFUNCTION(BlueprintPure, Category = "Arrows Mission System")
 	static FORCEINLINE TArray<FRecordEntry> GetGameMissions()
 	{
@@ -244,7 +280,9 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		return MissionSubSystemInstance->FullGameMissionsRecords;
 	}
 
-	/*get the full game progress*/
+	//get the full game progress, meaning how much of the game missions the player has finished taking into account
+	//side missions too even they are not needed to complete the game but they participate in the compeletion precentage.;
+	//@NaN;
 	UFUNCTION(BlueprintPure, Category = "Arrows Mission System")
 	static FORCEINLINE float GetGameProgress()
 	{
@@ -254,13 +292,18 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 
 	//check if a record is played or fresh not played, used to help making ui for playing games from the list of the game missions
 	//since there my example ui used to restart all missions when "play this mission" button is pressed but restarting a mission without having playing any mission
-	//gives the player a default profile of "NONE" so it saves in the wrong place, this is just a utility function
+	//gives the player a default profile of "NONE" so it saves in the wrong place, this is just a utility function, i think we should just expose the enum entry
+	//and remove this funciton, but until then this is how you know if a certain record is played or recently generated;
+	//@Record %The Record To Check.;
+    //@Played? %If Played Or Not.;
 	UFUNCTION(BlueprintPure, Category = "Arrows Mission System")
 	static FORCEINLINE void GetRecordState(FRecordEntry record, UPARAM(DisplayName="played?") bool& bIsPlayed)
 	{
 		bIsPlayed = record.MissionState != EFinishState::notPlayed;
 	}
 
+	//A Debugging Function To Get how many active missions there is;
+	//@UsedProfile %The Loaded Profile To See How Many Active Missions In, [Must Be Loaded!];
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System | Debugging")
 		FORCEINLINE	int32 GetActiveMissionsCount(FName& UsedProfile)
 	{
@@ -268,6 +311,9 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		return ActiveMissions.Num();
 	}
 
+	//Logger Function to Print Some Data To The consol , you dont need to touch any of the debug functions anywhere unless you are 
+	//using cpp to expand the system, taking in mind the LOG class is still not finished and it will be compeleted in the future;
+	//@NaN;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System | Debugging")
 		FORCEINLINE void LOGME()
 	{

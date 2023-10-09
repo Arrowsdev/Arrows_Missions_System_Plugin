@@ -36,8 +36,8 @@ public:
 		Number += "-";
 
 		Function = FText::FromString(_function->GetName());
-		Comment = _function->GetToolTipText(false);
-
+		
+		ExtractAPI(_function, Comment, Parameters);
 	    CalledWith = _function->GetName().Contains("ST_") ? "Called Without ( ST_ )" : "";
 		Extra = _function->HasAnyFunctionFlags(FUNC_Static) ? FText::FromString(FString::Printf(TEXT("\n[ Static Function %s ]"), *CalledWith)) : FText();
 
@@ -45,11 +45,76 @@ public:
 
 	FText Function;
 	FText Comment;
+	FText Parameters;
 	FText Extra;
 
 	FString Number;
 	FString CalledWith;
+
 	
+	/*//### desired results of parsing functions comments ###//
+
+	* Comment and tooltip.
+	* 
+	* Parameters:
+	* 1- param name
+	*   -param docs
+	* 2- param name
+	*   -param docs
+	* .
+	* .
+	* etc..
+	* 
+	* ###example of source comment ###
+	* 
+	* Comment;
+	* @param1 %Docs;
+	* @param2 %Docs;
+	* .
+	* .
+	*/
+
+	void ExtractAPI(UFunction* _func, FText& comment, FText& parameters)
+	{
+		//convert to string
+		FString SourceAsString = _func->GetToolTipText().ToString();
+		SourceAsString = SourceAsString.Replace(TEXT("\n"), TEXT(" "));//make a contagious string without newlines
+
+		FString _Params = FString();
+		int32 Simi = 0;
+	
+		//find comment, the used syntax for comments should be explained above
+		Simi = SourceAsString.Find(FString(";"));
+		FString ChoppedString = SourceAsString.Left(Simi);
+		comment = FText::FromString(ChoppedString);
+
+		//find parameters
+		ChoppedString += ";";
+		SourceAsString = SourceAsString.Replace(*ChoppedString, TEXT(""));//remove the chopped string since it was copied as comment
+
+		int32 paramsCout = 1;
+		
+		while (paramsCout <= _func->NumParms)
+		{
+			Simi = SourceAsString.Find(FString(";"));
+		    ChoppedString = SourceAsString.Left(Simi);
+			FString MutableString = ChoppedString;
+
+			Simi = MutableString.Find(FString("@"));
+			MutableString.RemoveAt(0, Simi);
+
+			MutableString = MutableString.Replace(TEXT("@"), *FString::Printf(TEXT("%d- "), paramsCout));
+			MutableString = MutableString.Replace(TEXT("%"), TEXT("\n- "));
+
+			_Params.Append(MutableString);
+			_Params += "\n";
+
+			ChoppedString += ";";
+			SourceAsString = SourceAsString.Replace(*ChoppedString, TEXT(""));
+			paramsCout++;
+		}
+		parameters = FText::FromString(_Params);
+	}
 };
 
 class SAPI_Reporter : public SCompoundWidget
@@ -67,6 +132,7 @@ public:
 	TSharedPtr<API_Expose> API;
 
 	TSharedPtr<STextBlock> Comment;
+	TSharedPtr<STextBlock> Parameters;
 	TSharedPtr<STextBlock> Extra;
 
 };
