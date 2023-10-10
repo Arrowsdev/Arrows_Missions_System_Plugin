@@ -310,6 +310,8 @@ TArray<FRecordEntry> UAMS_SubSystem::GenerateRecordsFromActiveMissions()
 
 		kvPair.Value->UpdateCounterInDetails();//copy the counter inside the details so it get saved with it for use later after loading 
 
+		kvPair.Value->GetMissionProgress();//this will calculate the current progress inside the details so when we save it to  the record we get the currect value
+
 		Records.Emplace(kvPair.Key, kvPair.Value->MissionDetails, kvPair.Value->CurrentState, required, blacklisted);	
 	}
 	return Records;
