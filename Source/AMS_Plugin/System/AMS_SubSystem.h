@@ -71,6 +71,12 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	UPROPERTY(config, EditAnywhere, Category = "Settings")
 		TArray<TSubclassOf<UMissionObject>> GameMissionsList;
 
+	//this is the list of all playable missins in the game , we use this to get the game compeletion only it dosnt affect
+	//the order in which the mission are played since we manually play missins by start mission call, if filled it will override the default behaviour
+	//were we consider all mission classes in the project, but if this filled with one element it will be our full game list
+	UPROPERTY(config, VisibleAnywhere, Category = "Settings")
+		TArray<TSoftClassPtr<UMissionObject>> SoftGameMissionsList;
+
 	//how the system handles saving progress
 	UPROPERTY(config,EditAnywhere, Category = "Save Settings")
 		ESaveMissionType SaveType;
@@ -410,6 +416,22 @@ public:
 		package.SG_FinishedMissions = GetFinishedMissions();
 		return package;
 	}
+
+#if WITH_EDITOR
+	
+	inline void AddMissionToList(TSoftClassPtr<UMissionObject> newMissionAsset)
+	{
+		SoftGameMissionsList.Add(newMissionAsset);
+	}
+
+	void RemoveMissionFromList(UObject* Mission);
+
+	inline void ResetMissionsList()
+	{
+		SoftGameMissionsList.Empty();
+	}
+	
+#endif	
 
 private:
 	//used to save the missions instaces so they wont be collected by garbage collection

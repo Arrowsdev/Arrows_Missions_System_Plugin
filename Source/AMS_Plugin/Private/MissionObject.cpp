@@ -198,6 +198,12 @@ void UMissionObject::PostEditChangeProperty(struct FPropertyChangedEvent& change
 	}	
 
 }
+void UMissionObject::BeginDestroy()
+{
+	UAMS_SubSystem* SubSystemDefaults = Cast<UAMS_SubSystem>(UAMS_SubSystem::StaticClass()->GetDefaultObject());
+	SubSystemDefaults->RemoveMissionFromList(this);
+	Super::BeginDestroy();
+}
 #endif
 
 void UMissionObject::SaveGame()

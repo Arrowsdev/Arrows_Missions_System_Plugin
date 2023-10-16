@@ -254,6 +254,19 @@ public:
 	//use it to restart the mission from the juernal records
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
 
+	//when a mission asset is deleted this get called and i am using it to remove the reference that is made for this mission in the subsystem list
+	virtual void BeginDestroy() override;
+
+	
+
+#endif
+
+#if WITH_EDITORONLY_DATA
+
+	//used to define if the mission should be considered when creating the full game list
+	UPROPERTY()
+	bool bIncludeInGame;
+
 #endif
 
 	void SaveGame();

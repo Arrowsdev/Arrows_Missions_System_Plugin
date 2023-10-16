@@ -94,6 +94,33 @@ void UAMS_SubSystem::PreformTutorialAction(TSubclassOf<UMissionObject> tutorialM
 	PreformMissionAction(tutorialMission, tutorialAction, player);
 }
 
+#if WITH_EDITOR
+
+void UAMS_SubSystem::RemoveMissionFromList(UObject* Mission)
+{
+	int32 index = 0;
+	bool bFound = false;
+	UAMS_SubSystem* SubSystemDefaults = Cast<UAMS_SubSystem>(UAMS_SubSystem::StaticClass()->GetDefaultObject());
+	for (auto& reference : SubSystemDefaults->SoftGameMissionsList)
+	{
+		if (reference.GetAssetName() == Mission->GetClass()->GetName())
+		{
+			bFound = true;
+			break;
+		}
+
+		else
+		{
+			LOG_AMS("Deleted Asseted check failed",10.0f, FColor::Red);
+		}
+		index++;
+	}
+
+	if(bFound)
+	SubSystemDefaults->SoftGameMissionsList.RemoveAt(index);
+}
+#endif
+
 void UAMS_SubSystem::StartMission(TSubclassOf<UMissionObject> newMission, FName SaveProfileName)
 {	
 	if (!newMission) return;
@@ -468,15 +495,27 @@ void UAMS_SubSystem::RestartMission(TSubclassOf<UMissionObject> mission, ERestar
 {
 	if (!mission) return;
 	int32 index = -1;
+
+	TArray<int32> DirtyIndexes;
+
 	//make sure if it was finished we remove it so when it starts it wont have a record as finished
 	for (auto& _FinishedMission : FinishedMissions)
 	{
 		index++;
 		if (_FinishedMission == mission)
 		{
-			FinishedMissions.RemoveAt(index);//weird breakpoint happens here when restarting a finished mission, but it dosent happen in build game
+			//the issue turned out to be a warrning that the list is changed during itiration so we mark items indexs as dirty and remove after itiration
+			DirtyIndexes.Add(index);
+
+			//FinishedMissions.RemoveAt(index);//weird breakpoint happens here when restarting a finished mission, but it dosent happen in build game
 			//still trying to figure it out
 		}
+	}
+
+	///remove dirty
+	for (auto& _index : DirtyIndexes)
+	{
+		FinishedMissions.RemoveAt(_index);
 	}
 
 	if (!ActiveMissions.Contains(mission))
@@ -530,13 +569,14 @@ float UAMS_SubSystem::Internal_GetGameProgress()
 
 //called once on begin play so that the game knows the count of games missions 
 //@Bug : asset registry is not working on build
+//@worked around using mission tweaker to do this in editor time on demand so no need to load on module start
 void UAMS_SubSystem::InitiateFullGameProgressData()
 {
 	FullGameMissionsRecords.Empty();
 	FullGameMissionsCount = 0;
 	
 	
-	for (FObjectIterator itr; itr; ++itr)
+	/*for (FThreadSafeObjectIterator itr; itr; ++itr)
 	{
 		UMissionObject* missionObject = Cast<UMissionObject>((*itr));
 		if (missionObject)
@@ -551,70 +591,75 @@ void UAMS_SubSystem::InitiateFullGameProgressData()
 			}
 		}
 		
+	}*/
+
+	if (GameMissionsList.IsEmpty())
+	{
+		TArray<FAssetData> FoundMissions;
+		FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+		FTopLevelAssetPath BaseClassName = UMissionObject::StaticClass()->GetDefaultObject()->GetClass()->GetClassPathName();
+
+		//the tag that is added on mission construct
+		TArray<FName>Tags;
+		Tags.Add("MissionObject");
+		AssetRegistryModule.Get().GetAssetsByTags(Tags, FoundMissions);
+
+		FullGameMissionsCount = FoundMissions.Num();
+
+		if (FullGameMissionsCount)
+		{
+			FullGameMissionsRecords.Empty();
+			for (FAssetData& mission : FoundMissions)
+			{
+				LOG_AMS("Asset Registry Found Assets", 10.0f);
+
+				/*UBlueprint* MissionBlueprint = Cast<UBlueprint>(mission.GetAsset());
+				if (MissionBlueprint)
+				{
+					
+					UMissionObject* missionObject = Cast<UMissionObject>(MissionBlueprint->GeneratedClass.GetDefaultObject());
+					if (missionObject)
+					{
+						FMissionDetails recordDetails = missionObject->MissionDetails;
+						recordDetails.MissionRelatedActions = AMS_Types::GenerateDetails(missionObject->MissionRelatedActions).MissionRelatedActions;
+						FRecordEntry newRecord = FRecordEntry(missionObject->GetClass(), recordDetails);
+						newRecord.MissionState = EFinishState::notPlayed;
+						FullGameMissionsRecords.Add(newRecord);
+					}
+				}
+				else
+				{
+					LOG_AMS("Asset was not blueprint", 10.0f);
+				}*/
+
+			}
+
+			PrintLog(FString::Printf(TEXT("found %d of Mission Object Blueprints and first one is :  "), FoundMissions.Num()), 10.0f);
+		}
+
+		else
+		{
+			LOG_AMS("Asset Registry No Assets Found", 10.0f, FColor::Red);
+		}
 	}
+	
+	else
+	{
+		FullGameMissionsCount = GameMissionsList.Num();
 
-	//if (GameMissionsList.IsEmpty())
-	//{
-	//	TArray<FAssetData> FoundMissions;
-	//	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
-	//	FTopLevelAssetPath BaseClassName = UMissionObject::StaticClass()->GetDefaultObject()->GetClass()->GetClassPathName();
-
-	//	//the tag that is added on mission construct
-	//	TArray<FName>Tags;
-	//	Tags.Add("MissionObject");
-	//	AssetRegistryModule.Get().GetAssetsByTags(Tags, FoundMissions);
-
-	//	FullGameMissionsCount = FoundMissions.Num();
-
-	//	if (FullGameMissionsCount)
-	//	{
-	//		FullGameMissionsRecords.Empty();
-	//		for (FAssetData& mission : FoundMissions)
-	//		{
-	//			LOG_AMS("Asset Registry Found Assets", 10.0f);
-
-	//			UBlueprint* MissionBlueprint = Cast<UBlueprint>(mission.GetAsset());
-	//			if (MissionBlueprint)
-	//			{
-	//				
-	//				UMissionObject* missionObject = Cast<UMissionObject>(MissionBlueprint->GeneratedClass.GetDefaultObject());
-	//				if (missionObject)
-	//				{
-	//					FMissionDetails recordDetails = missionObject->MissionDetails;
-	//					recordDetails.MissionRelatedActions = AMS_Types::GenerateDetails(missionObject->MissionRelatedActions).MissionRelatedActions;
-	//					FRecordEntry newRecord = FRecordEntry(missionObject->GetClass(), recordDetails);
-	//					newRecord.MissionState = EFinishState::notPlayed;
-	//					FullGameMissionsRecords.Add(newRecord);
-	//				}
-	//			}
-	//			else
-	//			{
-	//				LOG_AMS("Asset was not blueprint", 10.0f);
-	//			}
-
-	//		}
-	//	}
-
-	//	PrintLog(FString::Printf(TEXT("found %d of Mission Object Blueprints and first one is :  "), FoundMissions.Num()), 10.0f);
-	//}
-	//
-	//else
-	//{
-	//	FullGameMissionsCount = GameMissionsList.Num();
-
-	//	for (auto& mission : GameMissionsList)
-	//	{
-	//		UMissionObject* missionObject = Cast<UMissionObject>(mission.GetDefaultObject());
-	//		if(missionObject)
-	//		{
-	//			FMissionDetails recordDetails = missionObject->MissionDetails;
-	//			recordDetails.MissionRelatedActions = AMS_Types::GenerateDetails(missionObject->MissionRelatedActions).MissionRelatedActions;
-	//			FRecordEntry newRecord = FRecordEntry(missionObject->GetClass(), recordDetails);
-	//			newRecord.MissionState = EFinishState::notPlayed;
-	//			FullGameMissionsRecords.Add(newRecord);
-	//		}
-	//	}
-	//}
+		for (auto& mission : GameMissionsList)
+		{
+			UMissionObject* missionObject = Cast<UMissionObject>(mission.GetDefaultObject());
+			if(missionObject)
+			{
+				FMissionDetails recordDetails = missionObject->MissionDetails;
+				recordDetails.MissionRelatedActions = AMS_Types::GenerateDetails(missionObject->MissionRelatedActions).MissionRelatedActions;
+				FRecordEntry newRecord = FRecordEntry(missionObject->GetClass(), recordDetails);
+				newRecord.MissionState = EFinishState::notPlayed;
+				FullGameMissionsRecords.Add(newRecord);
+			}
+		}
+	}
 
 }
 

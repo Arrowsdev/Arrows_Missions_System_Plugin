@@ -50,6 +50,9 @@ private:
 	//finds all missions assets 
 	void RefreshList();
 
+	//so we dont need to use the asset registry everytime we referesh we generate a ref list for the referesh to use 
+	void GenerateList();
+
 	void OnNewHostTextCommited(const FText& InText, ETextCommit::Type InCommitType);
 
 	TSharedRef<ITableRow> HandleListGenerateRow(TSharedPtr<FBrowserObject> TransactionInfo, const TSharedRef<STableViewBase>& OwnerTable);
@@ -57,18 +60,29 @@ private:
 	void HandleListSelectionChanged(TSharedPtr<FBrowserObject> TransactionInfo, ESelectInfo::Type SelectInfo);
 
 	FReply OnSavedClicked();
+	FReply OnBuildClicked();
 	
-	
+
+
+	void HandleIncludeAllCheckStateChange(ECheckBoxState newState);
+
 	//used for searching for missions by name
 	FText FilterText;
 	FString FilterString;
 
 	TArray< TSharedPtr<FBrowserObject> > LiveObjects;
+	TArray< TSharedPtr<FBrowserObject> > GeneratedList;
 
 	TSharedPtr< SListView< TSharedPtr<FBrowserObject> > > ObjectListView;
 
 	TSharedPtr<IDetailsView> PropertyView;
 
+public:
+	TSharedPtr<STextBlock> TempPercentage;
+	TSharedPtr<SCheckBox>  IncludeCB; //cb = check box
+	
+	//called when a row is checked so we see if all other rows are checked too
+	void ValidateIncludeAll(ECheckBoxState newState);
 };
 
 
@@ -80,6 +94,7 @@ public:
 
 	SLATE_BEGIN_ARGS(SObjectBrowserTableRow) { }
 	SLATE_ARGUMENT(TSharedPtr<FBrowserObject>, Object)
+	SLATE_ARGUMENT(MissionTweakerWindow*, TweakerWindow)
 	SLATE_ARGUMENT(FText, HighlightText)
 	SLATE_END_ARGS()
 
@@ -103,6 +118,10 @@ public:
 
 			// Get selection icon from the selected object
 			ClassIcon = FSlateIconFinder::FindIconForClass(Obj->GetClass()).GetIcon();
+
+			TweakerWindow = InArgs._TweakerWindow;
+
+			initialCheckState = Cast<UMissionObject>(Obj)->bIncludeInGame;
 		}
 
 		SMultiColumnTableRow<TSharedPtr<int32> >::Construct(FSuperRowType::FArguments(), InOwnerTableView);
@@ -135,6 +154,12 @@ public:
 			 return SNew(STextBlock)
 			.Text(Package);
 		}
+		else if (ColumnName == FName("Include"))
+		{
+			return SAssignNew(IncludeState,SCheckBox)
+				   .OnCheckStateChanged(this, &SObjectBrowserTableRow::OnCheckStateChanged)
+				   .IsChecked(initialCheckState);
+		}
 		
 		return SNullWidget::NullWidget;
 	}
@@ -152,6 +177,13 @@ public:
 		return FReply::Handled();
 	}
 
+	inline void OnCheckStateChanged(ECheckBoxState newState)
+	{
+		Cast<UMissionObject>(BrowserObject->Object->GetClass()->GetDefaultObject())->bIncludeInGame = newState == ECheckBoxState::Checked;
+		BrowserObject->ObjectBP->MarkPackageDirty();
+		BrowserObject->Object->MarkPackageDirty();
+		TweakerWindow->ValidateIncludeAll(newState);
+	}
 
 private:
 
@@ -159,10 +191,30 @@ private:
 
 	const FSlateBrush* ClassIcon;
 
+	MissionTweakerWindow* TweakerWindow;
+
+	TSharedPtr<SCheckBox> IncludeState;
+
+	bool initialCheckState;
+
 	// Holds the transaction's title text.
 	FText Name;
 	FText ClassName;
 	FText Package;
 
 	FText HighlightText;
+};
+
+//class to do the building mission in a worker thread so if the game had many missions we dont want the building task to hang the editor
+class FAMS_BackgroundTask : public FNonAbandonableTask
+{
+public:
+	FAMS_BackgroundTask(TArray< TSharedPtr<FBrowserObject> > _LiveObjects): LiveObjects(_LiveObjects){}
+
+	FORCEINLINE TStatId GetStatId() const { RETURN_QUICK_DECLARE_CYCLE_STAT(FAMS_BackgroundTask, STATGROUP_ThreadPoolAsyncTasks); }
+
+	void DoWork();
+
+private:
+	TArray< TSharedPtr<FBrowserObject> > LiveObjects;
 };

@@ -42,8 +42,7 @@ UObject* UAMS_Factory_MissionObject::FactoryCreateNew(UClass* Class, UObject* In
 			    UAMS_MissionBlueprint::StaticClass(),
 			    UAMS_MissionGeneratedBlueprint::StaticClass(),
 				CallingContext);
-		
-		    
+
 			return NewAsset;
 	}
 }

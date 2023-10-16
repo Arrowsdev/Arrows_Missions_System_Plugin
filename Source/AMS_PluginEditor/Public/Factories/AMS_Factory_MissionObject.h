@@ -19,5 +19,6 @@ class AMS_PLUGINEDITOR_API UAMS_Factory_MissionObject : public UBlueprintFactory
 
 	virtual UObject* FactoryCreateNew(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn, FName CallingContext) override;
 	virtual bool ConfigureProperties() override;
+
 	
 };
