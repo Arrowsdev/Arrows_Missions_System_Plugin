@@ -29,6 +29,11 @@ UActionObject* AMS_TypesOperations::NewActionObject(UMissionObject* Outter, TSub
 	return NewObject<UActionObject>(Outter, Class);
 }
 
+UActionObject* AMS_TypesOperations::NewActionObject(UMissionObject* Outter, TSoftClassPtr<UActionObject> ClassPtr)
+{
+	return NewObject<UActionObject>(Outter, ClassPtr.LoadSynchronous());
+}
+
 void AMS_TypesOperations::SubscribeToMissionTick(UMissionObject* mission, UActionObject* ActivatedAction)
 {
 	mission->MissionTickDelegate.AddUObject(ActivatedAction, &UActionObject::ActionTick);

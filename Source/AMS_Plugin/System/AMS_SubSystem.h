@@ -65,16 +65,16 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	UPROPERTY(config,EditAnywhere, Category = Settings)
 		TSubclassOf<UAMS_JuernalObject> JuernalClass;
 
-	//this is the list of all playable missins in the game , we use this to get the game compeletion only it dosnt affect
-	//the order in which the mission are played since we manually play missins by start mission call, if filled it will override the default behaviour
-	//were we consider all mission classes in the project, but if this filled with one element it will be our full game list
-	UPROPERTY(config, EditAnywhere, Category = "Settings")
-		TArray<TSubclassOf<UMissionObject>> GameMissionsList;
+	////this is the list of all playable missins in the game , we use this to get the game compeletion only it dosnt affect
+	////the order in which the mission are played since we manually play missins by start mission call, if filled it will override the default behaviour
+	////were we consider all mission classes in the project, but if this filled with one element it will be our full game list
+	//UPROPERTY(config, EditAnywhere, Category = "Settings")
+	//	TArray<TSubclassOf<UMissionObject>> GameMissionsList;
 
 	//this is the list of all playable missins in the game , we use this to get the game compeletion only it dosnt affect
 	//the order in which the mission are played since we manually play missins by start mission call, if filled it will override the default behaviour
 	//were we consider all mission classes in the project, but if this filled with one element it will be our full game list
-	UPROPERTY(config, VisibleAnywhere, Category = "Settings")
+	UPROPERTY(config, VisibleAnywhere, Category = "Settings" ,meta=(DisplayName="GameMissionsList"))
 		TArray<TSoftClassPtr<UMissionObject>> SoftGameMissionsList;
 
 	//how the system handles saving progress
@@ -103,14 +103,14 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	 @SaveProfileName %the name of the new player's profile name;
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
-    void StartMission(TSubclassOf<UMissionObject> newMission, FName SaveProfileName);
+    void StartMission(TSoftClassPtr<UMissionObject> newMission, FName SaveProfileName);
 
 	/*starts new mission;
 	 @newMission %the new mission class to start;
 	 @SaveProfileName %the name of the new player's profile name;
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
-	static FORCEINLINE void StartNewMission(TSubclassOf<UMissionObject> newMission, FName SaveProfileName)
+	static FORCEINLINE void StartNewMission(TSoftClassPtr<UMissionObject> newMission, FName SaveProfileName)
 	{
 		if (!MissionSubSystemInstance) return;
 		MissionSubSystemInstance->StartMission(newMission, SaveProfileName);
@@ -125,7 +125,7 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	//@PreformedAction %The Related Action That Was Preformed!.;
 	//@ActionSource %The Source Of This Action, The Actor That Did This Action;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
-	void PreformMissionAction(TSubclassOf<UMissionObject> Mission, TSubclassOf<UActionObject> PreformedAction, AActor* ActionSource);
+	void PreformMissionAction(TSoftClassPtr<UMissionObject> Mission, TSubclassOf<UActionObject> PreformedAction, AActor* ActionSource);
 	
 
 	//preform an action for specific mission from the active missions , if the provided mission is not active
@@ -137,11 +137,18 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	//@PreformedAction %The Related Action That Was Preformed!.;
 	//@ActionSource %The Source Of This Action, The Actor That Did This Action;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
-	static FORCEINLINE void PreformAction(TSubclassOf<UMissionObject> Mission, TSubclassOf<UActionObject> PreformedAction, AActor* ActionSource)
+	static FORCEINLINE void PreformAction(TSoftClassPtr<UMissionObject> Mission, TSubclassOf<UActionObject> PreformedAction, AActor* ActionSource)
 	{
 		if (!MissionSubSystemInstance) return;
 		MissionSubSystemInstance->PreformMissionAction(Mission, PreformedAction, ActionSource);
 	}
+
+	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
+		static FORCEINLINE void PreformAction2(TSoftClassPtr<UMissionObject> Mission, TSoftClassPtr<UActionObject> PreformedAction, AActor* ActionSource)
+	{
+		//
+	}
+
 
 	//this function creates a savegame object , if there was an old profile it loads the last progress and let you 
 	//hook your new data too before saving the file again [Deprecated Function];
@@ -180,7 +187,7 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	//@Actor %The Actor That Should be Assossiated To The Provided Mission.;
 	//@ForMission %This is The Provided Mission.;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
-		void  AssossiateActor(AActor* Actor, TSubclassOf<UMissionObject> forMission);
+		void  AssossiateActor(AActor* Actor, TSoftClassPtr<UMissionObject> forMission);
 	
 
 	//used to save game at desired time and not on the subsystem times
@@ -207,25 +214,25 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	//and marked as failed;
 	//@Mission %The Mission To Cancel.;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
-		void CancelMission(TSubclassOf<UMissionObject> mission);
+		void CancelMission(TSoftClassPtr<UMissionObject> mission);
 
 	//used to restart any mission if it was active or recently failed, and if not it will start the mission;
 	//@Mission %The Mission To Restart.;
 	//@RestrtType %How To Restart, From Restart? Or From Checkpoint?.;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
-		void RestartMission(TSubclassOf<UMissionObject> mission, ERestartType restartType);
+		void RestartMission(TSoftClassPtr<UMissionObject> mission, ERestartType restartType);
 
 	//called to pause a mission by it class if it was running;
 	//@Mission %The Mission To Pause or Unpause.;
 	//@Pause? %Should Pause Or Unpause.;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
-		void PauseMission(TSubclassOf<UMissionObject> mission, UPARAM(DisplayName = "Pause?") bool IsPaused);
+		void PauseMission(TSoftClassPtr<UMissionObject> mission, UPARAM(DisplayName = "Pause?") bool IsPaused);
 
 	//used to cancel the mission , it will be added to the finished missions
 	//and marked as failed;
 	//@Mission %The Mission To Cancel.;
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System", meta = (DisplayName = "Cancel Mission"))
-	static FORCEINLINE void ST_CancleMission(TSubclassOf<UMissionObject> mission)
+	static FORCEINLINE void ST_CancleMission(TSoftClassPtr<UMissionObject> mission)
 	{
 		if (!MissionSubSystemInstance)return;
 		return MissionSubSystemInstance->CancelMission(mission);
@@ -271,7 +278,7 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	//get mission refernce if it was active so you can get   global access to it's properties and functions.;
 	//@MissionClass %The Class Of The Mission You Want It's Instance From The Active List If Found.;
 	UFUNCTION(BlueprintPure, Category = "Arrows Mission System")
-	static	FORCEINLINE UMissionObject* GetMissionByClass(TSubclassOf<UMissionObject> missionClass)
+	static	FORCEINLINE UMissionObject* GetMissionByClass(TSoftClassPtr<UMissionObject> missionClass)
 	{
 		if (!MissionSubSystemInstance) return nullptr;
 		return MissionSubSystemInstance->ActiveMissions[missionClass];
@@ -336,7 +343,7 @@ public:
 	void Internal_MissionSave();
 
 	//unexposed overload for the start mission used for auto go to next mission by the system while the other one is used for in bp open mission
-	void StartMission(TSubclassOf<UMissionObject> newMission);
+	void StartMission(TSoftClassPtr<UMissionObject> newMission);
 
 	//get the singleton for the subsystem
 	static UAMS_SubSystem* GetMissionSubSystem();
@@ -369,7 +376,7 @@ public:
 	//used to calculate the progress for the whole game 
 	float Internal_GetGameProgress();
 
-	void InitiateFullGameProgressData();
+	void InitiateFullGameProgressData();//still need to find a way to avoid crashing in editor when calling the AMS operations to create details in editor time
 
 	//should only pass lambdas so we can pass different parameters in the capture
 	void __FadeAndExecute(ScreenFadeType Type, TFunction<void(void)>&& Callback);
@@ -407,6 +414,20 @@ public:
 
 	void PreformTutorialAction(TSubclassOf<UMissionObject> tutorialMission, TSubclassOf<UActionObject> tutorialAction);
 
+	//get the mission soft ptr from the active missions list , used to help with functions that passes TSubclassOf
+	inline TSoftClassPtr<UMissionObject> GetMissionSoftPtr(TSubclassOf<UMissionObject> mission)
+	{
+		for (auto& itr : ActiveMissions)
+		{
+			if (itr.Key.GetAssetName() == mission->GetName())
+			{
+				return itr.Key;
+			}
+		}
+
+		return  nullptr;
+	}
+
 	//to work around some execptions errors
 	inline FAMS_SavePackage GetSubsystemSavePackage()
 	{
@@ -437,11 +458,11 @@ private:
 	//used to save the missions instaces so they wont be collected by garbage collection
 	//(funny thing that the list it self wasn't safe from it untill we decorate it with the property macro XDD)
 	UPROPERTY()
-	TMap<TSubclassOf<UMissionObject>, UMissionObject*> ActiveMissions;
+	TMap<TSoftClassPtr<UMissionObject>, UMissionObject*> ActiveMissions;
 
 	//list of missions waiting for fade to finish so they can start
 	UPROPERTY()
-	TArray<TSubclassOf<UMissionObject>> MissionsQueue;
+	TArray<TSoftClassPtr<UMissionObject>> MissionsQueue;
 
 	/*Temp holder for the finished missions , use the juernal version of this one , not temp anymore used to have internal records if we dont  have a juernal*/
 	UPROPERTY()
@@ -453,7 +474,7 @@ private:
 
 	//records for missions information it will be modified manually to get 100% compeletion from them and this way we get 
 	//pretty good data to represent for the player instead of just the amount of missions left
-	UPROPERTY()
+	UPROPERTY(config)
 	TArray<FRecordEntry> FullGameMissionsRecords;
 
 	UPROPERTY()
@@ -476,5 +497,6 @@ private:
 	FName PlayingLevel;
 
 	//the mission count that is used to find how much of the game is finished
+	UPROPERTY(config)
 	int32 FullGameMissionsCount = INDEX_NONE;
 };

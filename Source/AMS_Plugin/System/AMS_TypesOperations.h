@@ -26,6 +26,8 @@ public:
 
 	//used to create a new action object 
 	static UActionObject* NewActionObject(UMissionObject* Outter, TSubclassOf<UActionObject> Class);
+	//create object after loading the class
+	static UActionObject* NewActionObject(UMissionObject* Outter, TSoftClassPtr<UActionObject> ClassPtr);
 
 	static void SubscribeToMissionTick(UMissionObject* mission, UActionObject* ActivatedAction);
 

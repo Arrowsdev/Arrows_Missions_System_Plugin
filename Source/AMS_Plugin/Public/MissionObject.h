@@ -95,7 +95,7 @@ public:
 	//list of all actions related to this mission, put here main objectives
 	//and blacklisted actions and bounce and every action related to it
 	UPROPERTY(EditAnywhere, Category = Settings)
-		TArray<TSubclassOf<UActionObject>> MissionRelatedActions;
+		TArray<TSoftClassPtr<UActionObject>> MissionRelatedActions;
 
 	/*should we automatically restart if mission is faild or we wait for restart mission function call*/
 	UPROPERTY(EditAnywhere, Category = Settings, meta=(DisplayName="Auto Restart?"))
@@ -233,7 +233,7 @@ public:
 	//Core Functions
 	// 
 	//initilize objectives and calls mission begin
-	void InitializeMission(bool bStart);
+	void InitializeMission(bool bStart);//deprecated
 	void EndMission(EFinishState finishState, FFailInfo FailInfo);
 	void CountTime(float deltaTime);
 

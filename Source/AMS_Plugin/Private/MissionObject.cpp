@@ -62,14 +62,15 @@ void UMissionObject::GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) co
 
 void UMissionObject::InitializeMission(bool bStart)
 {
-	TMap<TSubclassOf<UActionObject>, int32> InstancesMap;
+	TMap<TSoftClassPtr<UActionObject>, int32> InstancesMap;
 
 	if (!bStart) goto FinishInit;
 
     /*count action instances and increment by action count*/
 	for (auto& itr : MissionRelatedActions)
 	{
-		UActionObject* ActionCDO = itr.GetDefaultObject();
+		TSubclassOf<UActionObject> ActionClass = itr.LoadSynchronous();
+		UActionObject* ActionCDO = ActionClass.GetDefaultObject();
 
 		if (InstancesMap.Contains(itr) && ActionCDO->ActionType != EActionType::InputListener)
 		{
@@ -104,6 +105,7 @@ FinishInit:
 	MissionHasUpdated();
 	LOG_AMS("Mission is initilized", 10.0f, FColor::Green);
 }
+
 
 void UMissionObject::EndMission(EFinishState finishState, FFailInfo FailInfo)
 {

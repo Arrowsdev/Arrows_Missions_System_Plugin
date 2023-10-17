@@ -133,6 +133,10 @@ struct FObjective
 	UPROPERTY(BlueprintReadWrite, Category = "Objective")
 	TSubclassOf<UActionObject> ActionClass;
 
+	//to prevent temp values form being optimized away by the garbage collector while saving game
+	UPROPERTY(BlueprintReadWrite, Category = "Objective")
+	TSoftClassPtr<UActionObject> SoftActionClass;
+
 	UPROPERTY(BlueprintReadWrite, Category="Objective")
 	int32 ActionCount;
 
@@ -160,14 +164,29 @@ struct FObjective
 	int32 ObjectiveID;
 
 	//default constructor , that is used when creating objective struct 
-	FObjective(TSubclassOf<UActionObject> Action, int32 count, UMissionObject* _owningMission)
-		:ActionClass(Action), TotalCount(count),OwningMission(_owningMission)
+	FObjective(TSubclassOf<UActionObject> Action, int32 count, UMissionObject* _owningMission) = delete;
+	//	:ActionClass(Action), TotalCount(count), OwningMission(_owningMission)
+	//{
+	//	//we dont want to create new object instead using the class CDO to call our logic in BP 
+	//	//thinking of making instances instead of using the cdo so we can use custom user variables and they can differ and no worries if multiple missions had the same
+	//	//action,
+	//	ActionType = Cast<UActionObject>(ActionClass->GetDefaultObject())->ActionType;
+	//	ActionName = Cast<UActionObject>(ActionClass->GetDefaultObject())->ActionName;
+	//	bIsFinished = false;
+	//	bIsActivated = false;
+	//	ActivatedAction = nullptr;
+	//	ActionCount = 0;
+	//	ObjectiveID = INDEX_NONE;
+	//}
+
+	FObjective(TSoftClassPtr<UActionObject> Action, int32 count, UMissionObject* _owningMission)
+		:SoftActionClass(Action), TotalCount(count), OwningMission(_owningMission)
 	{
 		//we dont want to create new object instead using the class CDO to call our logic in BP 
 		//thinking of making instances instead of using the cdo so we can use custom user variables and they can differ and no worries if multiple missions had the same
 		//action,
-		ActionType = Cast<UActionObject>(ActionClass->GetDefaultObject())->ActionType;
-		ActionName = Cast<UActionObject>(ActionClass->GetDefaultObject())->ActionName;
+		ActionType = Cast<UActionObject>(SoftActionClass.LoadSynchronous()->GetDefaultObject())->ActionType;
+		ActionName = Cast<UActionObject>(SoftActionClass.LoadSynchronous()->GetDefaultObject())->ActionName;
 		bIsFinished = false;
 		bIsActivated = false;
 		ActivatedAction = nullptr;
@@ -177,11 +196,11 @@ struct FObjective
 
 	//dedecated constructor to create objective struct that is not gameplay related , it is aimed to fix the crash when we have a full game
 	//missions record we dont have activated action so we pass the cdo instead.
-    explicit FObjective(TSubclassOf<UActionObject> Action,UActionObject* AsActivatede, int32 count, UMissionObject* _owningMission)
-		:ActivatedAction(AsActivatede), ActionClass(Action), TotalCount(count), OwningMission(_owningMission)
+    explicit FObjective(TSoftClassPtr<UActionObject> Action,UActionObject* AsActivatede, int32 count, UMissionObject* _owningMission)
+		:ActivatedAction(AsActivatede), SoftActionClass(Action), TotalCount(count), OwningMission(_owningMission)
 	{
-		ActionType = Cast<UActionObject>(ActionClass->GetDefaultObject())->ActionType;
-		ActionName = Cast<UActionObject>(ActionClass->GetDefaultObject())->ActionName;
+		ActionType = Cast<UActionObject>(SoftActionClass.LoadSynchronous()->GetDefaultObject())->ActionType;
+		ActionName = Cast<UActionObject>(SoftActionClass.LoadSynchronous()->GetDefaultObject())->ActionName;
 		bIsFinished = false;
 		bIsActivated = false;
 		ActionCount = 0;
@@ -240,7 +259,7 @@ struct FObjective
 		ObjectiveID = ID;
 
 		//when activating we replace the cdo with new object instance
-		ActivatedAction = AMS_TypesOperations::NewActionObject(OwningMission, ActionClass);
+		ActivatedAction = AMS_TypesOperations::NewActionObject(OwningMission, SoftActionClass);
 
 		//we dont add to root now , not for action or missions i want to test something so we can do this in much cleaner way
 		AMS_TypesOperations::AddActionToRoot(ActivatedAction);
@@ -309,12 +328,17 @@ struct FObjective
 
 	bool operator==(const TSubclassOf<UActionObject>& action)
 	{
-		return ActionClass == action;
+		return SoftActionClass.GetAssetName() == action->GetName();//ActionClass == action;
 	}
 
 	bool operator==(EActionType actionType)
 	{
-		return ActionClass.GetDefaultObject()->ActionType == actionType;
+		return ActionType == actionType;
+	}
+
+	bool operator==(const TSoftClassPtr<UActionObject>& action)
+	{
+		return SoftActionClass == action;
 	}
 
 	//gets the percentage of compeletion for the objective
@@ -330,9 +354,13 @@ struct FObjective
 
 	bool AffectMissionEnd()
 	{
-		return (ActionClass.GetDefaultObject()->ActionType == EActionType::required)
+		/*return (ActionClass.GetDefaultObject()->ActionType == EActionType::required)
 			   || (ActionClass.GetDefaultObject()->ActionType == EActionType::blacklisted
-			   || ActionClass.GetDefaultObject()->ActionType == EActionType::InputListener);
+			   || ActionClass.GetDefaultObject()->ActionType == EActionType::InputListener);*/
+
+		return (ActionType == EActionType::required)
+			    || (ActionType == EActionType::blacklisted)
+				|| (ActionType == EActionType::InputListener);
 	}
 };
 
@@ -432,6 +460,18 @@ struct FMissionDetails
 
 		//find the objective for specific action to preform
 		FObjective& GetActionRelatedObjective(TSubclassOf<UActionObject> action)
+		{
+			static FObjective defaultObjective = FObjective();
+
+			for (auto& itr : MissionRelatedActions)
+			{
+				if (itr == action) return itr;
+			}
+
+			return defaultObjective;
+		}
+
+		FObjective& GetActionRelatedObjective(TSoftClassPtr<UActionObject> action)
 		{
 			static FObjective defaultObjective = FObjective();
 
@@ -606,7 +646,7 @@ struct FRecordEntry
 	}
 
 	UPROPERTY(BlueprintReadWrite, Category = "Mission Records", meta = (DisplayName = "Finished Mission"))
-		TSubclassOf<UMissionObject> MissionClass;
+		TSoftClassPtr<UMissionObject> MissionClass;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Mission Records", meta = (DisplayName = "Mission Details"))
 		FMissionDetails MissionDetails;
@@ -621,12 +661,12 @@ struct FRecordEntry
 	UPROPERTY()
 		int32 BlackListedCount;
 
-	FRecordEntry(TSubclassOf<UMissionObject> Mission, FMissionDetails details) 
+	FRecordEntry(TSoftClassPtr<UMissionObject> Mission, FMissionDetails details)
 		: MissionClass(Mission), MissionDetails(details)
 	{
 	} 
 
-	FRecordEntry(TSubclassOf<UMissionObject> Mission, FMissionDetails details, EFinishState missionState, int32 required, int32 blacklisted)
+	FRecordEntry(TSoftClassPtr<UMissionObject> Mission, FMissionDetails details, EFinishState missionState, int32 required, int32 blacklisted)
 		: MissionClass(Mission), MissionDetails(details)
 	{
 		RequiredCount = required;
@@ -645,7 +685,7 @@ struct FRecordEntry
 		return MissionClass == other.MissionClass;
 	}
 
-	bool operator==(const TSubclassOf<UMissionObject> mission)
+	bool operator==(const TSoftClassPtr<UMissionObject> mission)
 	{
 		return MissionClass == mission;
 	}
@@ -676,16 +716,20 @@ public:
 	AMS_Types();
 	~AMS_Types();
 
+	
 	//generate temp details without the need for a hosting mission, so we can make calculations depending on properties of classes
 	//and we dont need to init any mission to get the details that it will have if it was started
-	static FMissionDetails GenerateDetails(TArray<TSubclassOf<UActionObject>>& Actions)
+	static FMissionDetails GenerateDetails(TArray<TSoftClassPtr<UActionObject>> Actions)
 	{
-		TMap<TSubclassOf<UActionObject>, int32> InstancesMap;
+		TMap<TSoftClassPtr<UActionObject>, int32> InstancesMap;
+		TMap<TSoftClassPtr<UActionObject>, TSubclassOf<UActionObject>> DefaultsHolder;
+
 		FMissionDetails outDetails;
 		UMissionObject* hostMission = nullptr;
 		for (auto& itr : Actions)
 		{
-			UActionObject* ActionCDO = itr.GetDefaultObject();
+			TSubclassOf<UActionObject> ActionClass = itr.LoadSynchronous();
+			UActionObject* ActionCDO = ActionClass.GetDefaultObject();
 
 			if (InstancesMap.Contains(itr))
 			{
@@ -694,13 +738,14 @@ public:
 			else
 			{
 				InstancesMap.Add(itr, ActionCDO->LocalActionCount);
+				DefaultsHolder.Add(itr, ActionClass);
 			}
 		}
 
 		for (auto& kv : InstancesMap)
 		{
 			//using the new constructor 
-			outDetails.MissionRelatedActions.Emplace(kv.Key, kv.Key.GetDefaultObject(), kv.Value,hostMission);
+			outDetails.MissionRelatedActions.Emplace(kv.Key, DefaultsHolder[kv.Key].GetDefaultObject(), kv.Value, hostMission);
 		}
 
 		return outDetails;

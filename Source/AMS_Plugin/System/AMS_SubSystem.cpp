@@ -90,8 +90,11 @@ void UAMS_SubSystem::ClearMissionsFromRoot()
 
 void UAMS_SubSystem::PreformTutorialAction(TSubclassOf<UMissionObject> tutorialMission, TSubclassOf<UActionObject> tutorialAction)
 {
+	TSoftClassPtr<UMissionObject> temp = GetMissionSoftPtr(tutorialMission);
+	if (!temp) return;
+
 	ACharacter* player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-	PreformMissionAction(tutorialMission, tutorialAction, player);
+	PreformMissionAction(temp, tutorialAction, player);
 }
 
 #if WITH_EDITOR
@@ -121,12 +124,14 @@ void UAMS_SubSystem::RemoveMissionFromList(UObject* Mission)
 }
 #endif
 
-void UAMS_SubSystem::StartMission(TSubclassOf<UMissionObject> newMission, FName SaveProfileName)
+void UAMS_SubSystem::StartMission(TSoftClassPtr<UMissionObject> newMission, FName SaveProfileName)
 {	
 	if (!newMission) return;
 
+	TSubclassOf<UMissionObject> LoadedMissionClass = newMission.LoadSynchronous();
+
 	ActiveSaveProfileName = SaveProfileName;
-	if (newMission.GetDefaultObject()->MissionDetails.bHasCustomStartPostion)
+	if (LoadedMissionClass.GetDefaultObject()->MissionDetails.bHasCustomStartPostion)
 	{
 		MissionsQueue.Add(newMission);
 		SetupStartupPosition();
@@ -143,8 +148,9 @@ void UAMS_SubSystem::StartMission(TSubclassOf<UMissionObject> newMission, FName 
 
 void UAMS_SubSystem::RecordMissionFinished(UMissionObject* Mission)
 {
+	TSoftClassPtr<UMissionObject> ActiveMissionPtr = GetMissionSoftPtr(Mission->GetClass());
 	//record mission details and add the details to the finished array 
-	FRecordEntry newRecord(Mission->GetClass(), Mission->MissionDetails);
+	FRecordEntry newRecord(ActiveMissionPtr, Mission->MissionDetails);
 
 	newRecord.RequiredCount = Mission->RequiredObjectivesCount;
 	newRecord.BlackListedCount = Mission->BlackListedObjectivesCount;
@@ -187,11 +193,12 @@ void UAMS_SubSystem::Internal_MissionSave()
 	
 }
 
-
-void UAMS_SubSystem::StartMission(TSubclassOf<UMissionObject> newMission)
+//@Bug : starting a mission that already has a finished record leaves the records , we need to delete the record before mission start
+void UAMS_SubSystem::StartMission(TSoftClassPtr<UMissionObject> newMission)
 {
+	TSubclassOf<UMissionObject> LoadedMissionClass = newMission.LoadSynchronous();
 	ACharacter* player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-	UMissionObject* StartedMission = NewObject<UMissionObject>(player, newMission);
+	UMissionObject* StartedMission = NewObject<UMissionObject>(player, LoadedMissionClass);
 	StartedMission->InitializeMission(INIT_START);
 
 	ActiveMissions.Add(newMission,StartedMission);
@@ -215,7 +222,7 @@ void UAMS_SubSystem::GenerateActiveMissionsFromRecord(TArray<FRecordEntry> Activ
 		{
 			LOG_AMS("the record has invalid mission class", 10.0f, FColor::Red);
 		}
-		UMissionObject* ActivatedMission = NewObject<UMissionObject>(this, record.MissionClass);
+		UMissionObject* ActivatedMission = NewObject<UMissionObject>(this, record.MissionClass.LoadSynchronous());
 		if (ActivatedMission)
 		{
 			LOG_AMS("Mission Activated", 10.0f, FColor::Magenta);
@@ -258,7 +265,7 @@ void UAMS_SubSystem::GenerateActiveMissionsFromRecord(UAMS_SaveGame* saveGameObj
 		{
 			LOG_AMS("the record has invalid mission class", 10.0f, FColor::Red);
 		}
-		UMissionObject* ActivatedMission = NewObject<UMissionObject>(this, record.MissionClass);
+		UMissionObject* ActivatedMission = NewObject<UMissionObject>(this, record.MissionClass.LoadSynchronous());
 		if (ActivatedMission)
 		{
 			LOG_AMS("Mission Activated", 10.0f, FColor::Magenta);
@@ -311,10 +318,10 @@ void UAMS_SubSystem::SetupStartupPosition()
 {
 	if (MissionsQueue.Num() > 0)
 	{
-		int32 lastIndex = MissionsQueue.Num() - 1;
-		StartTransform = MissionsQueue[lastIndex].GetDefaultObject()->MissionDetails.StartTransform;
+		//int32 lastIndex = MissionsQueue.Num() - 1;
+		//StartTransform = MissionsQueue[lastIndex].GetDefaultObject()->MissionDetails.StartTransform;
 
-		UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->SetActorTransform(StartTransform);
+		//UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->SetActorTransform(StartTransform);
 	}
 }
 
@@ -379,7 +386,7 @@ void UAMS_SubSystem::InvokeDataCenterLoadEvent(UAMS_SaveGame* saveGameObject)
 }
 
 
-void UAMS_SubSystem::PreformMissionAction(TSubclassOf<UMissionObject> Mission, TSubclassOf<UActionObject> PreformedAction, AActor* ActionSource)
+void UAMS_SubSystem::PreformMissionAction(TSoftClassPtr<UMissionObject> Mission, TSubclassOf<UActionObject> PreformedAction, AActor* ActionSource)
 {
 	UActionObject* preformedActionCDO = PreformedAction.GetDefaultObject();
 
@@ -388,7 +395,7 @@ void UAMS_SubSystem::PreformMissionAction(TSubclassOf<UMissionObject> Mission, T
 		if (!ActionSource->ActorHasTag(ActiveMissions[Mission]->AssossiatedTag)) return;
 
 		FObjective& objective = ActiveMissions[Mission]->MissionDetails.GetActionRelatedObjective(PreformedAction);
-		if (objective.ActionClass && !objective.bIsFinished)
+		if (objective.SoftActionClass && !objective.bIsFinished)
 		{
 			LOG_AMS("Subsystem preform called", 10.0f, FColor::Yellow);
 			if (objective.Preform())//this means this preform was the finisher for it so we check if all tasks are finished too
@@ -457,7 +464,7 @@ UAMS_SaveGame* UAMS_SubSystem::LoadGame(FName playerProfile, bool& found)
 
 }
 
-void UAMS_SubSystem::AssossiateActor(AActor* Actor, TSubclassOf<UMissionObject> forMission)
+void UAMS_SubSystem::AssossiateActor(AActor* Actor, TSoftClassPtr<UMissionObject> forMission)
 {
 	if (!Actor || !forMission) return;
 
@@ -483,7 +490,7 @@ void UAMS_SubSystem::LoadCheckPoint()
 	GenerateActiveMissionsFromRecord(CheckPointMissionsRecords);
 }
 
-void UAMS_SubSystem::CancelMission(TSubclassOf<UMissionObject> mission)
+void UAMS_SubSystem::CancelMission(TSoftClassPtr<UMissionObject> mission)
 {
 	if (ActiveMissions.Contains(mission))
 	{
@@ -491,7 +498,7 @@ void UAMS_SubSystem::CancelMission(TSubclassOf<UMissionObject> mission)
 	}
 }
 
-void UAMS_SubSystem::RestartMission(TSubclassOf<UMissionObject> mission, ERestartType restartType)
+void UAMS_SubSystem::RestartMission(TSoftClassPtr<UMissionObject> mission, ERestartType restartType)
 {
 	if (!mission) return;
 	int32 index = -1;
@@ -545,7 +552,7 @@ void UAMS_SubSystem::RestartMission(TSubclassOf<UMissionObject> mission, ERestar
 	}
 }
 
-void UAMS_SubSystem::PauseMission(TSubclassOf<UMissionObject> mission, bool IsPaused)
+void UAMS_SubSystem::PauseMission(TSoftClassPtr<UMissionObject> mission, bool IsPaused)
 {
 	if (ActiveMissions.Contains(mission))
 	{
@@ -575,89 +582,18 @@ void UAMS_SubSystem::InitiateFullGameProgressData()
 	FullGameMissionsRecords.Empty();
 	FullGameMissionsCount = 0;
 	
-	
-	/*for (FThreadSafeObjectIterator itr; itr; ++itr)
+	FullGameMissionsCount = SoftGameMissionsList.Num();
+
+	for (auto& mission : SoftGameMissionsList)
 	{
-		UMissionObject* missionObject = Cast<UMissionObject>((*itr));
+		UMissionObject* missionObject = Cast<UMissionObject>(mission.LoadSynchronous()->GetDefaultObject());
 		if (missionObject)
 		{
-			if (missionObject->IsA(UMissionObject::StaticClass()))
-			{
-				FMissionDetails recordDetails = missionObject->MissionDetails;
-				recordDetails.MissionRelatedActions = AMS_Types::GenerateDetails(missionObject->MissionRelatedActions).MissionRelatedActions;
-				FRecordEntry newRecord = FRecordEntry(missionObject->GetClass(), recordDetails);
-				newRecord.MissionState = EFinishState::notPlayed;
-				FullGameMissionsRecords.Add(newRecord);
-			}
-		}
-		
-	}*/
-
-	if (GameMissionsList.IsEmpty())
-	{
-		TArray<FAssetData> FoundMissions;
-		FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
-		FTopLevelAssetPath BaseClassName = UMissionObject::StaticClass()->GetDefaultObject()->GetClass()->GetClassPathName();
-
-		//the tag that is added on mission construct
-		TArray<FName>Tags;
-		Tags.Add("MissionObject");
-		AssetRegistryModule.Get().GetAssetsByTags(Tags, FoundMissions);
-
-		FullGameMissionsCount = FoundMissions.Num();
-
-		if (FullGameMissionsCount)
-		{
-			FullGameMissionsRecords.Empty();
-			for (FAssetData& mission : FoundMissions)
-			{
-				LOG_AMS("Asset Registry Found Assets", 10.0f);
-
-				/*UBlueprint* MissionBlueprint = Cast<UBlueprint>(mission.GetAsset());
-				if (MissionBlueprint)
-				{
-					
-					UMissionObject* missionObject = Cast<UMissionObject>(MissionBlueprint->GeneratedClass.GetDefaultObject());
-					if (missionObject)
-					{
-						FMissionDetails recordDetails = missionObject->MissionDetails;
-						recordDetails.MissionRelatedActions = AMS_Types::GenerateDetails(missionObject->MissionRelatedActions).MissionRelatedActions;
-						FRecordEntry newRecord = FRecordEntry(missionObject->GetClass(), recordDetails);
-						newRecord.MissionState = EFinishState::notPlayed;
-						FullGameMissionsRecords.Add(newRecord);
-					}
-				}
-				else
-				{
-					LOG_AMS("Asset was not blueprint", 10.0f);
-				}*/
-
-			}
-
-			PrintLog(FString::Printf(TEXT("found %d of Mission Object Blueprints and first one is :  "), FoundMissions.Num()), 10.0f);
-		}
-
-		else
-		{
-			LOG_AMS("Asset Registry No Assets Found", 10.0f, FColor::Red);
-		}
-	}
-	
-	else
-	{
-		FullGameMissionsCount = GameMissionsList.Num();
-
-		for (auto& mission : GameMissionsList)
-		{
-			UMissionObject* missionObject = Cast<UMissionObject>(mission.GetDefaultObject());
-			if(missionObject)
-			{
-				FMissionDetails recordDetails = missionObject->MissionDetails;
-				recordDetails.MissionRelatedActions = AMS_Types::GenerateDetails(missionObject->MissionRelatedActions).MissionRelatedActions;
-				FRecordEntry newRecord = FRecordEntry(missionObject->GetClass(), recordDetails);
-				newRecord.MissionState = EFinishState::notPlayed;
-				FullGameMissionsRecords.Add(newRecord);
-			}
+			FMissionDetails recordDetails = missionObject->MissionDetails;
+			recordDetails.MissionRelatedActions = AMS_Types::GenerateDetails(missionObject->MissionRelatedActions).MissionRelatedActions;
+			FRecordEntry newRecord = FRecordEntry(missionObject->GetClass(), recordDetails);
+			newRecord.MissionState = EFinishState::notPlayed;
+			FullGameMissionsRecords.Add(newRecord);
 		}
 	}
 
