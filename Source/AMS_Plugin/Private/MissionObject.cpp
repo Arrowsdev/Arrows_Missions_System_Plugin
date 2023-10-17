@@ -200,12 +200,19 @@ void UMissionObject::PostEditChangeProperty(struct FPropertyChangedEvent& change
 	}	
 
 }
+
 void UMissionObject::BeginDestroy()
 {
 	UAMS_SubSystem* SubSystemDefaults = Cast<UAMS_SubSystem>(UAMS_SubSystem::StaticClass()->GetDefaultObject());
 	SubSystemDefaults->RemoveMissionFromList(this);
 	Super::BeginDestroy();
 }
+
+TArray<FObjective> UMissionObject::ReturnDefaultObjectives()
+{
+	return AMS_Types::GenerateDetails(MissionRelatedActions).MissionRelatedActions;
+}
+
 #endif
 
 void UMissionObject::SaveGame()

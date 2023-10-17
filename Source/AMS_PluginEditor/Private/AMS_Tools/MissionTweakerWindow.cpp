@@ -340,7 +340,15 @@ FReply MissionTweakerWindow::OnSavedClicked()
 FReply MissionTweakerWindow::OnBuildClicked()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Build Started.."));
-	(new FAutoDeleteAsyncTask<FAMS_BackgroundTask>(LiveObjects))->StartBackgroundTask();
+	//(new FAutoDeleteAsyncTask<FAMS_BackgroundTask>(LiveObjects))->StartBackgroundTask();
+	AsyncTask(ENamedThreads::GameThread, [&]()
+	{
+			auto BGTask = new FAsyncTask<FAMS_BackgroundTask>(LiveObjects);
+			BGTask->StartBackgroundTask();
+			BGTask->EnsureCompletion();
+			delete  BGTask;
+	});
+
 	return FReply::Handled();
 }
 
@@ -383,6 +391,8 @@ void FAMS_BackgroundTask::DoWork()
 	UAMS_SubSystem* SubSystemDefaults = Cast<UAMS_SubSystem>(UAMS_SubSystem::StaticClass()->GetDefaultObject());
 	SubSystemDefaults->ResetMissionsList();
 
+	TArray<FRecordEntry> GeneratedFullGameMissionsRecords;
+
 	float Total = LiveObjects.Num();
 	float At = 0.f;
 
@@ -393,11 +403,19 @@ void FAMS_BackgroundTask::DoWork()
 		{
 			TSoftClassPtr<UMissionObject> NewEntry = obj->Object.Get()->GetClass();
 			SubSystemDefaults->AddMissionToList(NewEntry);
+
+			//prepare default missions objectives list
+			FMissionDetails recordDetails = ObjCDO->MissionDetails;
+			recordDetails.MissionRelatedActions = ObjCDO->ReturnDefaultObjectives();
+			FRecordEntry newRecord = FRecordEntry(ObjCDO->GetClass(), recordDetails);
+			newRecord.MissionState = EFinishState::notPlayed;
+			GeneratedFullGameMissionsRecords.Add(newRecord);
 		}
 		At += 1.0f;
 		UE_LOG(LogTemp, Warning, TEXT("[Building Missions List ] %f %"), (At / Total));
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Build Finished"));
+	SubSystemDefaults->UpdateFullGameMissionsList(GeneratedFullGameMissionsRecords);
 	SubSystemDefaults->SaveConfig();
 }

@@ -438,6 +438,27 @@ public:
 		return package;
 	}
 
+	//removes mission record, used if we started a mission that has a finished record we wipe the old record and start the mission so they dont pack up
+	inline void WipeMissionRecord(TSoftClassPtr<UMissionObject> mission)
+	{
+		int32 index = -1;
+		TArray<int32> DirtyIndexes;
+		//store dirty indexes for removal
+		for (auto& _FinishedMission : FinishedMissions)
+		{
+			index++;
+			if (_FinishedMission == mission)
+			{
+				DirtyIndexes.Add(index);
+			}
+		}
+		///remove dirty
+		for (auto& _index : DirtyIndexes)
+		{
+			FinishedMissions.RemoveAt(_index);
+		}
+	}
+
 #if WITH_EDITOR
 	
 	inline void AddMissionToList(TSoftClassPtr<UMissionObject> newMissionAsset)
@@ -452,6 +473,12 @@ public:
 		SoftGameMissionsList.Empty();
 	}
 	
+	inline void UpdateFullGameMissionsList(TArray<FRecordEntry> newList)
+	{
+		FullGameMissionsRecords = newList;
+		FullGameMissionsCount = newList.Num();
+	}
+
 #endif	
 
 private:

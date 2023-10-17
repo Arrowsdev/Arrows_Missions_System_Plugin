@@ -34,7 +34,7 @@ void UAMS_SubSystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	MissionSubSystemInstance = this;
 	
-	InitiateFullGameProgressData();
+	//InitiateFullGameProgressData();
 	UE_LOG(LogTemp, Warning, TEXT("Missions Count Is Calculated to be : %d"), FullGameMissionsCount);
 
 	if (JuernalClass)
@@ -196,6 +196,9 @@ void UAMS_SubSystem::Internal_MissionSave()
 //@Bug : starting a mission that already has a finished record leaves the records , we need to delete the record before mission start
 void UAMS_SubSystem::StartMission(TSoftClassPtr<UMissionObject> newMission)
 {
+	//if the mission was finished and we started it this time we want to wipe it's record
+	WipeMissionRecord(newMission);
+
 	TSubclassOf<UMissionObject> LoadedMissionClass = newMission.LoadSynchronous();
 	ACharacter* player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	UMissionObject* StartedMission = NewObject<UMissionObject>(player, LoadedMissionClass);
@@ -501,29 +504,8 @@ void UAMS_SubSystem::CancelMission(TSoftClassPtr<UMissionObject> mission)
 void UAMS_SubSystem::RestartMission(TSoftClassPtr<UMissionObject> mission, ERestartType restartType)
 {
 	if (!mission) return;
-	int32 index = -1;
-
-	TArray<int32> DirtyIndexes;
-
-	//make sure if it was finished we remove it so when it starts it wont have a record as finished
-	for (auto& _FinishedMission : FinishedMissions)
-	{
-		index++;
-		if (_FinishedMission == mission)
-		{
-			//the issue turned out to be a warrning that the list is changed during itiration so we mark items indexs as dirty and remove after itiration
-			DirtyIndexes.Add(index);
-
-			//FinishedMissions.RemoveAt(index);//weird breakpoint happens here when restarting a finished mission, but it dosent happen in build game
-			//still trying to figure it out
-		}
-	}
-
-	///remove dirty
-	for (auto& _index : DirtyIndexes)
-	{
-		FinishedMissions.RemoveAt(_index);
-	}
+	
+	WipeMissionRecord(mission);
 
 	if (!ActiveMissions.Contains(mission))
 	{

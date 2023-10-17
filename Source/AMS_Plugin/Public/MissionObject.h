@@ -257,7 +257,7 @@ public:
 	//when a mission asset is deleted this get called and i am using it to remove the reference that is made for this mission in the subsystem list
 	virtual void BeginDestroy() override;
 
-	
+	TArray<FObjective> ReturnDefaultObjectives();
 
 #endif
 
