@@ -158,11 +158,18 @@ void UMissionObject::MissionCheckEnd(TSubclassOf<UActionObject> FinishedAction)
 	EActionType FinishedObjectiveType = FinishedAction.GetDefaultObject()->ActionType;
 
 	bool bIsRequired = (FinishedObjectiveType == EActionType::required || FinishedObjectiveType == EActionType::InputListener);
-	int32* CountPtr = bIsRequired ? &RequiredObjectivesCount : &BlackListedObjectivesCount;
+	bool bIsBlackListed = FinishedObjectiveType == EActionType::blacklisted;//cuz optional and highscore makes some conflicts so we expelictly check for blacklist
+
+	if (!(bIsRequired || bIsBlackListed)) return;
+
+	int32* CountPtr = (bIsRequired && !bIsBlackListed) ? &RequiredObjectivesCount : &BlackListedObjectivesCount;
 	int32 FinishedCount = 0;
+
 	for (auto objective : MissionDetails.MissionRelatedActions)
 	{
-		if (FinishedObjectiveType != EActionType::optional && FinishedObjectiveType != EActionType::highscore && objective.AffectMissionEnd())
+		/*FinishedObjectiveType != EActionType::optional && FinishedObjectiveType != EActionType::highscore && objective.AffectMissionEnd()*/
+		//find all objective of the same type of the currently finished action and see if they all are finished
+		if (objective.AsRequired(bIsRequired) && objective.AffectMissionEnd())
 		{
 			if (objective.bIsFinished)
 				FinishedCount++;
@@ -187,6 +194,7 @@ void UMissionObject::MissionCheckEnd(TSubclassOf<UActionObject> FinishedAction)
 			
 	}
 }
+
 
 #if WITH_EDITOR
 

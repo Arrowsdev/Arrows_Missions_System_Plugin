@@ -55,6 +55,14 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		PlayToFade
 	};
 
+	//enum to define how the profile play time is called and where
+	enum ProfileCase
+	{
+		Created,
+		Loaded,
+		Ended
+	};
+
 //PROJECT SETTINGS
 
     //the mission class that will be the first one \n if null you will have to manually call start mission when ever you want to start one
@@ -459,6 +467,32 @@ public:
 		}
 	}
 
+	//called when ever a profile is created or loaded
+	//we need to work around that our start new mission logics , it is not ideal for this functin to be called there
+	//@ToDo : finish this logic later
+	inline void CalcProfilePlayTime(ProfileCase _ProfileCase, float LastPlayTime = 0)
+	{
+		switch (_ProfileCase)
+		{
+			case Created :
+			{
+				TotalPlayTime = 0;
+				GameStartTime = FPlatformTime::Seconds();
+			}
+			case Loaded:
+			{
+				TotalPlayTime = LastPlayTime;
+				GameStartTime = FPlatformTime::Seconds();
+			}
+
+			case Ended:
+			{
+				TotalPlayTime = FPlatformTime::Seconds() - GameStartTime;
+			}
+
+		}
+	}
+
 #if WITH_EDITOR
 	
 	inline void AddMissionToList(TSoftClassPtr<UMissionObject> newMissionAsset)
@@ -522,6 +556,15 @@ private:
 	//but  i'll leave it to make room for expansion in this direction in the future if needed
 	UPROPERTY()
 	FName PlayingLevel;
+
+	//the amount of time in seconds played in certain profile
+	UPROPERTY()
+	float  TotalPlayTime;
+
+	//this is the time when the game is started for the profile either loaded or created , so when we close we compare to platform time and 
+	//count how much time elapsed playing
+	UPROPERTY()
+	float GameStartTime;
 
 	//the mission count that is used to find how much of the game is finished
 	UPROPERTY(config)

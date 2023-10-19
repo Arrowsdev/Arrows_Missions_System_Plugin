@@ -163,6 +163,7 @@ struct FObjective
 	UPROPERTY()
 	int32 ObjectiveID;
 
+
 	//default constructor , that is used when creating objective struct 
 	FObjective(TSubclassOf<UActionObject> Action, int32 count, UMissionObject* _owningMission) = delete;
 	//	:ActionClass(Action), TotalCount(count), OwningMission(_owningMission)
@@ -344,7 +345,10 @@ struct FObjective
 	//gets the percentage of compeletion for the objective
 	float GetObjectiveProgress()
 	{
-		return static_cast<float>(ActionCount) / static_cast<float>(TotalCount);
+		float CalculatedProgress = static_cast<float>(ActionCount) / static_cast<float>(TotalCount);
+		CalculatedProgress = ActionType == EActionType::blacklisted ? (1.f - CalculatedProgress) : CalculatedProgress;
+
+		return CalculatedProgress;
 	}
 
 	bool HasOwner()
@@ -361,6 +365,17 @@ struct FObjective
 		return (ActionType == EActionType::required)
 			    || (ActionType == EActionType::blacklisted)
 				|| (ActionType == EActionType::InputListener);
+	}
+
+	//cuz both of these are compared to the required count , this code is a mess but for now lets make the logics work first
+	//this condition combined with the Affect Mission End should help making sure the count is right
+	bool AsRequired(const bool& _isRequired)
+	{
+		if (_isRequired)
+			return (ActionType == EActionType::required) || (ActionType == EActionType::InputListener);
+
+		else
+			return (ActionType == EActionType::blacklisted);
 	}
 };
 
@@ -491,6 +506,7 @@ struct FMissionDetails
 			DefaultMissionTime = MissionTime;
 		}
 
+		//Deprecated
 		float GetMissionCompeletion()
 		{
 			float percent = 0.0f;
@@ -503,6 +519,20 @@ struct FMissionDetails
 				}
 			}
 			MissionProgress = percent / (RequiredCount + OptionalCount);//we need to re think about this, cuz optional tasks should be counted in the progress, but not to affect the is finished check
+
+			return MissionProgress;
+		}
+
+		//replace the old logics for getting the completion of the mission
+		//in this version we take the black listed actions in consideration but negatively
+		float CalculateCompletion()
+		{
+			float percent = 0.0f;
+			for (FObjective& objective : MissionRelatedActions)
+			{
+			   percent += objective.GetObjectiveProgress();
+			}
+			MissionProgress = percent / MissionRelatedActions.Num();
 
 			return MissionProgress;
 		}
@@ -706,6 +736,10 @@ struct FAMS_SavePackage
 	
 	UPROPERTY()
 		TArray<FRecordEntry> SG_CheckPointMissionsRecords;
+
+
+	UPROPERTY(EditAnywhere, Category = "SavePackage")
+		float SG_TotalPlayedTime;
 
 };
 

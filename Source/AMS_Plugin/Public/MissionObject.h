@@ -178,7 +178,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Mission System", meta = (ReturnDisplayName = "Mission State"))
 		FORCEINLINE float GetMissionProgress()
 	{
-		return  MissionDetails.GetMissionCompeletion();
+		return  MissionDetails.CalculateCompletion();//MissionDetails.GetMissionCompeletion();
 	}
 
 	UFUNCTION(BlueprintPure, Category = "Mission System | Debugging", meta = (ReturnDisplayName = "Mission Details"))
@@ -187,6 +187,16 @@ public:
 		DefaultValue = MissionDetails.DefaultMissionTime;
 		return MissionDetails;
 	}
+
+	//mission internal count
+	UFUNCTION(BlueprintPure, Category = "Mission System | Debugging", meta = (ReturnDisplayName = "Mission Details"))
+		FORCEINLINE	void GetInternalCounts(float& Required, float& blackListed, float& optional)
+	{
+		Required = RequiredObjectivesCount;
+		blackListed = BlackListedObjectivesCount;
+		optional = MissionDetails.OptionalCount;
+	}
+
 
 	//used to add time to the current mission time
 	UFUNCTION(BlueprintCallable, Category = "Mission System")
@@ -247,6 +257,7 @@ public:
 
 	//called from the subsystem when the preformed action is finished so we need to check if all other actions from the same type are also finished
 	void MissionCheckEnd(TSubclassOf<UActionObject> FinishedAction);
+
 
 #if WITH_EDITOR
 	//when the user changes some values in the details pannel we need to refelect this to the details structs for it to 
