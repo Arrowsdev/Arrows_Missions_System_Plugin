@@ -42,16 +42,19 @@ bool UMissionObject::IsTickable() const
 
 UWorld* UMissionObject::GetWorld() const
 {
-	if (GIsEditor && !GIsPlayInEditorWorld)
+#if WITH_EDITOR
+	if (HasAnyFlags(RF_ClassDefaultObject))
 	{
 		return nullptr;
 	}
-	else if (GetOuter())
-	{
-		return GetOuter()->GetWorld();
-	}
-	return nullptr;
 
+#endif
+	const UObject* Outer = GetOuter();
+	if (Outer == nullptr)
+	{
+		return nullptr;
+	}
+	return Outer->GetWorld();
 }
 
 void UMissionObject::GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const

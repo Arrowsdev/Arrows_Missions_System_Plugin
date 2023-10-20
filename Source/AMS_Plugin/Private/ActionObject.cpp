@@ -5,13 +5,17 @@
 
 UWorld* UActionObject::GetWorld() const
 {
-	if (GIsEditor && !GIsPlayInEditorWorld)
+#if WITH_EDITOR
+	if (HasAnyFlags(RF_ClassDefaultObject))
 	{
 		return nullptr;
 	}
-	else if (GetOuter())
+
+#endif
+	const UObject* Outer = GetOuter();
+	if (Outer == nullptr)
 	{
-		return GetOuter()->GetWorld();
+		return nullptr;
 	}
-	return nullptr;
+	return Outer->GetWorld();
 }

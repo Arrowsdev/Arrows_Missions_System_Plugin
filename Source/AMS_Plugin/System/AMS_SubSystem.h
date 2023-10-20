@@ -40,7 +40,7 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	
 	virtual void Deinitialize() override;
 
-	//UWorld* GetWorld() const;
+	UWorld* GetWorld() const;
 
 	UPROPERTY(config, EditAnywhere, Category = "Settings")
 		TSubclassOf<UScreenFade> FadeWidgetClass;
@@ -392,7 +392,14 @@ public:
 	void __FadeAndExecute(ScreenFadeType Type, typename FTimerDelegate::TMethodPtr< UAMS_SubSystem > Callback);
 
 	//used when starting queued missoins to set the location while the screen is black so the player wont see the transition
-	void SetupStartupPosition();
+	void StoreStartupPositionFromQ();
+
+	//used to store the player transform when a mission is started
+    //so when we call restart mission we return to this place first before we begin the mission again
+	void StoreStartupPosition();
+
+	//reset the player position to the last saved position when a mission started
+	void ReturnToStartupPosition();
 
 	//this will be called after the fade since we are losing the reference of the started mission while waiting for the 
 	//fade i though it is a better idea to store a copy of the argument in the queue list and start them directly when the time comes
@@ -495,6 +502,7 @@ public:
 
 #if WITH_EDITOR
 	
+	//@Todo : we need to remove also deleted missions assets , now the begin destroy seems to work but it is called for instances too
 	inline void AddMissionToList(TSoftClassPtr<UMissionObject> newMissionAsset)
 	{
 		SoftGameMissionsList.Add(newMissionAsset);

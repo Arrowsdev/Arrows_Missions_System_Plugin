@@ -63,19 +63,23 @@ void UAMS_SubSystem::Deinitialize()
 	ClearMissionsFromRoot();*/
 }
 
-//UWorld* UAMS_SubSystem::GetWorld() const
-//{
-//	if (GIsEditor && !GIsPlayInEditorWorld)
-//	{
-//		return nullptr;
-//	}
-//	else if (GetOuter())
-//	{
-//		return GetOuter()->GetWorld();
-//	}
-//
-//	return nullptr;
-//}
+UWorld* UAMS_SubSystem::GetWorld() const
+{
+#if WITH_EDITOR
+	if (HasAnyFlags(RF_ClassDefaultObject))
+	{
+		return nullptr;
+	}
+
+#endif
+	const UObject* Outer = GetOuter();
+	if (!Outer)
+	{
+		return nullptr;
+	}
+
+	return Outer->GetWorld();
+}
 
 void UAMS_SubSystem::ClearMissionsFromRoot()
 {
@@ -122,7 +126,9 @@ void UAMS_SubSystem::RemoveMissionFromList(UObject* Mission)
 	if(bFound)
 	SubSystemDefaults->SoftGameMissionsList.RemoveAt(index);
 }
+
 #endif
+
 
 void UAMS_SubSystem::StartMission(TSoftClassPtr<UMissionObject> newMission, FName SaveProfileName)
 {	
@@ -134,7 +140,7 @@ void UAMS_SubSystem::StartMission(TSoftClassPtr<UMissionObject> newMission, FNam
 	if (LoadedMissionClass.GetDefaultObject()->MissionDetails.bHasCustomStartPostion)
 	{
 		MissionsQueue.Add(newMission);
-		SetupStartupPosition();
+		StoreStartupPositionFromQ();
 		FADE_EXECUTE(FadeToPlay, &UAMS_SubSystem::StartQueuedMissions);
 	}
 	else
@@ -317,7 +323,7 @@ void UAMS_SubSystem::__FadeAndExecute(ScreenFadeType Type, typename FTimerDelega
 	GetWorld()->GetTimerManager().SetTimer(FadeHandle, this, Callback, length, false);
 }
 
-void UAMS_SubSystem::SetupStartupPosition()
+void UAMS_SubSystem::StoreStartupPositionFromQ()
 {
 	if (MissionsQueue.Num() > 0)
 	{
@@ -326,6 +332,21 @@ void UAMS_SubSystem::SetupStartupPosition()
 
 		//UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->SetActorTransform(StartTransform);
 	}
+}
+
+void UAMS_SubSystem::StoreStartupPosition()
+{
+	ACharacter* player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	StartTransform = player->GetActorTransform();
+}
+
+void UAMS_SubSystem::ReturnToStartupPosition()
+{
+	ACharacter* player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
+	player->SetActorTransform(StartTransform);
+	PC->SetControlRotation(StartTransform.GetRotation().Rotator());
 }
 
 void UAMS_SubSystem::StartQueuedMissions()
