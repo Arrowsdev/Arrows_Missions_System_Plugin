@@ -35,12 +35,16 @@ public:
 	UPROPERTY()
 		TArray<FRecordEntry> SG_CheckPointMissionsRecords;
 
+	UPROPERTY()
+		FTransform SG_StartTransform;
+
 	UFUNCTION(BlueprintCallable, Category = "SaveGameHook")
 	FORCEINLINE void HookSubSystemData(FAMS_SavePackage SubsystemPackage)
 	{
 		SG_FinishedMissions = SubsystemPackage.SG_FinishedMissions;
 		SG_ActiveMissionsWhenSaved = SubsystemPackage.SG_ActiveMissionsWhenSaved;
 		SG_CheckPointMissionsRecords = SubsystemPackage.SG_CheckPointMissionsRecords;
+		SG_StartTransform = SubsystemPackage.SG_StartTransform;
 	}
 
 };

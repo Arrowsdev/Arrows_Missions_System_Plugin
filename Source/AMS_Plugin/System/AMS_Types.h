@@ -737,6 +737,8 @@ struct FAMS_SavePackage
 	UPROPERTY()
 		TArray<FRecordEntry> SG_CheckPointMissionsRecords;
 
+	UPROPERTY()
+		FTransform SG_StartTransform;
 
 	UPROPERTY(EditAnywhere, Category = "SavePackage")
 		float SG_TotalPlayedTime;

@@ -450,6 +450,7 @@ public:
 		package.SG_ActiveMissionsWhenSaved = GenerateRecordsFromActiveMissions();
 		package.SG_CheckPointMissionsRecords = CheckPointMissionsRecords;
 		package.SG_FinishedMissions = GetFinishedMissions();
+		package.SG_StartTransform = StartTransform;
 		return package;
 	}
 

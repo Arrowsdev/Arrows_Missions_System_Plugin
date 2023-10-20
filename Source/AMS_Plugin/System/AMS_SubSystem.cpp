@@ -145,6 +145,7 @@ void UAMS_SubSystem::StartMission(TSoftClassPtr<UMissionObject> newMission, FNam
 	}
 	else
 	{
+		StoreStartupPosition();
 		StartMission(newMission);
 	}
 	//FADE_EXECUTE(FadeToPlay, StartMission(newMission););//this now dosent call the mission from the callback
@@ -185,7 +186,9 @@ void UAMS_SubSystem::RecordMissionFinished(UMissionObject* Mission)
 //(fixed from the properties specifires need to make them configs)
 void UAMS_SubSystem::Internal_MissionSave()
 {
-   
+	//update the start position with the current position 
+	StoreStartupPosition();
+
 	if (DataCenterSinglton)
 	{
 		FAMS_SavePackage SavePackage = GetSubsystemSavePackage();
@@ -327,10 +330,11 @@ void UAMS_SubSystem::StoreStartupPositionFromQ()
 {
 	if (MissionsQueue.Num() > 0)
 	{
-		//int32 lastIndex = MissionsQueue.Num() - 1;
-		//StartTransform = MissionsQueue[lastIndex].GetDefaultObject()->MissionDetails.StartTransform;
-
+		int32 lastIndex = MissionsQueue.Num() - 1;
+		TSubclassOf<UMissionObject> mission = MissionsQueue[lastIndex].LoadSynchronous();
+		StartTransform = mission.GetDefaultObject()->MissionDetails.StartTransform;
 		//UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->SetActorTransform(StartTransform);
+		ReturnToStartupPosition();
 	}
 }
 
@@ -457,6 +461,9 @@ UAMS_SaveGame* UAMS_SubSystem::CreateMissionSaveObject()
 
 UAMS_SaveGame* UAMS_SubSystem::LoadGame(FName playerProfile, bool& found)
 {
+	FadeWidget = Cast<UScreenFade>(CreateWidget(GetWorld(), FadeWidgetClass, FName("FadeWidget")));
+	FadeWidget->AddToViewport(100);
+
 	if (UGameplayStatics::DoesSaveGameExist(playerProfile.ToString(), 0))
 	{
 		FString Mes = FString::Printf(TEXT("mission is loading , profile is : %s"), *playerProfile.ToString());
@@ -469,13 +476,20 @@ UAMS_SaveGame* UAMS_SubSystem::LoadGame(FName playerProfile, bool& found)
 		{
 			LOG_AMS("Saved Active Mission is Empty", 10.0f, FColor::Red);
 		}
+		//before we activate loaded missions we get the last stored position and return to it
+		StartTransform = SaveGameObject->SG_StartTransform;
+		ReturnToStartupPosition();
+
 		GenerateActiveMissionsFromRecord(SaveGameObject);
 
 		FinishedMissions = SaveGameObject->SG_FinishedMissions;
+		
 
 		LoadFinishedMissionsToJuernal();
 
 		InvokeDataCenterLoadEvent(SaveGameObject);
+
+		FadeWidget->RunFadeToPlay();
 
 		return SaveGameObject;
 	}
@@ -483,9 +497,10 @@ UAMS_SaveGame* UAMS_SubSystem::LoadGame(FName playerProfile, bool& found)
 	{
 		FString Mes = FString::Printf(TEXT("the profile [ %s ] was not found"), *playerProfile.ToString());
 		LOG_AMS(Mes, 10.0f, FColor::Red);
+		FadeWidget->RunFadeToPlay();
+
 		return nullptr;
 	}
-
 }
 
 void UAMS_SubSystem::AssossiateActor(AActor* Actor, TSoftClassPtr<UMissionObject> forMission)
