@@ -343,7 +343,7 @@ FReply MissionTweakerWindow::OnBuildClicked()
 	//(new FAutoDeleteAsyncTask<FAMS_BackgroundTask>(LiveObjects))->StartBackgroundTask();
 	AsyncTask(ENamedThreads::GameThread, [&]()
 	{
-			auto BGTask = new FAsyncTask<FAMS_BackgroundTask>(LiveObjects);
+			auto BGTask = new FAsyncTask<FAMS_BackgroundTask>(LiveObjects, this);
 			BGTask->StartBackgroundTask();
 			BGTask->EnsureCompletion();
 			delete  BGTask;
@@ -395,6 +395,7 @@ void FAMS_BackgroundTask::DoWork()
 
 	float Total = LiveObjects.Num();
 	float At = 0.f;
+	FString progress;
 
 	for (auto& obj : LiveObjects)
 	{
@@ -412,10 +413,14 @@ void FAMS_BackgroundTask::DoWork()
 			GeneratedFullGameMissionsRecords.Add(newRecord);
 		}
 		At += 1.0f;
-		UE_LOG(LogTemp, Warning, TEXT("[Building Missions List ] %f %"), (At / Total));
+		progress = FString::Printf(TEXT("[Building Missions List...] %d%%"), static_cast<int>((At / Total)*100));
+		UE_LOG(LogTemp, Warning, TEXT("[Building Missions List...] %f %"), (At / Total));
+
+		TweakerWindow->TempPercentage->SetText(FText::FromString(progress));
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Build Finished"));
+	TweakerWindow->TempPercentage->SetText(FText::FromString("[Finished Building Missions List]"));
 	SubSystemDefaults->UpdateFullGameMissionsList(GeneratedFullGameMissionsRecords);
-	SubSystemDefaults->SaveConfig();
+	SubSystemDefaults->SaveConfig(CPF_Config);
 }

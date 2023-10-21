@@ -223,6 +223,7 @@ void UAMS_SubSystem::StartMission(TSoftClassPtr<UMissionObject> newMission)
 
 void UAMS_SubSystem::GenerateActiveMissionsFromRecord(TArray<FRecordEntry> ActiveRecords)
 {
+	UnRecordedMissionsCancelation();
 	ActiveMissions.Empty();
 	if (ActiveRecords.IsEmpty())
 	{
@@ -261,6 +262,7 @@ void UAMS_SubSystem::GenerateActiveMissionsFromRecord(TArray<FRecordEntry> Activ
 
 void UAMS_SubSystem::GenerateActiveMissionsFromRecord(UAMS_SaveGame* saveGameObject)
 {
+	UnRecordedMissionsCancelation();
 	TArray<FRecordEntry> ActiveRecords = saveGameObject->SG_ActiveMissionsWhenSaved;
 
 	//should make sure if i loaded while i have active missions like when the player pause the game and choose to load checkpoint we need to unroot missions first 
@@ -362,6 +364,28 @@ void UAMS_SubSystem::StartQueuedMissions()
 	MissionsQueue.Empty();
 }
 
+void UAMS_SubSystem::StartFromCheckPoint()
+{
+	if (!CheckPointMissionsRecords.IsEmpty())
+		GenerateActiveMissionsFromRecord(CheckPointMissionsRecords);
+
+	ACharacter* player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
+	player->SetActorTransform(CheckPointStartTransform);
+	PC->SetControlRotation(CheckPointStartTransform.GetRotation().Rotator());
+	LOG_AMS("Check Point Loaded", 10.f);
+}
+
+void UAMS_SubSystem::UnRecordedMissionsCancelation()
+{
+	for (auto& itr : ActiveMissions)
+	{
+		itr.Value->CurrentState = EFinishState::canceled;
+		itr.Value->MarkAsGarbage();
+	}
+}
+
 TArray<FRecordEntry> UAMS_SubSystem::GenerateRecordsFromActiveMissions()
 {
 	TArray<FRecordEntry> Records;
@@ -448,7 +472,7 @@ void UAMS_SubSystem::PreformMissionAction(TSoftClassPtr<UMissionObject> Mission,
 		}
 
 		else
-		  LOG_AMS("Objective was not found, the loading comes with missig data", 10.0f, FColor::Red);
+		  LOG_AMS("Objective was not found, the loading comes with missig data or the objective is already finished so action ignored", 10.0f, FColor::Red);
 		
 	}
 }
@@ -478,6 +502,8 @@ UAMS_SaveGame* UAMS_SubSystem::LoadGame(FName playerProfile, bool& found)
 		}
 		//before we activate loaded missions we get the last stored position and return to it
 		StartTransform = SaveGameObject->SG_StartTransform;
+		CheckPointStartTransform = SaveGameObject->SG_CheckPointStartTransform;
+
 		ReturnToStartupPosition();
 
 		GenerateActiveMissionsFromRecord(SaveGameObject);
@@ -516,6 +542,9 @@ void UAMS_SubSystem::AssossiateActor(AActor* Actor, TSoftClassPtr<UMissionObject
 void UAMS_SubSystem::CreateCheckPoint()
 {
 	CheckPointMissionsRecords = GenerateRecordsFromActiveMissions();
+
+	ACharacter* player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	CheckPointStartTransform = player->GetActorTransform();
 }
 
 void UAMS_SubSystem::LoadCheckPoint()
@@ -525,8 +554,11 @@ void UAMS_SubSystem::LoadCheckPoint()
 	//when restarting the game from checkpoint we need a way to figure out the place that should be uesed for respawn , is it for the first mission ?
 	//or the second or what mission, or maybe i dont know much about rpg missions and how they are played and if even they have the ability to start multiple quests
 	//i need some directions in this matter
-	if(!CheckPointMissionsRecords.IsEmpty())
-	GenerateActiveMissionsFromRecord(CheckPointMissionsRecords);
+	/*if(!CheckPointMissionsRecords.IsEmpty())
+	GenerateActiveMissionsFromRecord(CheckPointMissionsRecords);*/
+
+	FADE_EXECUTE(PlayToFade, &UAMS_SubSystem::StartFromCheckPoint);
+
 }
 
 void UAMS_SubSystem::CancelMission(TSoftClassPtr<UMissionObject> mission)

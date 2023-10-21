@@ -405,6 +405,12 @@ public:
 	//fade i though it is a better idea to store a copy of the argument in the queue list and start them directly when the time comes
 	void StartQueuedMissions();
 
+	//cuz the fade macro loses the lambda i guess i dont know but that is my guessing
+	void StartFromCheckPoint();
+
+	//mark missions as canceled without recording them so we can load new ones from any records without conflicts
+	void UnRecordedMissionsCancelation();
+	
 	//returns a records for the active missions so we can save it
 	TArray<FRecordEntry> GenerateRecordsFromActiveMissions();
 
@@ -451,6 +457,7 @@ public:
 		package.SG_CheckPointMissionsRecords = CheckPointMissionsRecords;
 		package.SG_FinishedMissions = GetFinishedMissions();
 		package.SG_StartTransform = StartTransform;
+		package.SG_CheckPointStartTransform = CheckPointStartTransform;
 		return package;
 	}
 
@@ -560,6 +567,10 @@ private:
 	//or checkPoint creation, or savegame , and used when loading game with any type (from start or checkpoint)
 	UPROPERTY()
 	FTransform StartTransform;
+
+	//the position saved for the check point
+	UPROPERTY()
+	FTransform CheckPointStartTransform;
 
 	//not sure if i should worry about the level name and should let the user open the map he knows that the mission is  from
 	//but  i'll leave it to make room for expansion in this direction in the future if needed

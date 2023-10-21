@@ -209,7 +209,8 @@ private:
 class FAMS_BackgroundTask : public FNonAbandonableTask
 {
 public:
-	FAMS_BackgroundTask(TArray< TSharedPtr<FBrowserObject> > _LiveObjects): LiveObjects(_LiveObjects){}
+	FAMS_BackgroundTask(TArray< TSharedPtr<FBrowserObject> > _LiveObjects, MissionTweakerWindow* _TweakerWindow):
+		                LiveObjects(_LiveObjects), TweakerWindow(_TweakerWindow){}
 
 	FORCEINLINE TStatId GetStatId() const { RETURN_QUICK_DECLARE_CYCLE_STAT(FAMS_BackgroundTask, STATGROUP_ThreadPoolAsyncTasks); }
 
@@ -217,4 +218,5 @@ public:
 
 private:
 	TArray< TSharedPtr<FBrowserObject> > LiveObjects;
+	MissionTweakerWindow* TweakerWindow;
 };

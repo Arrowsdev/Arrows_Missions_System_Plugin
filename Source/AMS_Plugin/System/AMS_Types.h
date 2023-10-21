@@ -740,6 +740,9 @@ struct FAMS_SavePackage
 	UPROPERTY()
 		FTransform SG_StartTransform;
 
+	UPROPERTY()
+		FTransform SG_CheckPointStartTransform;
+
 	UPROPERTY(EditAnywhere, Category = "SavePackage")
 		float SG_TotalPlayedTime;
 

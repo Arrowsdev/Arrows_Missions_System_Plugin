@@ -38,6 +38,9 @@ public:
 	UPROPERTY()
 		FTransform SG_StartTransform;
 
+	UPROPERTY()
+		FTransform SG_CheckPointStartTransform;
+
 	UFUNCTION(BlueprintCallable, Category = "SaveGameHook")
 	FORCEINLINE void HookSubSystemData(FAMS_SavePackage SubsystemPackage)
 	{
@@ -45,6 +48,7 @@ public:
 		SG_ActiveMissionsWhenSaved = SubsystemPackage.SG_ActiveMissionsWhenSaved;
 		SG_CheckPointMissionsRecords = SubsystemPackage.SG_CheckPointMissionsRecords;
 		SG_StartTransform = SubsystemPackage.SG_StartTransform;
+		SG_CheckPointStartTransform = SubsystemPackage.SG_CheckPointStartTransform;
 	}
 
 };

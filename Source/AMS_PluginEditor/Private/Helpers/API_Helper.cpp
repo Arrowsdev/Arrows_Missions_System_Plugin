@@ -31,7 +31,7 @@ void SAPI_Helper::Construct(const FArguments& InArgs)
 			   [
 					SAssignNew(API_ListView, SListView<TSharedPtr<API_Expose>>)
 					.ListItemsSource(&API_List)
-					.SelectionMode(ESelectionMode::None)
+					.SelectionMode(ESelectionMode::Single)
 					.OnGenerateRow(this, &SAPI_Helper::OnGenerateRow)
 					.HeaderRow
 					(
