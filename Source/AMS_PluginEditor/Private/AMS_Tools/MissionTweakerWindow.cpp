@@ -422,5 +422,5 @@ void FAMS_BackgroundTask::DoWork()
 	UE_LOG(LogTemp, Warning, TEXT("Build Finished"));
 	TweakerWindow->TempPercentage->SetText(FText::FromString("[Finished Building Missions List]"));
 	SubSystemDefaults->UpdateFullGameMissionsList(GeneratedFullGameMissionsRecords);
-	SubSystemDefaults->SaveConfig(CPF_Config);
+	SubSystemDefaults->SaveConfig(CPF_Config, *SubSystemDefaults->GetDefaultConfigFilename());
 }
