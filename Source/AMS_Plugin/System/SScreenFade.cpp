@@ -3,6 +3,7 @@
 
 #include "SScreenFade.h"
 #include "Animation/WidgetAnimation.h"
+#include "MovieScene.h"
 
 UScreenFade::UScreenFade(const FObjectInitializer& ObjectInitializer) : UUserWidget(ObjectInitializer)
 {
