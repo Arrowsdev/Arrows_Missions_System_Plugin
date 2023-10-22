@@ -8,6 +8,7 @@
 #include "AMS_Plugin/System/AMS_Types.h"
 
 #include "Kismet/KismetMathLibrary.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 #include "MissionObject.generated.h"
 

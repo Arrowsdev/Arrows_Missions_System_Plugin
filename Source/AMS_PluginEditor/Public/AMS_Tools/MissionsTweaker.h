@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "ModuleListenerInterface.h"
-#include "AMS_PluginEditor.h"
 #include "Framework/Docking/TabManager.h"
 #include "Widgets/Docking/SDockTab.h"
 

@@ -3,6 +3,7 @@
 
 #include "AMS_Tools/AMS_TransformHelper.h"
 #include "AMS_Tools/TransformHelperWindow.h"
+#include "AMS_PluginEditor.h"
 
 void AMS_TransformHelper::Initialize()
 {

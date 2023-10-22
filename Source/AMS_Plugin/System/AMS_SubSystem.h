@@ -6,6 +6,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "AMS_Types.h"
 #include "SScreenFade.h"
+#include "TimerManager.h"
 #include "AMS_SubSystem.generated.h"
 
 

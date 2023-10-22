@@ -2,6 +2,8 @@
 
 
 #include "AMS_Tools/MissionTweakerWindow.h"
+#include "SlateBasics.h"
+#include "SlateExtras.h"
 #include "ClassViewerModule.h"
 #include "Kismet2/SClassPickerDialog.h"
 #include "EditorFontGlyphs.h"

@@ -3,8 +3,6 @@
 
 #include "CoreMinimal.h"
 #include "Widgets/Docking/SDockTab.h"
-#include "SlateBasics.h"
-#include "SlateExtras.h"
 #include "Widgets/SCompoundWidget.h"
 #include "ToolWidgets/Public/SSearchableComboBox.h"
 #include "AMS_TransformHelper.h"

@@ -3,6 +3,8 @@
 
 #include "AMS_Tools/MissionsTweaker.h"
 #include "AMS_PluginEditor/Public/AMS_Tools/MissionTweakerWindow.h"
+//#include "AMS_PluginEditor.h"
+
 void MissionsTweaker::Initialize()
 {
 	TabName = "Missions Tweaker";

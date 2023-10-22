@@ -6,6 +6,7 @@
 #include "AMS_Plugin/Public/ActionObject.h"
 #include "AMS_LOG.h"
 #include "AMS_TypesOperations.h"
+#include "Engine/Engine.h"
 
 #include "AMS_Types.generated.h"
 

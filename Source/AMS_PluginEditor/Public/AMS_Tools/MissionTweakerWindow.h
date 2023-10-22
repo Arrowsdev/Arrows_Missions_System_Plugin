@@ -3,8 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SlateBasics.h"
-#include "SlateExtras.h"
 #include "MissionsTweaker.h"
 #include "AMS_Plugin/Public/MissionObject.h"
 #include "Widgets/SCompoundWidget.h"

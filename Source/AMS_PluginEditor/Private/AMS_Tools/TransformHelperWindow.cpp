@@ -2,6 +2,8 @@
 
 
 #include "AMS_Tools/TransformHelperWindow.h"
+#include "SlateBasics.h"
+#include "SlateExtras.h"
 #include "LevelEditor.h"
 #include "Elements/Framework/TypedElementSelectionSet.h"
 #include "AMS_PluginEditor/Public/Helpers/API_Helper.h"
