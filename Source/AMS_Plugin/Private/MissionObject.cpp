@@ -9,6 +9,7 @@ UMissionObject::UMissionObject()
 {
 	LOG_AMS("Constrcut new Mission", 20.0f);
 	CurrentState = EFinishState::notPlayed;
+	AssossiatedTag = this->GetClass()->GetFName();
 }
 
 UMissionObject::~UMissionObject()
@@ -214,8 +215,12 @@ void UMissionObject::PostEditChangeProperty(struct FPropertyChangedEvent& change
 
 void UMissionObject::BeginDestroy()
 {
-	UAMS_SubSystem* SubSystemDefaults = Cast<UAMS_SubSystem>(UAMS_SubSystem::StaticClass()->GetDefaultObject());
-	SubSystemDefaults->RemoveMissionFromList(this);
+	if (HasAnyFlags(RF_ClassDefaultObject))
+	{
+		UAMS_SubSystem* SubSystemDefaults = Cast<UAMS_SubSystem>(UAMS_SubSystem::StaticClass()->GetDefaultObject());
+		SubSystemDefaults->RemoveMissionFromList(this);
+	}
+
 	Super::BeginDestroy();
 }
 

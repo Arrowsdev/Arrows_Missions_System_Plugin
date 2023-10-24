@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+//Advanced Mission System Developed by AIS Studios @2023
 
 
 #include "Helpers/AMS_ResourcesHelper.h"

@@ -111,7 +111,7 @@ public:
 		FName MissionLevel;
 
 	//the tag that should be in an actor for the mission to consider it's actions 
-	UPROPERTY(EditAnywhere, Category = Settings, meta = (DisplayName = "Assossiated Tag"))
+	//UPROPERTY(EditAnywhere, Category = Settings, meta = (DisplayName = "Assossiated Tag"))
 		FName AssossiatedTag;
 
 	//used to be found by the transform helper so it can shove it inside the mission details struct

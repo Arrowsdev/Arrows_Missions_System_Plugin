@@ -151,7 +151,7 @@ bool FAMS_PluginEditor::SetupStyle()
 	MAKE_STYLE(MissionObject, JIcon2.png, 64, 32);
 	MAKE_STYLE(LOGO, AMSLogo.png, 400, 200);
 	MAKE_STYLE(ActionObject, AIconR.png, 64, 32);
-	MAKE_STYLE(BlackListedAction, AIconBL.png, 64, 26);
+	MAKE_STYLE(BlackListedAction, AIconBL.png, 64, 32);
 
 	//registering brushes for differenet tools ui
 	AMS_StyleSet->Set("AboutWindow", new FSlateImageBrush(AMS_StyleSet->RootToContentDir(TEXT("Resources/AMSLogo.png")), FVector2D(400,200)));

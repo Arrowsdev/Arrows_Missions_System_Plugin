@@ -112,13 +112,14 @@ void UAMS_SubSystem::RemoveMissionFromList(UObject* Mission)
 	{
 		if (reference.GetAssetName() == Mission->GetClass()->GetName())
 		{
+			LOG_AMS("Asset Index Found", 10.0f, FColor::Red);
 			bFound = true;
 			break;
 		}
 
 		else
 		{
-			LOG_AMS("Deleted Asseted check failed",10.0f, FColor::Red);
+			LOG_AMS("list reference is not the deleted reference , Ignore item.",10.0f, FColor::Red);
 		}
 		index++;
 	}
@@ -485,16 +486,28 @@ UAMS_SaveGame* UAMS_SubSystem::CreateMissionSaveObject()
 
 UAMS_SaveGame* UAMS_SubSystem::LoadGame(FName playerProfile, bool& found)
 {
-	FadeWidget = Cast<UScreenFade>(CreateWidget(GetWorld(), FadeWidgetClass, FName("FadeWidget")));
-	FadeWidget->AddToViewport(100);
-
+	
 	if (UGameplayStatics::DoesSaveGameExist(playerProfile.ToString(), 0))
 	{
+		FadeWidget = Cast<UScreenFade>(CreateWidget(GetWorld(), FadeWidgetClass, FName("FadeWidget")));
+
+		if(FadeWidget)
+		FadeWidget->AddToViewport(100);
+
 		FString Mes = FString::Printf(TEXT("mission is loading , profile is : %s"), *playerProfile.ToString());
 		LOG_AMS(Mes, 10.0f, FColor::Green);
 		found = true;
 		ActiveSaveProfileName = playerProfile;
 		UAMS_SaveGame* SaveGameObject = Cast<UAMS_SaveGame>(UGameplayStatics::LoadGameFromSlot(ActiveSaveProfileName.ToString(), 0));
+
+		//if save game class was deleted after saving a game then the check for save Exist will pass but return invalid object
+		//and causes crash, this is a gaurd form that
+		if (!SaveGameObject)
+		{
+			LOG_AMS("invalid save game object is loaded, save class is probably deleted, if so please delete the save file.", 10.0f, FColor::Red);
+			found = false;
+			return nullptr;
+		}
 
 		if (SaveGameObject->SG_ActiveMissionsWhenSaved.IsEmpty())
 		{
@@ -523,8 +536,7 @@ UAMS_SaveGame* UAMS_SubSystem::LoadGame(FName playerProfile, bool& found)
 	{
 		FString Mes = FString::Printf(TEXT("the profile [ %s ] was not found"), *playerProfile.ToString());
 		LOG_AMS(Mes, 10.0f, FColor::Red);
-		FadeWidget->RunFadeToPlay();
-
+		
 		return nullptr;
 	}
 }

@@ -13,7 +13,7 @@
  * list, since this should serve as tutorial when the player presses the button 
  * this actoin is considered finished, and it will be treated as required action
  */
-UCLASS(meta=(HideCategories="ActionDetails"))
+UCLASS(HideDropDown, meta=(HideCategories="ActionDetails"))
 class AMS_PLUGIN_API UTutorialAction : public UActionObject
 {
 	GENERATED_BODY()
