@@ -4,7 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+
+#if WITH_EDITOR
+#include "Delegates/Delegate.h"
+#endif
+
 #include "ActionObject.generated.h"
+
+
 
 class UMissionObject;
 
@@ -40,6 +47,8 @@ class AMS_PLUGIN_API UActionObject : public UObject
 	*/
 public:
 
+	UActionObject();
+
 	//used only to reserve a place in the details panel for the details customization
 	UPROPERTY(VisibleAnywhere,Category = "ActionInfo")
 	bool ActionInfo;
@@ -49,7 +58,7 @@ public:
 	    FString ActionName = "type action name here";
 
 	//the type of this action
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action Details")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Action Details")
 		EActionType ActionType;
 
 	//if this action can subscribe to it's owner mission tick
@@ -108,4 +117,30 @@ public:
 	//used by tutorial action
 	virtual void OnActionActivated() {/*No Implement*/ };
 	virtual void OnActionFinished()  {/*No Implement*/ };
+
+};
+
+//splitting the action into multiple types since the thumbnail renderer has some issues this is better but not ideal
+UCLASS(Blueprintable, BlueprintType, HideDropDown)
+class AMS_PLUGIN_API UOptionalAction : public UActionObject
+{
+	GENERATED_BODY()
+public:
+	UOptionalAction() { ActionType = EActionType::optional; }
+};
+
+UCLASS(Blueprintable, BlueprintType, HideDropDown)
+class AMS_PLUGIN_API UHighScoreAction : public UActionObject
+{
+	GENERATED_BODY()
+public:
+	UHighScoreAction() { ActionType = EActionType::highscore; }
+};
+
+UCLASS(Blueprintable, BlueprintType, HideDropDown)
+class AMS_PLUGIN_API UBlackListedAction : public UActionObject
+{
+	GENERATED_BODY()
+public:
+	UBlackListedAction() { ActionType = EActionType::blacklisted; }
 };

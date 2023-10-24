@@ -57,7 +57,6 @@ public:
 	~UAMS_ActionGeneratedBlueprint() {};
 };
 
-
 UCLASS(config = Engine)
 class AMS_PLUGIN_API UAMS_SaveGameBlueprint : public UBlueprint
 {

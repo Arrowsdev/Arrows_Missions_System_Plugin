@@ -2,8 +2,9 @@
 
 
 #include "AssetTypes/AMS_AssetType_CustomBlueprint.h"
-#include "AMS_Plugin/System/AMS_CustomBlueprint.h"
 #include "AMS_Plugin/Public/MissionObject.h"
+#include "BlueprintEditorModule.h"
+#include "AMS_PluginEditor/Public/AMS_PluginEditor.h"
 
 AMS_AssetType_CustomBlueprint::AMS_AssetType_CustomBlueprint(EAssetTypeCategories::Type InAssetCategory):
 	MyAssetCategory(InAssetCategory)
@@ -43,7 +44,6 @@ AMS_AssetType_ActionBlueprint::AMS_AssetType_ActionBlueprint(EAssetTypeCategorie
 	AMS_SupportedClass = UAMS_ActionBlueprint::StaticClass();
 }
 
-
 AMS_AssetType_DataCenterBlueprint::AMS_AssetType_DataCenterBlueprint(EAssetTypeCategories::Type InAssetCategory):AMS_AssetType_CustomBlueprint(InAssetCategory)
 {
 	AssetName = FText::FromString("Data Center Blueprint");
@@ -51,3 +51,4 @@ AMS_AssetType_DataCenterBlueprint::AMS_AssetType_DataCenterBlueprint(EAssetTypeC
 	AssetColor = FColor::Magenta;
 	AMS_SupportedClass = UAMS_DataCenterBlueprint::StaticClass();
 }
+

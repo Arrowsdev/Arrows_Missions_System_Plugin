@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Factories/Factory.h"
+#include "AMS_Plugin/Public/ActionObject.h"
 #include "AMS_Factory_ActionObject.generated.h"
 
 /**

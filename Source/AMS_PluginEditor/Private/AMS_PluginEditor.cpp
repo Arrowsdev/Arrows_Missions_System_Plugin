@@ -4,6 +4,7 @@
 #include "ISettingsModule.h"
 #include "AMS_Plugin/System/AMS_SubSystem.h"
 #include "AMS_Plugin/Public/MissionObject.h"
+#include "AMS_Plugin/Public/ActionObject.h"
 
 #include "Runtime/Projects/Public/Interfaces/IPluginManager.h"
 #include "Styling/SlateStyle.h"
@@ -21,6 +22,7 @@
 
 #include "AMS_PluginEditor/Public/AssetTypes/AMS_AssetType_CustomBlueprint.h"
 #include "AMS_DetailCustomizations.h"
+#include "AMS_PluginEditor/Public/Helpers/AMS_ThumbnailRenderer.h"
 
 #include "AMS_PluginEditor/Public/AMS_Tools/AMS_TransformHelper.h"
 #include "AMS_PluginEditor/Public/AMS_Tools/MissionsTweaker.h"
@@ -73,6 +75,10 @@ void FAMS_PluginEditor::StartupModule()
 		PropertyModule.RegisterCustomClassLayout(UMissionObject::StaticClass()->GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&Missions_DetailCustomizations::MakeInstance));
 	}
 
+	//ResourcesHelper = new AMS_ResourcesHelper(ResourcesRoot); //deprecated , better just devide all assets into groups 
+	//register custom Renderer for actions blueprints
+	//UThumbnailManager::Get().UnregisterCustomRenderer(UAMS_ActionBlueprint::StaticClass());
+	//UThumbnailManager::Get().RegisterCustomRenderer(UAMS_ActionBlueprint::StaticClass(), UAMS_ThumbnailRenderer::StaticClass());
 }
 
 void FAMS_PluginEditor::ShutdownModule()
@@ -112,6 +118,11 @@ void FAMS_PluginEditor::ShutdownModule()
 		PropertyModule.UnregisterCustomClassLayout(UActionObject::StaticClass()->GetFName());
 		PropertyModule.UnregisterCustomClassLayout(UMissionObject::StaticClass()->GetFName());
 	}
+
+	if (ResourcesHelper)
+	{
+		delete ResourcesHelper;
+	}
 }
 
 bool FAMS_PluginEditor::SetupStyle()
@@ -133,12 +144,15 @@ bool FAMS_PluginEditor::SetupStyle()
 
 	AMS_StyleSet = MakeShareable(new FSlateStyleSet("AMS"));
 	AMS_StyleSet->SetContentRoot(RootDir);
+	ResourcesRoot = RootDir;
 
 	MAKE_STYLE(AMS_SaveGame, SIcon.png, 64, 32);
 	MAKE_STYLE(AMS_JuernalObject, JIcon2.png, 64, 32);
 	MAKE_STYLE(MissionObject, JIcon2.png, 64, 32);
 	MAKE_STYLE(LOGO, AMSLogo.png, 400, 200);
-	
+	MAKE_STYLE(ActionObject, AIconR.png, 64, 32);
+	MAKE_STYLE(BlackListedAction, AIconBL.png, 64, 26);
+
 	//registering brushes for differenet tools ui
 	AMS_StyleSet->Set("AboutWindow", new FSlateImageBrush(AMS_StyleSet->RootToContentDir(TEXT("Resources/AMSLogo.png")), FVector2D(400,200)));
 	AMS_StyleSet->Set("ToolsIcon", new FSlateImageBrush(AMS_StyleSet->RootToContentDir(TEXT("Resources/ToolsIcon.png")), FVector2D(64)));
@@ -147,6 +161,12 @@ bool FAMS_PluginEditor::SetupStyle()
 	AMS_StyleSet->Set("SearchIcon", new FSlateImageBrush(AMS_StyleSet->RootToContentDir(TEXT("Resources/SearchIcon.png")), FVector2D(16)));
 
 	return true;
+}
+
+
+void FAMS_PluginEditor::OnActionAssetCreated(TSubclassOf<UObject> newActionAsset)
+{
+	UE_LOG(LogTemp, Warning, TEXT("[AMS Tools] : Action recently created!"));
 }
 
 

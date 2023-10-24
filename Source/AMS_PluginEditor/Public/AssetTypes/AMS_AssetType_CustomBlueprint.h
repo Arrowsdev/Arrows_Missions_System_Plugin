@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AMS_Plugin/System/AMS_CustomBlueprint.h"
 #include "AssetTypeActions/AssetTypeActions_Blueprint.h"
 
 
@@ -57,7 +58,6 @@ class AMS_PLUGINEDITOR_API AMS_AssetType_ActionBlueprint : public AMS_AssetType_
 public:
 	AMS_AssetType_ActionBlueprint(EAssetTypeCategories::Type InAssetCategory);
 	~AMS_AssetType_ActionBlueprint() {};
-
 };
 
 class AMS_PLUGINEDITOR_API AMS_AssetType_DataCenterBlueprint : public AMS_AssetType_CustomBlueprint

@@ -6,7 +6,7 @@
 #include "Modules/ModuleManager.h"
 #include "AssetTools\Public\AssetTypeCategories.h"
 #include "AMS_Tools/ModuleListenerInterface.h"
-
+#include "Helpers/AMS_ResourcesHelper.h"
 
 class FSlateStyleSet;
 class FAssetTypeActions_Base;
@@ -23,9 +23,11 @@ public:
 	/**Register Styles**/
 	TSharedPtr<FSlateStyleSet> AMS_StyleSet;
 
+	AMS_ResourcesHelper* ResourcesHelper;
+
 	bool StyleWasSet;
 	bool SetupStyle();
-
+	FString ResourcesRoot;
 	/**Tools**/
 
 	/*tell listeners about the module state*/
@@ -46,6 +48,7 @@ public:
 		return FModuleManager::Get().IsModuleLoaded("AMS_PluginEditor");
 	}
 
+	void OnActionAssetCreated(TSubclassOf<UObject> newActionAsset);
 
 private:
 	EAssetTypeCategories::Type AssetCategoryBit;
@@ -65,5 +68,4 @@ private:
 	void FillPulldownMenu(FMenuBuilder& menuBuilder);
 	void CreateBarExtention();
 
-	
 };

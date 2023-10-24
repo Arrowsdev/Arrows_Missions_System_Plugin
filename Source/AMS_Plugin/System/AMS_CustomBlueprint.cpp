@@ -19,3 +19,4 @@ UAMS_DataCenterBlueprint::UAMS_DataCenterBlueprint(const FObjectInitializer& Obj
 UAMS_ActionBlueprint::UAMS_ActionBlueprint(const FObjectInitializer& ObjectInitializer) : UBlueprint(ObjectInitializer)
 {
 }
+

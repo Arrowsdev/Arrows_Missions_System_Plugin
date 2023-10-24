@@ -3,6 +3,11 @@
 
 #include "ActionObject.h"
 
+UActionObject::UActionObject()
+{
+	ActionType = EActionType::required;
+}
+
 UWorld* UActionObject::GetWorld() const
 {
 #if WITH_EDITOR

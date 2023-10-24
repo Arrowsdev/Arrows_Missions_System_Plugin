@@ -2,10 +2,10 @@
 
 
 #include "Factories/AMS_Factory_ActionObject.h"
-#include "AMS_Plugin/Public/ActionObject.h"
 #include "Helpers/AMS_Utilites.h"
 #include <KismetCompilerModule.h>
 #include "AMS_Plugin/System/AMS_CustomBlueprint.h"
+#include "AMS_PluginEditor/Public/AMS_PluginEditor.h"
 
 UAMS_Factory_ActionObject::UAMS_Factory_ActionObject(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -36,6 +36,7 @@ UObject* UAMS_Factory_ActionObject::FactoryCreateNew(UClass* Class, UObject* InP
 			UAMS_ActionGeneratedBlueprint::StaticClass(),
 			CallingContext);
 
+		FAMS_PluginEditor::Get().OnActionAssetCreated(NewAsset->GeneratedClass);
 		return NewAsset;
 	}
 }

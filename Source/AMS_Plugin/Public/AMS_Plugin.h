@@ -12,4 +12,10 @@ public:
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
+
+	static inline FAMS_PluginModule& Get()
+	{
+		return FModuleManager::LoadModuleChecked< FAMS_PluginModule >("AMS_PluginModule");
+	}
+
 };

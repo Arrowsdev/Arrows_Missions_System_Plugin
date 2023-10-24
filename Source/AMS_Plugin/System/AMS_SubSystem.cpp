@@ -9,7 +9,6 @@
 
 #include "UObject/ConstructorHelpers.h"
 
-
 #include "AMS_Plugin/Public/MissionObject.h"
 #include "AMS_Plugin/System/AMS_SaveGame.h"
 #include "AMS_Plugin/Public/AMS_JuernalObject.h"
