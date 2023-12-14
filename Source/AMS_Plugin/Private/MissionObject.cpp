@@ -115,6 +115,16 @@ void UMissionObject::EndMission(EFinishState finishState, FFailInfo FailInfo)
 {
 	CurrentState = finishState;
 	MissionDetails.CurrentState = finishState;
+
+	//seek to evaluate On Mission End 
+	for (FObjective& Objective : MissionDetails.MissionRelatedActions)
+	{
+		if (Objective.bEvaluateOnMissionEnd)
+		{
+			Objective.Evaluate();
+		}
+	}
+
 	UAMS_SubSystem::GetMissionSubSystem()->RecordMissionFinished(this);
 	OmMissionEnd(finishState, FailInfo);
 
@@ -219,6 +229,7 @@ void UMissionObject::BeginDestroy()
 	{
 		UAMS_SubSystem* SubSystemDefaults = Cast<UAMS_SubSystem>(UAMS_SubSystem::StaticClass()->GetDefaultObject());
 		SubSystemDefaults->RemoveMissionFromList(this);
+		SubSystemDefaults->SaveConfig(CPF_Config, *SubSystemDefaults->GetDefaultConfigFilename());
 	}
 
 	Super::BeginDestroy();

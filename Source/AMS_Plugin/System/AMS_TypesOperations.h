@@ -19,10 +19,10 @@ public:
 	~AMS_TypesOperations();
 
 	//used to call the on task activated on the owning mission
-	static void InvokeOnTaskActivated(UMissionObject* mission, TSubclassOf<UActionObject> ActivatedTask, int32 ActionCount, int32 totalCount);
+	static void InvokeOnTaskActivated(UMissionObject* mission, TSoftClassPtr<UActionObject> ActivatedTask, int32 ActionCount, int32 totalCount);
 
 	//used to call the on task finished on the owning mission
-	static void InvokeOnTaskFinished(UMissionObject* mission, TSubclassOf<UActionObject> ActivatedTask, int32 ActionCount);
+	static void InvokeOnTaskFinished(UMissionObject* mission, TSoftClassPtr<UActionObject> ActivatedTask, int32 ActionCount);
 
 	//used to create a new action object 
 	static UActionObject* NewActionObject(UMissionObject* Outter, TSubclassOf<UActionObject> Class);

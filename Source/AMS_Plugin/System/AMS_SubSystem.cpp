@@ -106,7 +106,11 @@ void UAMS_SubSystem::PreformTutorialAction(TSubclassOf<UMissionObject> tutorialM
 void UAMS_SubSystem::RemoveMissionFromList(UObject* Mission)
 {
 	int32 index = 0;
+	int32 recordIndex = 0;
+
 	bool bFound = false;
+	bool bFoundRecord = false;
+
 	UAMS_SubSystem* SubSystemDefaults = Cast<UAMS_SubSystem>(UAMS_SubSystem::StaticClass()->GetDefaultObject());
 	for (auto& reference : SubSystemDefaults->SoftGameMissionsList)
 	{
@@ -114,6 +118,24 @@ void UAMS_SubSystem::RemoveMissionFromList(UObject* Mission)
 		{
 			LOG_AMS("Asset Index Found", 10.0f, FColor::Red);
 			bFound = true;
+
+			//removing the current deleted asset record if found
+			for (FRecordEntry& record : FullGameMissionsRecords)
+			{
+				if (record == reference)
+				{
+					bFoundRecord = true;
+					break;
+				}
+
+				recordIndex++;
+			}
+
+			if (bFoundRecord)
+			{
+				FullGameMissionsRecords.RemoveAt(recordIndex);
+			}
+
 			break;
 		}
 
@@ -124,8 +146,11 @@ void UAMS_SubSystem::RemoveMissionFromList(UObject* Mission)
 		index++;
 	}
 
-	if(bFound)
-	SubSystemDefaults->SoftGameMissionsList.RemoveAt(index);
+	if (bFound)
+	{
+		SubSystemDefaults->SoftGameMissionsList.RemoveAt(index);
+	}
+	
 }
 
 #endif
@@ -648,6 +673,8 @@ void UAMS_SubSystem::InitiateFullGameProgressData()
 
 	for (auto& mission : SoftGameMissionsList)
 	{
+		if (!mission) continue;
+
 		UMissionObject* missionObject = Cast<UMissionObject>(mission.LoadSynchronous()->GetDefaultObject());
 		if (missionObject)
 		{

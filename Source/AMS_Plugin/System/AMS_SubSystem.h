@@ -293,6 +293,14 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		return MissionSubSystemInstance->ActiveMissions[missionClass];
 	}
 
+	//Gets If A mission is currently active or not.;
+	//@mission %the mission that you want to check;
+	UFUNCTION(BlueprintPure, Category = "Arrows Mission System")
+		static FORCEINLINE bool IsMissionActive(TSoftClassPtr<UMissionObject> mission)
+	{
+		if (!MissionSubSystemInstance) return nullptr; if (!MissionSubSystemInstance) return false;
+		return MissionSubSystemInstance->ActiveMissions.Contains(mission);
+	}
 	//get all game missins records so you can use them to create a menu that the player can select a mission to play, or any other use.;
 	//@NaN;
 	UFUNCTION(BlueprintPure, Category = "Arrows Mission System")

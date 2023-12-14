@@ -49,6 +49,7 @@ public:
 
 	UActionObject();
 
+
 	//used only to reserve a place in the details panel for the details customization
 	UPROPERTY(VisibleAnywhere,Category = "ActionInfo")
 	bool ActionInfo;
@@ -64,6 +65,14 @@ public:
 	//if this action can subscribe to it's owner mission tick
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action Details")
 		bool bCanTick;
+
+	/*this will make the action evaluate any condition on mission end, like if you want to tell the player to not lose more than 50% of HP
+	* when the mission is finished we need to have a logic that runs when the mission is finished, and  this will make that happen
+	* remember this will also disable the activation and preform events , the action that has this option ticked will evaluate automatically
+	* when the mission is finished , also remember to override the [On Evaluate] function with your logics.
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Action Details", meta = (EditCondition = "ActionType == EActionType::optional"))
+		bool bEvaluateOnMissionEnd = false;
 
 	//how many times this action instance needs to be preformed 
 	//if there are multiple instances of this class in the related actions inside the mission
@@ -111,6 +120,13 @@ public:
 	UFUNCTION(BlueprintNativeEvent, Category = ActionEvents)
 		void ActionTick(float deltaTime);
 	virtual void ActionTick_Implementation(float deltaTime) {/*No Implement*/ }
+
+	/*called only when you have this action evaluate on mission end true, so you evaluate any condition and if it is true then the objective that represents
+	* this action will be considered done
+	*/
+	UFUNCTION(BlueprintImplementableEvent, Category = ActionEvents)
+		bool OnEvaluate();
+	virtual bool OnEvaluate_Implementation();
 
 	UWorld* GetWorld() const;
 

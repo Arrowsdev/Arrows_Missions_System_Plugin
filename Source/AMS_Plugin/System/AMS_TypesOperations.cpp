@@ -14,16 +14,17 @@ AMS_TypesOperations::~AMS_TypesOperations()
 {
 }
 
-void AMS_TypesOperations::InvokeOnTaskActivated(UMissionObject* mission, TSubclassOf<UActionObject> ActivatedTask, int32 ActionCount, int32 totalCount)
+void AMS_TypesOperations::InvokeOnTaskActivated(UMissionObject* mission, TSoftClassPtr<UActionObject> ActivatedTask, int32 ActionCount, int32 totalCount)
 {
-	mission->OnTaskActivated(ActivatedTask, ActionCount, totalCount);
+	mission->OnTaskActivated(ActivatedTask.LoadSynchronous(), ActionCount, totalCount);
 }
 
-void AMS_TypesOperations::InvokeOnTaskFinished(UMissionObject* mission, TSubclassOf<UActionObject> ActivatedTask, int32 ActionCount)
+void AMS_TypesOperations::InvokeOnTaskFinished(UMissionObject* mission, TSoftClassPtr<UActionObject> ActivatedTask, int32 ActionCount)
 {
-	mission->OnTaskFinished(ActivatedTask, ActionCount);
+	mission->OnTaskFinished(ActivatedTask.LoadSynchronous(), ActionCount);
 }
 
+//Deprecated
 UActionObject* AMS_TypesOperations::NewActionObject(UMissionObject* Outter, TSubclassOf<UActionObject> Class)
 {
 	return NewObject<UActionObject>(Outter, Class);

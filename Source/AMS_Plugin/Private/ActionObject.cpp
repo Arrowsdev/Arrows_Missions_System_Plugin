@@ -8,6 +8,11 @@ UActionObject::UActionObject()
 	ActionType = EActionType::required;
 }
 
+bool UActionObject::OnEvaluate_Implementation()
+{
+	return false;
+}
+
 UWorld* UActionObject::GetWorld() const
 {
 #if WITH_EDITOR
@@ -24,3 +29,4 @@ UWorld* UActionObject::GetWorld() const
 	}
 	return Outer->GetWorld();
 }
+

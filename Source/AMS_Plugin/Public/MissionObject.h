@@ -68,7 +68,7 @@ public:
 	*/
 	UFUNCTION(BlueprintNativeEvent, Category = MissionEvents)
 		void OnTaskActivated(TSubclassOf<UActionObject> ActivatedTask, int32 ActionCount, int32 totalCount);
-	virtual void OnTaskActivated_Implementation(TSubclassOf<UActionObject> ActivatedTask, int32 ActionCount, int32 totalCount) {/*No Implement*/ }
+	virtual void OnTaskActivated_Implementation(TSoftClassPtr<UActionObject> ActivatedTask, int32 ActionCount, int32 totalCount) {/*No Implement*/ }
 
 	/*called when ever a task is finished, if you needed the total count use the subsystem calls for get action details*/
 	UFUNCTION(BlueprintNativeEvent, Category = MissionEvents)

@@ -122,6 +122,7 @@ struct FObjective
 		TotalCount = 0;
 		bIsFinished = false;
 		bIsActivated = false;
+		bEvaluateOnMissionEnd = false;
 		OwningMission = nullptr;
 		ActionType = EActionType::NotDefined;
 		ObjectiveID = INDEX_NONE;
@@ -164,6 +165,8 @@ struct FObjective
 	UPROPERTY()
 	int32 ObjectiveID;
 
+	UPROPERTY()
+	bool bEvaluateOnMissionEnd;
 
 	//default constructor , that is used when creating objective struct 
 	FObjective(TSubclassOf<UActionObject> Action, int32 count, UMissionObject* _owningMission) = delete;
@@ -187,10 +190,12 @@ struct FObjective
 		//we dont want to create new object instead using the class CDO to call our logic in BP 
 		//thinking of making instances instead of using the cdo so we can use custom user variables and they can differ and no worries if multiple missions had the same
 		//action,
-		ActionType = Cast<UActionObject>(SoftActionClass.LoadSynchronous()->GetDefaultObject())->ActionType;
-		ActionName = Cast<UActionObject>(SoftActionClass.LoadSynchronous()->GetDefaultObject())->ActionName;
+		UActionObject* TempActionCDO = Cast<UActionObject>(SoftActionClass.LoadSynchronous()->GetDefaultObject());
+		ActionType = TempActionCDO->ActionType;
+		ActionName = TempActionCDO->ActionName;
 		bIsFinished = false;
 		bIsActivated = false;
+		bEvaluateOnMissionEnd = TempActionCDO->bEvaluateOnMissionEnd;
 		ActivatedAction = nullptr;
 		ActionCount = 0;
 		ObjectiveID = INDEX_NONE;
@@ -201,8 +206,10 @@ struct FObjective
     explicit FObjective(TSoftClassPtr<UActionObject> Action,UActionObject* AsActivatede, int32 count, UMissionObject* _owningMission)
 		:ActivatedAction(AsActivatede), SoftActionClass(Action), TotalCount(count), OwningMission(_owningMission)
 	{
-		ActionType = Cast<UActionObject>(SoftActionClass.LoadSynchronous()->GetDefaultObject())->ActionType;
-		ActionName = Cast<UActionObject>(SoftActionClass.LoadSynchronous()->GetDefaultObject())->ActionName;
+		UActionObject* TempActionCDO = Cast<UActionObject>(SoftActionClass.LoadSynchronous()->GetDefaultObject());
+		ActionType = TempActionCDO->ActionType;
+		ActionName = TempActionCDO->ActionName;
+		bEvaluateOnMissionEnd = TempActionCDO->bEvaluateOnMissionEnd;
 		bIsFinished = false;
 		bIsActivated = false;
 		ActionCount = 0;
@@ -232,7 +239,7 @@ struct FObjective
 				bIsFinished = true;
 				ActivatedAction->OnFinished(OwningMission,ActionCount, TotalCount);
 				ActivatedAction->OnActionFinished();
-				AMS_TypesOperations::InvokeOnTaskFinished(OwningMission, ActionClass, ActionCount);
+				AMS_TypesOperations::InvokeOnTaskFinished(OwningMission, SoftActionClass, ActionCount);
 
 				if (HasOwner())
 				{
@@ -257,6 +264,7 @@ struct FObjective
 	//called from the details to activate the action assossiated with this objective
 	void Activate(int32 ID)
 	{
+	
 		bIsActivated = true;
 		ObjectiveID = ID;
 
@@ -270,10 +278,13 @@ struct FObjective
 		/*ActionType = ActivatedAction->ActionType;
 		ActionName = ActivatedAction->ActionName;*/
 	
+		if (!bEvaluateOnMissionEnd)
+		{
+			ActivatedAction->OnActivated(OwningMission, ActionCount, TotalCount);
+			AMS_TypesOperations::InvokeOnTaskActivated(OwningMission, SoftActionClass, ActionCount, TotalCount);
+		}
 
-		ActivatedAction->OnActivated(OwningMission,ActionCount, TotalCount);
-		ActivatedAction->OnActionActivated();
-		AMS_TypesOperations::InvokeOnTaskActivated(OwningMission, ActionClass, ActionCount, TotalCount);
+		ActivatedAction->OnActionActivated();//tutorials activation should not care about evaluation on mission end
 
 		if (ActivatedAction->bCanTick)
 		{
@@ -289,6 +300,15 @@ struct FObjective
 			ActivatedAction->ActionTick(deltaTime);
 		}
 	}
+
+	void Evaluate()
+	{
+		if (ActivatedAction->OnEvaluate())
+		{
+			Preform();
+		}
+	}
+
 	//gets the status in : ActionName [ 1 / 5 ]
 	FString GetObjectibeStatus(EStatusGetterType getterType, FString& ObjectiveType)
 	{
