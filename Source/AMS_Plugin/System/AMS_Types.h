@@ -748,6 +748,11 @@ struct FAMS_SavePackage
 {
 	GENERATED_BODY()
 
+	FAMS_SavePackage()
+	{
+		SG_TotalPlayedTime = 0.0f;
+	}
+
 	UPROPERTY()
 		TArray<FRecordEntry> SG_FinishedMissions;
 
