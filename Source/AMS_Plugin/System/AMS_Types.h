@@ -305,7 +305,9 @@ struct FObjective
 	{
 		if (ActivatedAction->OnEvaluate())
 		{
-			Preform();
+			//Preform();
+			bIsFinished = true;
+			ActionCount = TotalCount;
 		}
 	}
 
@@ -727,7 +729,7 @@ struct FRecordEntry
 	//get if a mission is finsihed or not and the progress of it 
 	bool IsFinished(float& completion)
 	{
-		completion = MissionDetails.GetMissionCompeletion();
+		completion = MissionDetails.CalculateCompletion();//MissionDetails.GetMissionCompeletion();
 		return MissionDetails.bIsMissionFinished;
 	}
 
