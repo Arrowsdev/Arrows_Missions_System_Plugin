@@ -463,7 +463,7 @@ void SAboutWindow::Construct(const FArguments& args)
                    .HAlign(HAlign_Left)
                    [
                        SNew(STextBlock)
-                       .Text(FText::FromString(TEXT("Arrows Missions System v0.1")))
+                       .Text(FText::FromString(TEXT("Arrows Missions System v1.2")))
                       .Font(copyRights)
                    ]
                   + SHorizontalBox::Slot()
