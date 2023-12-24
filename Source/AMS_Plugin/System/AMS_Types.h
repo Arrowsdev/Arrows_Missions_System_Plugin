@@ -117,7 +117,7 @@ struct FObjective
 	FObjective()
 	{
 		ActivatedAction = nullptr;
-		ActionClass = nullptr;
+		//ActionClass = nullptr;
 		ActionCount = 0;
 		TotalCount = 0;
 		bIsFinished = false;
@@ -132,11 +132,11 @@ struct FObjective
 	UActionObject* ActivatedAction;
 
 	//to prevent temp values form being optimized away by the garbage collector while saving game
-	UPROPERTY(BlueprintReadWrite, Category = "Objective")
-	TSubclassOf<UActionObject> ActionClass;
+	//UPROPERTY(BlueprintReadWrite, Category = "Objective")
+	//TSubclassOf<UActionObject> ActionClass;
 
 	//to prevent temp values form being optimized away by the garbage collector while saving game
-	UPROPERTY(BlueprintReadWrite, Category = "Objective")
+	UPROPERTY(BlueprintReadWrite, Category = "Objective", meta=(DisplayName = "Action Class"))
 	TSoftClassPtr<UActionObject> SoftActionClass;
 
 	UPROPERTY(BlueprintReadWrite, Category="Objective")

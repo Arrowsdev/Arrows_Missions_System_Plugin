@@ -152,16 +152,17 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 		MissionSubSystemInstance->PreformMissionAction(Mission, PreformedAction, ActionSource);
 	}
 
-	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
-		static FORCEINLINE void PreformAction2(TSoftClassPtr<UMissionObject> Mission, TSoftClassPtr<UActionObject> PreformedAction, AActor* ActionSource)
-	{
-		//
-	}
+	//UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
+	//	static FORCEINLINE void PreformAction2(TSoftClassPtr<UMissionObject> Mission, TSoftClassPtr<UActionObject> PreformedAction, AActor* ActionSource)
+	//{
+	//	//
+	//}
 
 
 	//this function creates a savegame object , if there was an old profile it loads the last progress and let you 
 	//hook your new data too before saving the file again [Deprecated Function];
 	//@NaN;
+	UE_DEPRECATED(5.1.1, "Use Save Game Function instead and hook your custom data in the data center OnGameSaved Event.")
 	UFUNCTION(BlueprintCallable, Category = "Arrows Mission System")
 	UAMS_SaveGame* CreateMissionSaveObject();
 

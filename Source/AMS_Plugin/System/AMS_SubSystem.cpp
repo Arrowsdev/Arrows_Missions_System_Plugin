@@ -55,10 +55,13 @@ void UAMS_SubSystem::Initialize(FSubsystemCollectionBase& Collection)
 	{
 		FadeWidget = Cast<UScreenFade>(CreateWidget(GetWorld(), FadeWidgetClass, FName("FadeWidget")));
 	}
+
+	Super::Initialize(Collection);
 }
 
 void UAMS_SubSystem::Deinitialize()
 {
+	Super::Deinitialize();
 	/*if (ActiveMissions.Num() != 0)
 	ClearMissionsFromRoot();*/
 }
