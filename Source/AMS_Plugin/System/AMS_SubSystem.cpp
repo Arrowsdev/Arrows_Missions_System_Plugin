@@ -137,6 +137,8 @@ void UAMS_SubSystem::RemoveMissionFromList(UObject* Mission)
 			if (bFoundRecord)
 			{
 				FullGameMissionsRecords.RemoveAt(recordIndex);
+				FullGameMissionsCount--;
+				SaveConfig(CPF_Config, *this->GetDefaultConfigFilename());
 			}
 
 			break;
@@ -152,6 +154,7 @@ void UAMS_SubSystem::RemoveMissionFromList(UObject* Mission)
 	if (bFound)
 	{
 		SubSystemDefaults->SoftGameMissionsList.RemoveAt(index);
+		SaveConfig(CPF_Config, *this->GetDefaultConfigFilename());
 	}
 	
 }
@@ -517,6 +520,7 @@ UAMS_SaveGame* UAMS_SubSystem::LoadGame(FName playerProfile, bool& found)
 	
 	if (UGameplayStatics::DoesSaveGameExist(playerProfile.ToString(), 0))
 	{
+		if (FadeWidgetClass)
 		FadeWidget = Cast<UScreenFade>(CreateWidget(GetWorld(), FadeWidgetClass, FName("FadeWidget")));
 
 		if(FadeWidget)
@@ -556,6 +560,7 @@ UAMS_SaveGame* UAMS_SubSystem::LoadGame(FName playerProfile, bool& found)
 
 		InvokeDataCenterLoadEvent(SaveGameObject);
 
+		if (FadeWidget)
 		FadeWidget->RunFadeToPlay();
 
 		return SaveGameObject;

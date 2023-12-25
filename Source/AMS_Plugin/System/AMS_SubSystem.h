@@ -41,6 +41,7 @@ class AMS_PLUGIN_API UAMS_SubSystem : public UGameInstanceSubsystem
 	
 	virtual void Deinitialize() override;
 
+	
 	UWorld* GetWorld() const;
 
 	UPROPERTY(config, EditAnywhere, Category = "Settings")

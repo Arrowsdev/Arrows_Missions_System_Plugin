@@ -229,7 +229,7 @@ void UMissionObject::BeginDestroy()
 	{
 		UAMS_SubSystem* SubSystemDefaults = Cast<UAMS_SubSystem>(UAMS_SubSystem::StaticClass()->GetDefaultObject());
 		SubSystemDefaults->RemoveMissionFromList(this);
-		SubSystemDefaults->SaveConfig(CPF_Config, *SubSystemDefaults->GetDefaultConfigFilename());
+		//SubSystemDefaults->SaveConfig(CPF_Config, *SubSystemDefaults->GetDefaultConfigFilename());
 	}
 
 	Super::BeginDestroy();
