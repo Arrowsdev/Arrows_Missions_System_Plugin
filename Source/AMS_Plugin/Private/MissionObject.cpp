@@ -225,11 +225,12 @@ void UMissionObject::PostEditChangeProperty(struct FPropertyChangedEvent& change
 
 void UMissionObject::BeginDestroy()
 {
-	if (HasAnyFlags(RF_ClassDefaultObject))
+	if (HasAnyFlags(RF_ClassDefaultObject & RF_ArchetypeObject))
 	{
-		UAMS_SubSystem* SubSystemDefaults = Cast<UAMS_SubSystem>(UAMS_SubSystem::StaticClass()->GetDefaultObject());
+		UAMS_SubSystem* SubSystemDefaults = GetMutableDefault<UAMS_SubSystem>(); //Cast<UAMS_SubSystem>(UAMS_SubSystem::StaticClass()->GetDefaultObject());
 		SubSystemDefaults->RemoveMissionFromList(this);
-		//SubSystemDefaults->SaveConfig(CPF_Config, *SubSystemDefaults->GetDefaultConfigFilename());
+
+		SubSystemDefaults->SaveConfig(CPF_Config, *SubSystemDefaults->GetDefaultConfigFilename());
 	}
 
 	Super::BeginDestroy();

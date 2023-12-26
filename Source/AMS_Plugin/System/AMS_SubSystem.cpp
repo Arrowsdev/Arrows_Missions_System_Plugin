@@ -138,7 +138,6 @@ void UAMS_SubSystem::RemoveMissionFromList(UObject* Mission)
 			{
 				FullGameMissionsRecords.RemoveAt(recordIndex);
 				FullGameMissionsCount--;
-				SaveConfig(CPF_Config, *this->GetDefaultConfigFilename());
 			}
 
 			break;
@@ -154,7 +153,6 @@ void UAMS_SubSystem::RemoveMissionFromList(UObject* Mission)
 	if (bFound)
 	{
 		SubSystemDefaults->SoftGameMissionsList.RemoveAt(index);
-		SaveConfig(CPF_Config, *this->GetDefaultConfigFilename());
 	}
 	
 }
