@@ -540,6 +540,18 @@ public:
 		FullGameMissionsCount = newList.Num();
 	}
 
+	//called from the plugin editor module , bound to asset registry [OnAssetRemoved] event
+	inline void OnMissionAssetDeleted(const FAssetData& deletedMission)
+	{
+		UBlueprint* MissionBlueprint = Cast<UBlueprint>(deletedMission.GetAsset());
+
+		if (!MissionBlueprint) return;
+
+		RemoveMissionFromList(MissionBlueprint->GeneratedClass);
+		SaveConfig(CPF_Config, *GetDefaultConfigFilename());
+		LOG_AMS("[AMS subsystem ] Mission Asset Deleted", 10.0f, FColor::Green);
+	}
+
 #endif	
 
 private:

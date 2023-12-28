@@ -225,14 +225,9 @@ void UMissionObject::PostEditChangeProperty(struct FPropertyChangedEvent& change
 
 void UMissionObject::BeginDestroy()
 {
-	//this fixed the issue with the saved garbage when closing the engine , and causes issues that deleted missions assets not saved
-	if (HasAnyFlags(RF_ClassDefaultObject | RF_ArchetypeObject))
-	{
-		UAMS_SubSystem* SubSystemDefaults = GetMutableDefault<UAMS_SubSystem>(); //Cast<UAMS_SubSystem>(UAMS_SubSystem::StaticClass()->GetDefaultObject());
-		SubSystemDefaults->RemoveMissionFromList(this);
-
-		SubSystemDefaults->SaveConfig(CPF_Config, *SubSystemDefaults->GetDefaultConfigFilename());
-	}
+	//the mission delete logics that were here is now moved to the subsystem and used asset registry to detect if mission deleted
+	//that is better than say it is deleted just when the object is destroyed , cuz when instances got destroyed they act as if the asset
+	//is deleted.
 
 	Super::BeginDestroy();
 }

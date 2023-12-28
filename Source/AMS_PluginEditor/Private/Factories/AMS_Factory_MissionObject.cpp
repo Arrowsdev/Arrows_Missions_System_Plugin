@@ -16,6 +16,7 @@ UAMS_Factory_MissionObject::UAMS_Factory_MissionObject(const FObjectInitializer&
 	SupportedClass = UMissionObject::StaticClass();
 
 	ParentClass = SupportedClass;
+
 }
 
 UObject* UAMS_Factory_MissionObject::FactoryCreateNew(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn, FName CallingContext)

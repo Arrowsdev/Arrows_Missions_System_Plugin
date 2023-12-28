@@ -5,7 +5,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/Classes/GameFramework/Character.h"
 #include "GameFramework/PlayerController.h"
-#include "AssetRegistry/AssetRegistryModule.h"
 
 #include "UObject/ConstructorHelpers.h"
 
@@ -117,7 +116,8 @@ void UAMS_SubSystem::RemoveMissionFromList(UObject* Mission)
 	UAMS_SubSystem* SubSystemDefaults = Cast<UAMS_SubSystem>(UAMS_SubSystem::StaticClass()->GetDefaultObject());
 	for (auto& reference : SubSystemDefaults->SoftGameMissionsList)
 	{
-		if (reference.GetAssetName() == Mission->GetClass()->GetName())
+		
+		if (reference.GetAssetName() ==  Mission->GetName())
 		{
 			LOG_AMS("Asset Index Found", 10.0f, FColor::Red);
 			bFound = true;

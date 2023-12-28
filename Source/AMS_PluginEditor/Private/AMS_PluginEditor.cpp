@@ -13,6 +13,8 @@
 #include "Editor.h"
 #include "EditorModeRegistry.h"
 #include "Editor/LevelEditor/Public/LevelEditor.h"
+#include "AssetRegistry/AssetRegistryModule.h"
+
 
 #include "AMS_PluginEditor/Public/AssetTypes/AMS_AssetType_ActionObject.h"
 #include "AMS_PluginEditor/Public/AssetTypes/AMS_AssetType_JuernalObject.h"
@@ -26,6 +28,7 @@
 
 #include "AMS_PluginEditor/Public/AMS_Tools/AMS_TransformHelper.h"
 #include "AMS_PluginEditor/Public/AMS_Tools/MissionsTweaker.h"
+
 
 #define LOCTEXT_NAMESPACE "FAMS_PluginEditorModule"
 
@@ -75,6 +78,11 @@ void FAMS_PluginEditor::StartupModule()
 		PropertyModule.RegisterCustomClassLayout(UMissionObject::StaticClass()->GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&Missions_DetailCustomizations::MakeInstance));
 	}
 
+	//now deleted missions assets are going to be detected here and not from the mission object onBeginDestroy event
+	FAssetRegistryModule& AssetRegistery = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	AssetRegistery.Get().OnAssetRemoved().AddUObject(GetMutableDefault<UAMS_SubSystem>(), &UAMS_SubSystem::OnMissionAssetDeleted);
+	UE_LOG(LogTemp, Warning, TEXT("[AMS subsystem ]Bound To On Removed Event"));
+	
 	//ResourcesHelper = new AMS_ResourcesHelper(ResourcesRoot); //deprecated , better just devide all assets into groups 
 	//register custom Renderer for actions blueprints
 	//UThumbnailManager::Get().UnregisterCustomRenderer(UAMS_ActionBlueprint::StaticClass());

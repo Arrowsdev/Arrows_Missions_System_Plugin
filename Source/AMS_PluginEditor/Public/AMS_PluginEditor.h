@@ -8,6 +8,7 @@
 #include "AMS_Tools/ModuleListenerInterface.h"
 #include "Helpers/AMS_ResourcesHelper.h"
 
+
 class FSlateStyleSet;
 class FAssetTypeActions_Base;
 class IAssetTypeActions;
@@ -49,6 +50,7 @@ public:
 	}
 
 	void OnActionAssetCreated(TSubclassOf<UObject> newActionAsset);
+
 
 private:
 	EAssetTypeCategories::Type AssetCategoryBit;
