@@ -94,6 +94,12 @@ public:
 
 		int32 paramsCout = 1;
 		
+		if (_func->NumParms == 0)
+		{
+			_Params = FString("No Parameters In This Functions");
+			goto SetParams;
+		}
+
 		while (paramsCout <= _func->NumParms)
 		{
 			Simi = SourceAsString.Find(FString(";"));
@@ -113,6 +119,8 @@ public:
 			SourceAsString = SourceAsString.Replace(*ChoppedString, TEXT(""));
 			paramsCout++;
 		}
+
+		SetParams:
 		parameters = FText::FromString(_Params);
 	}
 };
