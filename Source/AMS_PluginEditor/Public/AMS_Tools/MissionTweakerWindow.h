@@ -111,7 +111,20 @@ public:
 		{
 			Name = FText::FromString(Obj->GetName());
 			ClassName = Obj->GetClass()->GetDisplayNameText();
-			Package = FText::FromString(Obj->GetFullName());
+
+			FString Path = Obj->GetPathName();
+
+			//replacing [Game] With [Content] for more conveniet Path
+			int32 accurance = Path.Find("/Game");
+			Path = Path.RightChop(accurance + 5);
+			Path.InsertAt(0, TEXT("Content"));
+
+			//replacing the bad name format from the path with proper class name 
+			FString BadName = ClassName.ToString() + ".Default__" + ClassName.ToString() + "_C";
+			BadName = BadName.Replace(TEXT(" "), TEXT(""));
+			Path = Path.Replace(*BadName, *ClassName.ToString());
+
+			Package = FText::FromString(Path);
 			HighlightText = InArgs._HighlightText;
 
 			// Get selection icon from the selected object
